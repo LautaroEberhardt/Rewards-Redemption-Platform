@@ -1,0 +1,14 @@
+version: '3.8'
+services:
+  db:
+    image: postgres:15
+    container_name: postgres_uniformes
+    restart: always
+    ports:
+      - "5432:5432"  # Esto conecta el puerto de Docker con tu PC (localhost)
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: uniformes_db # ¡Esto crea la DB automáticamente!
+    volumes:
+      - ./postgres_data:/var/lib/postgresql/data # Para no perder datos si apagas el contenedor
