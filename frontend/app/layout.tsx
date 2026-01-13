@@ -1,20 +1,20 @@
-import type { Metadata } from 'next';
-import './colors.css';
 import './globals.css';
+import Header from './components/Header';
+import Footer from './components/Footer';
 
-export const metadata: Metadata = {
-  title: 'Sistema de Uniformes',
-  description: 'Gestión de canjes y premios',
+export const metadata = {
+  title: 'Sistema Uniformes',
+  description: 'Aplicación de gestión de uniformes',
 };
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="es">
-      <body>{children}</body>
+      <body>
+        <Header />
+        {children}
+        <Footer />
+      </body>
     </html>
   );
 }

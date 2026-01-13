@@ -1,0 +1,117 @@
+:root {
+  /* Tipografía y espaciado */
+  --site-max-width: 1200px;
+  --site-gutter: 1rem;
+  --container-padding: 1rem;
+  --font-sans: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+}
+
+/* Global: caja, tipografía, fondo, color de texto y comportamiento de scroll */
+*, *::before, *::after { box-sizing: border-box; }
+html, body, #__next { height: 100%; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  background: var(--color-background);
+  color: var(--color-text-primary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  line-height: 1.4;
+  overscroll-behavior-y: auto;
+}
+
+/* Contenedor central responsive */
+.container {
+  width: 100%;
+  max-width: var(--site-max-width);
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: var(--site-gutter);
+  padding-right: var(--site-gutter);
+}
+
+/* Header y Footer comunes */
+.site-header {
+  background: var(--color-background-secondary);
+  border-bottom: 1px solid var(--color-border);
+  color: var(--color-text-primary);
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  backdrop-filter: blur(6px);
+}
+.site-header .brand {
+  color: var(--color-primary);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.site-footer {
+  background: var(--color-background-secondary);
+  border-top: 1px solid var(--color-border);
+  color: var(--color-text-secondary);
+}
+
+/* Navegación básica responsiva */
+.nav-links {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.nav-link {
+  color: var(--color-text-primary);
+  text-decoration: none;
+  padding: 0.35rem 0.5rem;
+  border-radius: 6px;
+}
+.nav-link:hover { background: var(--color-background-tertiary); color: var(--color-text-on-primary); }
+
+/* Botón primario usando variables */
+.btn-primary {
+  background: var(--color-primary);
+  color: var(--color-text-on-primary);
+  padding: 0.5rem 0.75rem;
+  border-radius: 8px;
+  border: none;
+}
+.btn-primary:hover { background: var(--color-primary-hover); }
+
+/* Footer: contenido centrado y responsive */
+.site-footer .footer-inner { padding: 1.25rem 0; text-align: center; }
+
+/* Helpers para secciones */
+.hero { padding: 3rem 0; }
+.section { padding: 2rem 0; }
+
+/* Responsive rules */
+@media (max-width: 768px) {
+  .nav-links { display: none; }
+  .header-actions { display: flex; gap: 0.5rem; }
+}
+
+@media (min-width: 769px) {
+  .mobile-menu { display: none; }
+}
+
+/* Accesibilidad: link para saltar al contenido */
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: auto;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+.skip-link:focus {
+  position: fixed;
+  left: 1rem;
+  top: 1rem;
+  width: auto;
+  height: auto;
+  background: var(--color-background-secondary);
+  padding: 0.5rem 0.75rem;
+  border-radius: 6px;
+  z-index: 60;
+}
