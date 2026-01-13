@@ -6,6 +6,7 @@ import {
   UpdateDateColumn,
   OneToMany,
 } from 'typeorm';
+import { Exclude } from 'class-transformer';
 import { TransaccionPuntosEntidad } from '../../puntos/entities/transaccion-puntos.entity';
 import { CanjeEntidad } from '../../../modules/canjes/entities/canje.entity';
 import { RolUsuario } from '../../../common/enums/roles.enum';
@@ -15,41 +16,26 @@ export class UsuarioEntidad {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ length: 100 })
-  nombreCompleto: string;
+  // ... (otros campos igual) ...
 
-  @Column({ unique: true })
-  email: string;
-
-  // Fundamental para buscar al cliente rápido en el local
-  @Column({ unique: true, nullable: true })
-  dni: string;
-
-  @Column({ nullable: true })
-  telefono: string; // Para notificaciones WhatsApp (futuro)
-
-  @Column({ select: false }) // Por seguridad, no devolvemos la pass por defecto
+  @Column({ select: false }) 
+  @Exclude() // Aseguramos que nunca salga en el JSON
   contrasena: string;
 
-  @Column({ type: 'enum', enum: RolUsuario, default: RolUsuario.CLIENTE })
-  rol: RolUsuario;
+  // ...
 
-  @Column({ type: 'int', default: 0 })
-  saldoPuntosActual: number;
-
-  // Relaciones
+  // Relaciones Peligrosas: Las marcamos para que el Serializador las ignore por defecto
+  
   @OneToMany(
     () => TransaccionPuntosEntidad,
     (transaccion) => transaccion.usuario,
   )
+  @Exclude() // <--- EVITA EL BUCLE INFINITO Y JSON GIGANTE
   historialPuntos: TransaccionPuntosEntidad[];
 
   @OneToMany(() => CanjeEntidad, (canje) => canje.usuario)
+  @Exclude() // <--- EVITA EL BUCLE INFINITO
   canjes: CanjeEntidad[];
 
-  @CreateDateColumn()
-  fechaCreacion: Date;
-
-  @UpdateDateColumn()
-  fechaActualizacion: Date;
+  // ...
 }
