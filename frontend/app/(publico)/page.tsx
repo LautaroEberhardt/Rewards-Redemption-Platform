@@ -12,7 +12,7 @@ export default function Page() {
           <p className="mt-2">Esta página muestra el header fijo y el footer. Desplázate para ver el comportamiento de scroll.</p>
 
           <div className="mt-6 space-y-6">
-            {Array.from({ length: 12 }).map((_, i) => (
+            {Array.from({ length: 10 }).map((_, i) => (
               <article key={i} className="p-4 border rounded-md" style={{ borderColor: 'var(--color-border)' }}>
                 <h3 className="font-semibold">Sección {i + 1}</h3>
                 <p className="mt-2 text-sm text-gray-700">Contenido de ejemplo para probar el scroll y la separación entre secciones.</p>
