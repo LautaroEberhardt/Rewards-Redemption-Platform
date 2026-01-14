@@ -3,7 +3,6 @@ import { Boton } from '../ui/boton';
 
 export default function BarraNavegacion() {
   return (
-    // Reemplazamos .site-header
     <header className="sticky top-0 z-40 w-full backdrop-blur-md bg-background-secondary/80 border-b border-border">
       <div className="container flex items-center justify-between py-4">
         

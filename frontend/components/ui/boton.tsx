@@ -6,7 +6,6 @@ interface BotonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 export const Boton = ({ children, className = '', variante = 'primario', ...props }: BotonProps) => {
-  // Definimos los estilos base y las variantes usando clases de Tailwind
   const baseStyles = "px-4 py-2 rounded-lg font-medium transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2";
   
   const variantes = {
