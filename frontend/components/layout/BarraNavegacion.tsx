@@ -1,24 +1,35 @@
 import Link from 'next/link';
+import { Boton } from '../ui/boton';
 
 export default function BarraNavegacion() {
   return (
-    <header className="site-header">
-      <a className="skip-link" href="#main">Saltar al contenido</a>
-      <div className="container">
-        <div className="flex items-center justify-between py-4">
-          <div className="flex items-center gap-4">
-            <Link href="/" className="brand">Uniformes</Link>
-          </div>
+    // Reemplazamos .site-header
+    <header className="sticky top-0 z-40 w-full backdrop-blur-md bg-background-secondary/80 border-b border-border">
+      <div className="container flex items-center justify-between py-4">
+        
+        {/* Logo */}
+        <Link href="/" className="text-primary font-bold text-xl no-underline">
+          Uniformes
+        </Link>
 
-          <nav className="nav-links" aria-label="Navegación principal">
-            <Link href="/" className="nav-link">Inicio</Link>
-            <Link href="/productos" className="nav-link">Productos</Link>
-            <Link href="/contacto" className="nav-link">Contacto</Link>
-          </nav>
+        {/* Navegación Desktop */}
+        <nav className="hidden md:flex gap-6 items-center" aria-label="Navegación principal">
+          <Link href="/" className="text-text-primary hover:bg-background-tertiary px-3 py-2 rounded-md transition-colors">
+            Inicio
+          </Link>
+          <Link href="/productos" className="text-text-primary hover:bg-background-tertiary px-3 py-2 rounded-md transition-colors">
+            Productos
+          </Link>
+          <Link href="/contacto" className="text-text-primary hover:bg-background-tertiary px-3 py-2 rounded-md transition-colors">
+            Contacto
+          </Link>
+        </nav>
 
-          <div className="header-actions">
-            <Link href="/login" className="btn-primary">Ingresar</Link>
-          </div>
+        {/* Acciones */}
+        <div className="flex items-center gap-4">
+          <Link href="/login">
+            <Boton>Ingresar</Boton>
+          </Link>
         </div>
       </div>
     </header>

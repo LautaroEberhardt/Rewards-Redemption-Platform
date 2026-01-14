@@ -1,6 +1,59 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+@import "./colors.css";
 
-@import './colors.css';
-@import './web-config.css';
+/* CONFIGURACIÓN DEL TEMA TAILWIND v4 
+  Aquí mapeamos tus variables de colors.css a utilidades de Tailwind.
+  Ej: --color-background crea las clases bg-background, text-background, etc.
+*/
+@theme {
+  /* Mapeo de Colores */
+  --color-background: var(--color-background);
+  --color-background-secondary: var(--color-background-secondary);
+  --color-background-tertiary: var(--color-background-tertiary);
+  --color-background-dark: var(--color-background-dark);
+
+  --color-primary: var(--color-primary);
+  --color-primary-light: var(--color-primary-light);
+  --color-primary-hover: var(--color-primary-hover);
+  
+  --color-secondary: var(--color-secondary);
+  
+  --color-text-primary: var(--color-text-primary);
+  --color-text-secondary: var(--color-text-secondary);
+  --color-text-inverse: var(--color-text-inverse);
+  --color-text-on-primary: var(--color-text-on-primary);
+
+  --color-state-success: var(--color-success);
+  --color-state-error: var(--color-error);
+  --color-state-warning: var(--color-warning);
+  --color-state-info: var(--color-info);
+
+  --color-border: var(--color-border);
+
+  /* Configuración de Fuentes */
+  --font-sans: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  
+  /* Configuración del Contenedor (reemplaza a theme.container) */
+  --breakpoint-lg: 1200px;
+  --breakpoint-xl: 1200px;
+  --breakpoint-2xl: 1200px;
+}
+
+/* ESTILOS BASE 
+  En v4 ya no necesitas @layer base obligatoriamente para esto, 
+  pero usamos @layer para mantener el orden de cascada correcto.
+*/
+@layer base {
+  body {
+    /* Ahora sí reconocerá estas clases porque están definidas en el @theme de arriba */
+    @apply bg-background text-text-primary antialiased;
+  }
+
+  /* Configuración simple del contenedor */
+  .container {
+    width: 100%;
+    margin-inline: auto;
+    padding-inline: 1rem; /* Tu --site-gutter */
+    max-width: 1200px;    /* Tu --site-max-width */
+  }
+}
