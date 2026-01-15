@@ -4,7 +4,7 @@ export default function Page() {
       <main id="main" className="container">
         <section className="hero">
           <h1 className="text-3xl md:text-4xl font-bold">Bienvenido a Sistema Uniformes</h1>
-          <p className="mt-4 text-lg text-gray-600">Panel de ejemplo usando variables de color y configuración global.</p>
+          <p className="mt-4 text-lg text-text-secondary">Panel de ejemplo usando variables de color y configuración global.</p>
         </section>
 
         <section className="section">

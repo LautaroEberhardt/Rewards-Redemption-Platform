@@ -1,15 +1,15 @@
 :root {
   /* Colores de fondo */
-  --color-background: #ffffff;
-  --color-background-secondary: #f5f5f5;
+  --color-background: #F3F4F6;
+  --color-background-secondary: #B2B5E0;
   --color-background-tertiary: #e5e5e5;
   --color-background-dark: #1a1a1a;
   
   /* Color primario */
-  --color-primary: #3b82f6;
+  --color-primary: #ffffff;
   --color-primary-light: #60a5fa;
   --color-primary-dark: #2563eb;
-  --color-primary-hover: #2563eb;
+  --color-primary-hover: #C5ADC5;
   --color-primary-active: #1d4ed8;
   
   /* Color secundario */
@@ -20,7 +20,7 @@
   --color-secondary-active: #6d28d9;
   
   /* Colores de texto */
-  --color-text-primary: #1f2937;
+  --color-text-primary: #39363d;
   --color-text-secondary: #6b7280;
   --color-text-tertiary: #9ca3af;
   --color-text-inverse: #ffffff;
@@ -61,7 +61,7 @@
   --color-neutral-900: #111827;
   
   /* Colores de borde */
-  --color-border: #e5e7eb;
+  --color-border: #3e0480;
   --color-border-light: #f3f4f6;
   --color-border-dark: #d1d5db;
   --color-border-focus: #3b82f6;
@@ -73,20 +73,4 @@
   --color-shadow-xl: rgba(0, 0, 0, 0.2);
 }
 
-/* Modo oscuro (opcional) */
-@media (prefers-color-scheme: dark) {
-  :root {
-    --color-background: #111827;
-    --color-background-secondary: #1f2937;
-    --color-background-tertiary: #374151;
-    --color-background-dark: #030712;
-    
-    --color-text-primary: #f9fafb;
-    --color-text-secondary: #d1d5db;
-    --color-text-tertiary: #9ca3af;
-    
-    --color-border: #374151;
-    --color-border-light: #4b5563;
-    --color-border-dark: #1f2937;
-  }
-}
+
