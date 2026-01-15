@@ -1,35 +1,26 @@
-
 import React from 'react';
 
-interface PropsFondoDegradado {
+interface PropsFondo {
   children: React.ReactNode;
-  /**
-   * Tipo de degradado:
-   * - 'sutil': Para fondos de página completos (Gris a Blanco).
-   * - 'marca': Para destacar (Azul a Violeta).
-   */
-  variante?: 'sutil' | 'marca';
   claseExtra?: string;
 }
 
-export const FondoDegradado = ({ 
-  children, 
-  variante = 'sutil', 
-  claseExtra = '' 
-}: PropsFondoDegradado) => {
+export const FondoDegradado = ({ children, claseExtra = '' }: PropsFondo) => {
   
-  // Definimos los estilos usando tus variables de colors.css
-  // Tailwind v4 permite usar clases directas que mapean a tus variables
-  const variantes = {
-    // Un degradado casi imperceptible, muy elegante para SaaS
-    sutil: "bg-gradient-to-br from-neutral-50 to-neutral-200", 
+  const estilo: React.CSSProperties = {
+
+    backgroundImage: 'linear-gradient(135deg, var(--color-neutral-50) 0%, var(--color-neutral-200) 100%)',
     
-    // Tus colores corporativos (Azul -> Violeta)
-    marca: "bg-gradient-to-r from-primary/10 to-secondary/10"
+    backgroundAttachment: 'fixed',
+    backgroundSize: 'cover',
+    backgroundPosition: 'center',
   };
 
   return (
-    <div className={`min-h-screen w-full ${variantes[variante]} ${claseExtra}`}>
+    <div 
+      className={`min-h-screen w-full flex flex-col ${claseExtra}`}
+      style={estilo}
+    >
       {children}
     </div>
   );
