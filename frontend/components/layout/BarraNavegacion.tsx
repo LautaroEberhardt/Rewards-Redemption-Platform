@@ -13,14 +13,14 @@ export default function BarraNavegacion() {
 
         {/* Navegación Desktop */}
         <nav className="hidden md:flex gap-6 items-center" aria-label="Navegación principal">
-          <Link href="/" className="text-text-primary hover:bg-background-tertiary px-3 py-2 rounded-md transition-colors">
+          <Link href="/" className="text-text-primarypx-3 py-2">
             Inicio
           </Link>
-          <Link href="/productos" className="text-text-primary hover:bg-background-tertiary px-3 py-2 rounded-md transition-colors">
-            Productos
+          <Link href="/registrar" className="text-text-primary px-3 py-2">
+            Registrate
           </Link>
-          <Link href="/contacto" className="text-text-primary hover:bg-background-tertiary px-3 py-2 rounded-md transition-colors">
-            Contacto
+          <Link href="/productos" className="text-text-primary px-3 py-2 hover:text-secondary-hover">
+            Productos para canjear
           </Link>
         </nav>
 
