@@ -9,8 +9,9 @@ export const FondoDegradado = ({ children, claseExtra = '' }: PropsFondo) => {
   
   const estilo: React.CSSProperties = {
 
-    backgroundImage: 'linear-gradient(135deg, var(--color-neutral-50) 0%, var(--color-neutral-200) 100%)',
-    
+    backgroundImage: 'linear-gradient(to bottom, var(--color-neutral-50) 0%, var(--color-info-background) 100%)',
+
+
     backgroundAttachment: 'fixed',
     backgroundSize: 'cover',
     backgroundPosition: 'center',

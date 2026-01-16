@@ -21,7 +21,7 @@
   
   /* Colores de texto */
   --color-text-primary: #39363d;
-  --color-text-secondary: #6b7280;
+  --color-text-secondary: #777678;
   --color-text-tertiary: #9ca3af;
   --color-text-inverse: #ffffff;
   --color-text-on-primary: #ffffff;
@@ -46,7 +46,7 @@
   --color-info: #3b82f6;
   --color-info-light: #60a5fa;
   --color-info-dark: #2563eb;
-  --color-info-background: #dbeafe;
+  --color-info-background: #e6c2e6;
   
   /* Colores neutros */
   --color-neutral-50: #f9fafb;
