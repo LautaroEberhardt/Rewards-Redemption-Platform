@@ -24,6 +24,6 @@
     "types": ["node"],
     "lib": ["ES2023"]
   },
-  "include": ["src/**/*"],
+  "include": ["src/**/*", "test/**/*"],
   "exclude": ["node_modules", "dist"]
 }
