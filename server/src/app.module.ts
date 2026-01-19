@@ -12,11 +12,11 @@ import { UsuarioEntidad } from './modules/usuarios/entities/usuario.entity';
   imports: [
     TypeOrmModule.forRoot({
       type: 'postgres',
-      host: 'localhost',
-      port: 5432,
-      username: 'user', // El usuario por defecto de tu Docker
-      password: 'admin', // IMPORTANTE: Pon la pass que definiste en docker-compose
-      database: 'uniformes_db', // O el nombre que creaste en DBeaver (ej: rewards_db)
+      host: process.env.DB_HOST || 'localhost',
+      port: parseInt(process.env.DB_PORT ?? '5432', 10) || 5432,
+      username: process.env.DB_USERNAME || 'user',
+      password: process.env.DB_PASSWORD || 'admin',
+      database: process.env.DB_NAME || 'uniformes_db',
       autoLoadEntities: true,
       synchronize: true, // Solo para desarrollo (crea tablas automáticamente)
     }),
