@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { TransaccionPuntosEntidad } from './entities/transaccion-puntos.entity';
-import { PuntosServicio } from './puntos.service'; // <--- IMPORTAR
+import { PuntosServicio } from './services/puntos.service'; // <--- IMPORTAR
 
 @Module({
   imports: [TypeOrmModule.forFeature([TransaccionPuntosEntidad])],

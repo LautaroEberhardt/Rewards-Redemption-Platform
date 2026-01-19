@@ -21,10 +21,6 @@ export class UsuarioEntidad {
   @Column({ unique: true })
   email: string;
 
-  // Fundamental para buscar al cliente rápido en el local
-  @Column({ unique: true, nullable: true })
-  dni: string;
-
   @Column({ nullable: true })
   telefono: string; // Para notificaciones WhatsApp (futuro)
 
