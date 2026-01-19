@@ -1,14 +1,47 @@
 version: '3.8'
+
 services:
+  # Servicio de Base de Datos
   db:
     image: postgres:15
     container_name: postgres_uniformes
     restart: always
     ports:
-      - "5432:5432"  # Esto conecta el puerto de Docker con tu PC (localhost)
+      - "5432:5432"
     environment:
       POSTGRES_USER: user
       POSTGRES_PASSWORD: admin
-      POSTGRES_DB: uniformes_db # ¡Esto crea la DB automáticamente!
+      POSTGRES_DB: uniformes_db
     volumes:
-      - ./postgres_data:/var/lib/postgresql/data # Para no perder datos si apagas el contenedor
+      - postgres_data:/var/lib/postgresql/data # Usamos volumen nombrado (mejor práctica)
+    networks:
+      - fidelizacion-network
+
+  # Servicio de Backend (NestJS)
+  backend:
+    build:
+      context: ./server # <--- Apuntamos a la carpeta correcta
+      dockerfile: Dockerfile
+    container_name: nestjs_backend
+    restart: on-failure
+    ports:
+      - "3000:3000" # Exponemos el puerto de NestJS
+    environment:
+      - DB_HOST=db # <--- IMPORTANTE: Nombre del servicio de arriba
+      - DB_PORT=5432
+      - DB_USERNAME=user
+      - DB_PASSWORD=admin
+      - DB_NAME=uniformes_db
+    depends_on:
+      - db # Espera a que la DB inicie
+    volumes:
+      - ./server:/usr/src/app # Hot-Reload: refleja cambios de tu código en vivo
+      - /usr/src/app/node_modules
+    networks:
+      - fidelizacion-network
+
+volumes:
+  postgres_data: # Definición del volumen persistente
+
+networks:
+  fidelizacion-network: # Red privada para que se comuniquen

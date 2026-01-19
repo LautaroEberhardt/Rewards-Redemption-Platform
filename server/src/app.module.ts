@@ -6,6 +6,7 @@ import { UsuariosModule } from './modules/usuarios/usuarios.module';
 import { PremiosModule } from './modules/premios/premios.module';
 import { PuntosModule } from './modules/puntos/puntos.module';
 import { CanjesModule } from './modules/canjes/canjes.module';
+import { UsuarioEntidad } from './modules/usuarios/entities/usuario.entity';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { CanjesModule } from './modules/canjes/canjes.module';
       autoLoadEntities: true,
       synchronize: true, // Solo para desarrollo (crea tablas automáticamente)
     }),
+    TypeOrmModule.forFeature([UsuarioEntidad]),
     UsuariosModule,
     PremiosModule,
     PuntosModule,
