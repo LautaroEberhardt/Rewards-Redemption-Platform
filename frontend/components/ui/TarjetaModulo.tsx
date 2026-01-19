@@ -26,14 +26,15 @@ export const TarjetaPremio = ({
         flex flex-col 
         h-full
         p-5
-        rounded-2xl 
+        rounded-2xl
         bg-white
         border border-neutral-200/60
         shadow-sm 
-        hover:shadow-xl 
-        hover:-translate-y-1
+        hover:shadow-xl
+        shadow-primary-hover
+        hover:-translate-y-3
         hover:border-primary/20
-        transition-all 
+        transition-all
         duration-300 
         overflow-hidden
       "

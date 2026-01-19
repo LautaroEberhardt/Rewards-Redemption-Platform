@@ -18,41 +18,36 @@ export default function PaginaInicio() {
     <div className="flex flex-col w-full gap-y-0">
 
       {/* --- HERO --- */}
-      <section className="w-full py-20 border-b border-neutral-200/60">
+      <section id="inicio" className="w-full py-20 border-b border-neutral-200/60">
         <div className="flex flex-col items-center max-w-3xl mx-auto text-center gap-6">
           <h1 className="text-4xl md:text-5xl font-bold text-neutral-900 tracking-tight">
             Sistema canje de puntos <span className="text-primary-hover">A.V</span>
           </h1>
           <p className="text-lg text-text-secondary leading-relaxed max-w-xl mx-auto">
-            Acumula puntos en cada visita y canjéalos por recompensas increíbles pensadas para ti.
+            Acumula puntos en cada visita y canjealos por recompensas pensadas para vos.
           </p>
           <div className="flex gap-4 mt-4">
-            <Boton variante="primario">Ver Catálogo</Boton>
             <Boton variante="secundario">Cómo Funciona</Boton>
           </div>
         </div>
       </section>
 
       {/* --- CATÁLOGO DE PREMIOS --- */}
-      <section className="w-full py-16 bg-neutral-50/50">
+      <section id="catalogo-premios" className="w-full py-16 bg-neutral-50/50">
         <div className="container mx-auto px-4"> 
           
-          <div className="flex justify-between items-end mb-10">
-            <div>
+          <div className="flex justify-center items-center mb-10">
+            <div className="text-center">
               <h2 className="text-3xl font-bold text-neutral-800">
                 Premios Destacados
               </h2>
-              <p className="text-text-secondary mt-2">
+              <p className="text-text-secondary mt-6">
                 Las recompensas favoritas de nuestros usuarios esta semana.
               </p>
             </div>
-            {/* Link opcional "Ver todos" */}
-            <a href="#" className="hidden md:block text-primary font-medium hover:underline">
-              Ver todo el catálogo
-            </a>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 mt-12">
             {premiosDestacados.map((premio) => (
               <TarjetaPremio 
                 key={premio.id}

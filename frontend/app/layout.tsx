@@ -1,6 +1,9 @@
 import React from 'react';
 import '@/app/globals.css';
 import { FondoDegradado } from '@/components/ui/fondo-degradado';
+import { ProveedorUI } from '@/context/ui-context';
+import { SidebarRegistro } from '@/components/layout/SidebarRegistro';
+
 
 
 export const metadata = {
@@ -11,9 +14,12 @@ export const metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="es">
-      <body className="antialiased text-text-primary">
+      <body>
         <FondoDegradado>
-            {children}
+          <ProveedorUI>
+            <main>{children}</main>
+            <SidebarRegistro />
+          </ProveedorUI>
         </FondoDegradado>
       </body>
     </html>
