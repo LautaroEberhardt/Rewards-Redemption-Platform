@@ -1,83 +1,63 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { useUI } from '@/context/ui-context';
-import { useRouter } from 'next/navigation';
-import { Boton } from '../ui/boton';
-
-const IconoGoogle = () => (
-    <svg 
-      width="20" 
-      height="20" 
-      viewBox="0 0 24 24" 
-      fill="none" 
-      xmlns="http://www.w3.org/2000/svg"
-      aria-hidden="true"
-    >
-      <path
-        d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-        fill="#4285F4"
-      />
-      <path
-        d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-        fill="#34A853"
-      />
-      <path
-        d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"
-        fill="#FBBC05"
-      />
-      <path
-        d="M12 5.38c1.62 0 3.06.56 4.21 1.66l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 12-4.53z"
-        fill="#EA4335"
-      />
-    </svg>
-);
-
+import { useState } from "react";
+import { useUI } from "@/context/ui-context";
+import { useRouter } from "next/navigation";
+import { Boton } from "../ui/boton";
+import { FcGoogle } from "react-icons/fc";
 
 export function SidebarRegistro() {
-
   const { estaSidebarAbierto, cerrarSidebar } = useUI();
   const router = useRouter();
 
-
   // Estados del formulario
   const [cargando, setCargando] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [formData, setFormData] = useState({
-    nombreCompleto: '',
-    email: '',
-    contrasena: '',
+    nombreCompleto: "",
+    email: "",
+    contrasena: "",
+    confirmarContrasena: "",
   });
 
   // Lógica de control de inputs
   const manejarCambio = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
-  
+
   // Lógica de envío (API)
   const manejarEnvio = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (formData.contrasena !== formData.confirmarContrasena) {
+      setError("Las contraseñas no coinciden.");
+      return;
+    }
+
     setCargando(true);
-    setError('');
+    setError("");
 
     try {
-      const url = `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}/usuarios/registro`;
-      
+      const url = `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000"}/usuarios/registro`;
+
+      // Excluimos confirmarContrasena del objeto que se envía al backend
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { confirmarContrasena, ...datosAEnviar } = formData;
+
       const respuesta = await fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(datosAEnviar),
       });
 
       const data = await respuesta.json();
 
-      if (!respuesta.ok) throw new Error(data.message || 'Error al registrar');
+      if (!respuesta.ok) throw new Error(data.message || "Error al registrar");
 
       // Éxito
-      alert('¡Cuenta creada con éxito! Por favor inicia sesión.');
+      alert("¡Cuenta creada con éxito! Por favor inicia sesión.");
       cerrarSidebar();
-      router.push('/login');
-
+      router.push("/login");
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -85,20 +65,31 @@ export function SidebarRegistro() {
     }
   };
 
+  const manejarRegistroGoogle = async () => {
+    try {
+      console.log("Iniciando flujo de OAuth2 con Google...");
+    } catch (error) {
+      console.error("Error durante el registro con Google:", error);
+      alert(
+        "Hubo un problema al conectar con Google. Por favor, intenta de nuevo.",
+      );
+    }
+  };
+
   return (
     <>
       {/* Overlay Oscuro (Fondo) */}
-      <div 
+      <div
         className={`fixed inset-0 bg-black/50 z-40 transition-opacity duration-300 ${
-          estaSidebarAbierto ? 'opacity-100 visible' : 'opacity-0 invisible'
+          estaSidebarAbierto ? "opacity-100 visible" : "opacity-0 invisible"
         }`}
         onClick={cerrarSidebar}
       />
 
       {/* Panel Lateral (Slide Over) */}
-      <div 
+      <div
         className={`fixed inset-y-0 right-0 z-50 w-full max-w-md bg-white shadow-xl transform transition-transform duration-300 ease-in-out ${
-          estaSidebarAbierto ? 'translate-x-0' : 'translate-x-full'
+          estaSidebarAbierto ? "translate-x-0" : "translate-x-full"
         }`}
       >
         <div className="flex h-full flex-col overflow-y-scroll bg-white py-6 shadow-xl">
@@ -113,8 +104,18 @@ export function SidebarRegistro() {
                 onClick={cerrarSidebar}
               >
                 <span className="sr-only">Cerrar panel</span>
-                <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                <svg
+                  className="h-6 w-6"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  strokeWidth="1.5"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M6 18L18 6M6 6l12 12"
+                  />
                 </svg>
               </button>
             </div>
@@ -130,7 +131,9 @@ export function SidebarRegistro() {
               )}
 
               <div>
-                <label className="block text-sm font-medium text-gray-900">Nombre Completo</label>
+                <label className="block text-sm font-medium text-gray-900">
+                  Nombre Completo
+                </label>
                 <input
                   name="nombreCompleto"
                   type="text"
@@ -142,7 +145,9 @@ export function SidebarRegistro() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-900">Email</label>
+                <label className="block text-sm font-medium text-gray-900">
+                  Email
+                </label>
                 <input
                   name="email"
                   type="email"
@@ -154,7 +159,9 @@ export function SidebarRegistro() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-900">Contraseña</label>
+                <label className="block text-sm font-medium text-gray-900">
+                  Contraseña
+                </label>
                 <input
                   name="contrasena"
                   type="password"
@@ -166,14 +173,52 @@ export function SidebarRegistro() {
                 />
               </div>
 
+              <div>
+                <label className="block text-sm font-medium text-gray-900">
+                  Confirmar Contraseña
+                </label>
+                <input
+                  name="confirmarContrasena"
+                  type="password"
+                  required
+                  minLength={6}
+                  className="mt-1 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-indigo-600 sm:text-sm sm:leading-6 px-3"
+                  value={formData.confirmarContrasena}
+                  onChange={manejarCambio}
+                />
+              </div>
+
               <div className="pt-4">
-                <button
+                <Boton
+                  variante="secundario"
                   type="submit"
                   disabled={cargando}
-                  className="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:opacity-50"
+                  className="flex w-full justify-center "
                 >
-                  {cargando ? 'Registrando...' : 'Registrarse'}
-                </button>
+                  {cargando ? "Registrando..." : "Registrarse"}
+                </Boton>
+              </div>
+
+              <div className="relative mt-6">
+                <div className="absolute inset-0 flex items-center">
+                  <span className="w-full border-t border-gray-300"></span>
+                </div>
+                <div className="relative flex justify-center text-sm">
+                  <span className="bg-white px-2 text-gray-500">
+                    O continúa con
+                  </span>
+                </div>
+              </div>
+
+              <div>
+                <Boton
+                  variante="primario"
+                  onClick={manejarRegistroGoogle}
+                  className="flex items-center justify-center gap-3 w-full py-2.5 shadow-sm hover:shadow-md transition-all"
+                >
+                  <FcGoogle className="h-5 w-5" />
+                  <span>Registrarse con Google</span>
+                </Boton>
               </div>
             </form>
           </div>
@@ -181,53 +226,4 @@ export function SidebarRegistro() {
       </div>
     </>
   );
-  };
-
-  const manejarRegistroGoogle = async () => {
-    try {
-      // TODO: Integrar con el servicio de autenticación definido en el core
-      console.log("Iniciando flujo de OAuth2 con Google...");
-      
-      // Ejemplo de flujo:
-      // await servicioAuth.loginConGoogle();
-      
-    } catch (error) {
-      // Manejo de errores centralizado (podría integrarse con un sistema de notificaciones/toast)
-      console.error("Error durante el registro con Google:", error);
-      alert("Hubo un problema al conectar con Google. Por favor, intenta de nuevo.");
-    }
-  };
-
-  return (
-      <aside className="flex flex-col gap-6 p-6 bg-background-secondary rounded-xl border border-gray-200 shadow-sm">
-        <div className="space-y-2">
-          <h2 className="text-xl font-bold text-text-primary">Beneficios de Miembro</h2>
-          <p className="text-sm text-gray-600">
-            Únete para empezar a acumular puntos por tus compras y canjearlos por premios exclusivos.
-          </p>
-        </div>
-
-        <div className="relative">
-          <div className="absolute inset-0 flex items-center">
-            <span className="w-full border-t border-gray-300"></span>
-          </div>
-          <div className="relative flex justify-center text-xs uppercase">
-            <span className="bg-background-secondary px-2 text-gray-500">O continúa con</span>
-          </div>
-        </div>
-
-        <Boton 
-          variante="secundario" 
-          onClick={manejarRegistroGoogle}
-          className="flex items-center justify-center gap-3 w-full py-3 shadow-sm hover:shadow-md transition-all"
-        >
-          <IconoGoogle />
-          <span>Registrarse con Google</span>
-        </Boton>
-
-        <footer className="text-xs text-center text-gray-500 mt-4">
-          Al registrarte, aceptas nuestros términos y condiciones de fidelización.
-        </footer>
-      </aside>
-    );
-};
+}
