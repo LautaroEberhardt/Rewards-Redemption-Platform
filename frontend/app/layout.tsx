@@ -1,4 +1,5 @@
 import React from 'react';
+import type { Metadata } from "next";
 import '@/app/globals.css';
 import { FondoDegradado } from '@/components/ui/fondo-degradado';
 import { ProveedorUI } from '@/context/ui-context';

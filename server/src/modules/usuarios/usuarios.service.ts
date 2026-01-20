@@ -1,8 +1,4 @@
-import {
-  ConflictException,
-  Injectable,
-  InternalServerErrorException,
-} from '@nestjs/common';
+import { ConflictException, Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { UsuarioEntidad } from './entities/usuario.entity';
@@ -20,26 +16,21 @@ export class UsuariosService {
     const { contrasena, ...datosUsuario } = crearUsuarioDto;
 
     try {
-      // 1. Encriptar contraseña
-      const hashContrasena = await hash('admin123', 10);
+      const hashContrasena = await hash(contrasena, 10);
 
-      // 2. Crear instancia (sin guardar aún)
       const nuevoUsuario = this.usuarioRepo.create({
         ...datosUsuario,
         contrasena: hashContrasena,
-        // El rol por defecto ya es CLIENTE en la entidad
       });
 
-      // 3. Guardar en DB
       await this.usuarioRepo.save(nuevoUsuario);
 
-      // 4. Limpiar respuesta (no devolver pass)
-      delete nuevoUsuario.contrasena;
       return nuevoUsuario;
     } catch (error) {
       if (error.code === '23505') {
         throw new ConflictException('El email o DNI ya están registrados');
       }
+      console.error(error);
       throw new InternalServerErrorException('Error al crear el usuario');
     }
   }

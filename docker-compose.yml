@@ -25,7 +25,7 @@ services:
     container_name: nestjs_backend
     restart: on-failure
     ports:
-      - "3000:3000" # Exponemos el puerto de NestJS
+      - "4000:4000" # Exponemos el puerto de NestJS
     environment:
       - DB_HOST=db # <--- IMPORTANTE: Nombre del servicio de arriba
       - DB_PORT=5432

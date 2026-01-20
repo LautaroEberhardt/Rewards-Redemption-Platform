@@ -9,6 +9,7 @@ import {
 import { TransaccionPuntosEntidad } from '../../puntos/entities/transaccion-puntos.entity';
 import { CanjeEntidad } from '../../../modules/canjes/entities/canje.entity';
 import { RolUsuario } from '../../../common/enums/roles.enum';
+import { Exclude } from 'class-transformer';
 
 @Entity('usuarios')
 export class UsuarioEntidad {
@@ -22,9 +23,10 @@ export class UsuarioEntidad {
   email: string;
 
   @Column({ nullable: true })
-  telefono: string; // Para notificaciones WhatsApp (futuro)
+  telefono: string;
 
-  @Column({ select: false }) // Por seguridad, no devolvemos la pass por defecto
+  @Column({ select: false })
+  @Exclude()
   contrasena: string;
 
   @Column({ type: 'enum', enum: RolUsuario, default: RolUsuario.CLIENTE })
@@ -34,10 +36,7 @@ export class UsuarioEntidad {
   saldoPuntosActual: number;
 
   // Relaciones
-  @OneToMany(
-    () => TransaccionPuntosEntidad,
-    (transaccion) => transaccion.usuario,
-  )
+  @OneToMany(() => TransaccionPuntosEntidad, (transaccion) => transaccion.usuario)
   historialPuntos: TransaccionPuntosEntidad[];
 
   @OneToMany(() => CanjeEntidad, (canje) => canje.usuario)
