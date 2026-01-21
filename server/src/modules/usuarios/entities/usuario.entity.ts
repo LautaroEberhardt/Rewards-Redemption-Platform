@@ -25,9 +25,15 @@ export class UsuarioEntidad {
   @Column({ nullable: true })
   telefono: string;
 
-  @Column({ select: false })
+  @Column({ nullable: true, select: false })
   @Exclude()
   contrasena: string;
+
+  @Column({ type: 'varchar', unique: true, nullable: true })
+  googleId?: string;
+
+  @Column({ type: 'text', nullable: true })
+  foto?: string;
 
   @Column({ type: 'enum', enum: RolUsuario, default: RolUsuario.CLIENTE })
   rol: RolUsuario;
