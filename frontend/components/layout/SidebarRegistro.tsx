@@ -5,6 +5,7 @@ import { useUI } from "@/context/ui-context";
 import { useRouter } from "next/navigation";
 import { Boton } from "../ui/boton";
 import { FcGoogle } from "react-icons/fc";
+import { signIn } from "next-auth/react"; // [MODIFICACIÓN: Importamos la función de Auth.js]
 
 export function SidebarRegistro() {
   const { estaSidebarAbierto, cerrarSidebar } = useUI();
@@ -39,8 +40,6 @@ export function SidebarRegistro() {
 
     try {
       const url = `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000"}/usuarios/registro`;
-
-      // Excluimos confirmarContrasena del objeto que se envía al backend
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { confirmarContrasena, ...datosAEnviar } = formData;
 
@@ -65,14 +64,18 @@ export function SidebarRegistro() {
     }
   };
 
+  // [MODIFICACIÓN: Implementación real de Google Auth]
   const manejarRegistroGoogle = async () => {
     try {
-      console.log("Iniciando flujo de OAuth2 con Google...");
+      setCargando(true);
+      // 'google' es el ID del proveedor configurado en auth.ts
+      // callbackUrl asegura que tras el login vayan al dashboard o home
+      await signIn("google", { callbackUrl: "/" }); 
     } catch (error) {
       console.error("Error durante el registro con Google:", error);
-      alert(
-        "Hubo un problema al conectar con Google. Por favor, intenta de nuevo.",
-      );
+      setError("Hubo un problema al conectar con Google.");
+    } finally {
+      setCargando(false);
     }
   };
 
@@ -211,8 +214,10 @@ export function SidebarRegistro() {
               </div>
 
               <div>
+                {/* [MODIFICACIÓN: Usamos el type="button" para evitar submit accidental] */}
                 <Boton
                   variante="primario"
+                  type="button"
                   onClick={manejarRegistroGoogle}
                   className="flex items-center justify-center gap-3 w-full py-2.5 shadow-sm hover:shadow-md transition-all"
                 >
