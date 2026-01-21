@@ -2,9 +2,10 @@ import NextAuth from "next-auth";
 import Google from "next-auth/providers/google";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
-  providers: [Google],
+  providers: [
+    Google, // 👈 ¡Mira qué limpio! NextAuth buscará AUTH_GOOGLE_ID automáticamente
+  ],
   callbacks: {
-    // Patrón: Synchronization. Sincronizamos el usuario de Google con nuestro Backend NestJS
     async signIn({ user, account }) {
       if (account?.provider === "google") {
         try {
@@ -19,8 +20,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             }),
           });
           
-          if (!respuestaBackend.ok) return false; // Si falla el backend, rechazamos el login
-          
+          if (!respuestaBackend.ok) return false;
           return true;
         } catch (error) {
           console.error("Error sincronizando con Backend:", error);
@@ -30,16 +30,14 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       return true;
     },
     async jwt({ token, user }) {
-        if (user) {
-            token.id = user.id;
-        }
-        return token;
+      if (user) token.id = user.id;
+      return token;
     },
     async session({ session, token }) {
-        if(token && session.user) {
-            session.user.id = token.id as string;
-        }
-        return session;
+      if(session.user && token.id) {
+        session.user.id = token.id as string;
+      }
+      return session;
     }
   },
   pages: {
