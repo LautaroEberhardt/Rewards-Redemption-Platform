@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { UsuarioEntidad } from './modules/usuarios/entities/usuario.entity';
 import { RolUsuario } from './common/enums/roles.enum';
-import { hash } from 'bcryptjs';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class AppService implements OnApplicationBootstrap {
@@ -26,7 +26,7 @@ export class AppService implements OnApplicationBootstrap {
 
     console.log('🚀 Creando usuario Admin por defecto...');
 
-    const passHash = await hash('admin123', 10);
+    const passHash = await bcrypt.hash('Admin1234!', 10);
 
     const nuevoAdmin = this.usuarioRepo.create({
       nombreCompleto: 'Super Admin',

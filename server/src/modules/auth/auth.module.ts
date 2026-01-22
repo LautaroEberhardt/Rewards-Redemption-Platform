@@ -11,7 +11,6 @@ import { UsuariosModule } from '../usuarios/usuarios.module';
   imports: [
     forwardRef(() => UsuariosModule),
     PassportModule.register({ defaultStrategy: 'jwt' }),
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
     JwtModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
