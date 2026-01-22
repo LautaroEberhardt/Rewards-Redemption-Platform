@@ -8,6 +8,7 @@ import { PuntosModule } from './modules/puntos/puntos.module';
 import { CanjesModule } from './modules/canjes/canjes.module';
 import { UsuarioEntidad } from './modules/usuarios/entities/usuario.entity';
 import { ConfigModule } from '@nestjs/config';
+import { AuthModule } from './modules/auth/auth.module';
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { ConfigModule } from '@nestjs/config';
     PremiosModule,
     PuntosModule,
     CanjesModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],

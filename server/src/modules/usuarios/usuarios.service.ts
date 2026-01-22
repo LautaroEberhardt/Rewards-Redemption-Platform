@@ -1,7 +1,7 @@
 import { ConflictException, Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { hash } from 'bcryptjs';
+import * as bcrypt from 'bcrypt';
 import { RolUsuario } from 'src/common/enums/roles.enum';
 import { UsuarioEntidad } from './entities/usuario.entity';
 import { CrearUsuarioDto } from './dtos/crear-usuario.dto';
@@ -19,29 +19,32 @@ export class UsuariosService {
     const { contrasena, ...datosUsuario } = crearUsuarioDto;
 
     try {
-      // 1. Encriptar contraseña (10 rondas de sal)
-      const hashContrasena = await hash(contrasena, 10);
+      const hashContrasena = await bcrypt.hash(contrasena, 10);
 
-      // 2. Crear instancia del usuario
       const nuevoUsuario = this.usuarioRepositorio.create({
         ...datosUsuario,
-        rol: RolUsuario.CLIENTE, // Rol por defecto
-        saldoPuntosActual: 0,
+        contrasena: hashContrasena, // 3. Asignamos el hash ya resuelto
       });
-      nuevoUsuario.contrasena = hashContrasena;
 
-      // 3. Guardar en Base de Datos
       await this.usuarioRepositorio.save(nuevoUsuario);
 
+      // Retornamos sin la contraseña por seguridad
       return nuevoUsuario;
-    } catch (error: any) {
+    } catch (error) {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       if (error.code === '23505') {
-        throw new ConflictException('El email ya está registrado en el sistema.');
+        throw new ConflictException('El email o DNI ya están registrados');
       }
-      console.error('Error al crear usuario:', error);
-      throw new InternalServerErrorException('Error inesperado al crear el usuario.');
+      console.error(error);
+      throw new InternalServerErrorException('Error al crear el usuario');
     }
+  }
+
+  async buscarPorEmailConSecreto(email: string): Promise<UsuarioEntidad | null> {
+    return this.usuarioRepositorio.findOne({
+      where: { email },
+      select: ['id', 'email', 'contrasena', 'rol', 'nombreCompleto'], // Explicitamente pedimos la contraseña
+    });
   }
 
   async buscarPorId(id: string): Promise<UsuarioEntidad | null> {

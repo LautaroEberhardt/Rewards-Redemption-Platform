@@ -3,7 +3,7 @@ import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { ConfigService } from '@nestjs/config';
 import { RolUsuario } from 'src/common/enums/roles.enum';
-import { UsuariosService } from '../usuarios/usuarios.service';
+import { UsuariosService } from '../../usuarios/usuarios.service';
 
 // 2. Definir una interfaz para el payload del token
 export interface JwtPayload {
