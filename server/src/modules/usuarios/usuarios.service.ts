@@ -44,6 +44,23 @@ export class UsuariosService {
     }
   }
 
+  async buscarPorId(id: string): Promise<UsuarioEntidad | null> {
+    return this.usuarioRepositorio.findOneBy({ id });
+  }
+
+  async findAll(): Promise<UsuarioEntidad[]> {
+    try {
+      return await this.usuarioRepositorio.find({
+        order: {
+          fechaCreacion: 'DESC',
+        },
+      });
+    } catch (error) {
+      console.error('Error al obtener usuarios:', error);
+      throw new InternalServerErrorException('Error al cargar la lista de usuarios');
+    }
+  }
+
   // --- LOGIN / REGISTRO CON GOOGLE (Lógica existente) ---
   async validarORegistrarUsuarioGoogle(loginGoogleDto: LoginGoogleDto): Promise<UsuarioEntidad> {
     const { email, googleId, nombreCompleto, foto } = loginGoogleDto;
