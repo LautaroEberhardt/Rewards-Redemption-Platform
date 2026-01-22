@@ -35,7 +35,7 @@ export class UsuariosService {
 
       return nuevoUsuario;
     } catch (error: any) {
-      // Manejo de error de duplicados (Postgres error 23505)
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       if (error.code === '23505') {
         throw new ConflictException('El email ya está registrado en el sistema.');
       }
