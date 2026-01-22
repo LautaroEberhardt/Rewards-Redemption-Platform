@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import '@/app/globals.css';
 import { FondoDegradado } from '@/components/ui/fondo-degradado';
 import { ProveedorUI } from '@/context/ui-context';
-import { SidebarRegistro } from '@/components/layout/SidebarRegistro';
+import { SidebarGlobal } from '@/components/layout/SidebarGlobal';
 
 
 
@@ -19,7 +19,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <FondoDegradado>
           <ProveedorUI>
             <main>{children}</main>
-            <SidebarRegistro />
+            <SidebarGlobal />
           </ProveedorUI>
         </FondoDegradado>
       </body>

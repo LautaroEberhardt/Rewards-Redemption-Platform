@@ -1,36 +1,42 @@
-'use client';
+// frontend/context/ui-context.tsx
+"use client";
 
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState } from "react";
 
-// Definimos la interfaz del contexto para tipado estricto
-interface InterfazContextoUI {
-  estaSidebarAbierto: boolean;
-  abrirSidebar: () => void;
+type TipoContenidoSidebar = "registro" | "login" | null;
+
+interface ContextoUIInterface {
+  isSidebarOpen: boolean;
+  contenidoSidebar: TipoContenidoSidebar;
+  abrirSidebar: (contenido: TipoContenidoSidebar) => void;
   cerrarSidebar: () => void;
-  alternarSidebar: () => void;
 }
 
-const ContextoUI = createContext<InterfazContextoUI | undefined>(undefined);
+const ContextoUI = createContext<ContextoUIInterface | undefined>(undefined);
 
-export const ProveedorUI = ({ children }: { children: ReactNode }) => {
-  const [estaSidebarAbierto, setEstaSidebarAbierto] = useState(false);
+export const ProveedorUI = ({ children }: { children: React.ReactNode }) => {
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [contenidoSidebar, setContenidoSidebar] = useState<TipoContenidoSidebar>(null);
 
-  const abrirSidebar = () => setEstaSidebarAbierto(true);
-  const cerrarSidebar = () => setEstaSidebarAbierto(false);
-  const alternarSidebar = () => setEstaSidebarAbierto((prev) => !prev);
+  const abrirSidebar = (contenido: TipoContenidoSidebar) => {
+    setContenidoSidebar(contenido);
+    setIsSidebarOpen(true);
+  };
+
+  const cerrarSidebar = () => {
+    setIsSidebarOpen(false);
+    // Opcional: limpiar contenido tras la animación de cierre
+  };
 
   return (
-    <ContextoUI.Provider value={{ estaSidebarAbierto, abrirSidebar, cerrarSidebar, alternarSidebar }}>
+    <ContextoUI.Provider value={{ isSidebarOpen, contenidoSidebar, abrirSidebar, cerrarSidebar }}>
       {children}
     </ContextoUI.Provider>
   );
 };
 
-// Hook personalizado para consumir el contexto fácilmente
 export const useUI = () => {
   const contexto = useContext(ContextoUI);
-  if (!contexto) {
-    throw new Error('useUI debe ser usado dentro de un ProveedorUI');
-  }
+  if (!contexto) throw new Error("useUI debe usarse dentro de un ProveedorUI");
   return contexto;
 };
