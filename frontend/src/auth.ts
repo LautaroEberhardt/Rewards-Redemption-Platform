@@ -3,7 +3,7 @@ import Google from "next-auth/providers/google";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [
-    Google, // 👈 ¡Mira qué limpio! NextAuth buscará AUTH_GOOGLE_ID automáticamente
+    Google,
   ],
   callbacks: {
     async signIn({ user, account }) {

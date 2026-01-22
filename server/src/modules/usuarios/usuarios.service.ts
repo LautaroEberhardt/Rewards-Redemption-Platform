@@ -2,8 +2,7 @@ import { ConflictException, Injectable, InternalServerErrorException } from '@ne
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { hash } from 'bcryptjs';
-
-// Entidades y DTOs
+import { RolUsuario } from 'src/common/enums/roles.enum';
 import { UsuarioEntidad } from './entities/usuario.entity';
 import { CrearUsuarioDto } from './dtos/crear-usuario.dto';
 import { LoginGoogleDto } from './dtos/login-google.dto';
@@ -26,10 +25,10 @@ export class UsuariosService {
       // 2. Crear instancia del usuario
       const nuevoUsuario = this.usuarioRepositorio.create({
         ...datosUsuario,
-        contrasena: hashContrasena,
-        rol: 'CLIENTE', // Rol por defecto
-        puntos: 0,
+        rol: RolUsuario.CLIENTE, // Rol por defecto
+        saldoPuntosActual: 0,
       });
+      nuevoUsuario.contrasena = hashContrasena;
 
       // 3. Guardar en Base de Datos
       await this.usuarioRepositorio.save(nuevoUsuario);
@@ -70,7 +69,7 @@ export class UsuariosService {
       nombreCompleto,
       googleId,
       foto,
-      rol: 'CLIENTE',
+      rol: RolUsuario.CLIENTE,
       saldoPuntosActual: 0,
       // No asignamos 'contrasena' porque entra por Google
     });
