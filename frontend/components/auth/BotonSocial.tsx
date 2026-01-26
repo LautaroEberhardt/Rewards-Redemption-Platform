@@ -10,7 +10,6 @@ interface PropiedadesBotonSocial {
 }
 
 export const BotonSocial = ({ proveedor, onClick }: PropiedadesBotonSocial) => {
-  // Configuración Strategy simple para definir icono y texto
   const configuracion = {
     google: {
       icono: <FcGoogle size={20} />,

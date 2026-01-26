@@ -58,7 +58,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     },
   },
   pages: {
-    signIn: "/", // IMPORTANTE: Si tu login está en el Home/Sidebar, pon "/", si está en /login pon "/login"
+    signIn: "/", 
     error: "/",  // Redirigir al home en caso de error para mostrar el toast/alerta
   },
 });

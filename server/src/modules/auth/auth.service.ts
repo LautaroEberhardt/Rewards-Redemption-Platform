@@ -55,6 +55,7 @@ export class AuthService {
    * @param usuario El usuario para el que se generará el token.
    * @returns Un objeto con el token de acceso.
    */
+  // eslint-disable-next-line @typescript-eslint/require-await
   async login(usuario: UsuarioEntidad) {
     const payload = { sub: usuario.id, rol: usuario.rol };
     return {

@@ -11,7 +11,8 @@ export class AuthController {
   async login(@Body() loginDto: LoginDto) {
     // eslint-disable-next-line no-useless-catch
     try {
-      return await this.authService.validarUsuario(loginDto);
+      const usuario = await this.authService.validarUsuario(loginDto);
+      return this.authService.login(usuario); // Devolver el token
     } catch (error) {
       throw error;
     }
