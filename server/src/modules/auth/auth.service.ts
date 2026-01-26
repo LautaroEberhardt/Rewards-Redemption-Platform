@@ -50,16 +50,15 @@ export class AuthService {
     }
   }
 
-  /**
-   * Genera un token JWT para un usuario.
-   * @param usuario El usuario para el que se generará el token.
-   * @returns Un objeto con el token de acceso.
-   */
   // eslint-disable-next-line @typescript-eslint/require-await
   async login(usuario: UsuarioEntidad) {
     const payload = { sub: usuario.id, rol: usuario.rol };
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { contrasena, ...usuarioSinContrasena } = usuario;
+
     return {
       access_token: this.jwtService.sign(payload),
+      usuario: usuarioSinContrasena,
     };
   }
 }

@@ -9,13 +9,13 @@ import { BotonSocial } from "./BotonSocial";
 import { useState } from "react";
 import { signIn } from "next-auth/react";
 import { useUI } from "@/context/ui-context";
-import { useRouter } from "next/navigation"; // [!IMPORTANTE] Para redirigir correctamente
+import { useRouter } from "next/navigation";
 
 export const FormularioLogin = () => {
   const [cargando, setCargando] = useState(false);
   const [errorVisual, setErrorVisual] = useState<string | null>(null);
   const router = useRouter();
-  const { abrirSidebar } = useUI();
+  const { abrirSidebar, cerrarSidebar } = useUI();
 
   const {
     register,
@@ -35,22 +35,19 @@ export const FormularioLogin = () => {
       const resultado = await signIn("credentials", {
         email: datos.email,
         password: datos.password,
-        redirect: false, // Evitamos que NextAuth redirija automáticamente para controlar nosotros el flujo
+        redirect: false,
       });
 
       console.log("2. Respuesta de signIn:", resultado);
 
       if (resultado?.error) {
-        // Si hay error, LO MOSTRAMOS y NO redirigimos
         console.error("Login fallido:", resultado.error);
         setErrorVisual("Credenciales inválidas o usuario no encontrado.");
       } else {
-        // Login exitoso: Redirección explícita
         console.log("3. Login exitoso. Redirigiendo a /dashboard...");
-        
-        // Refrescamos router para actualizar server components y empujamos a la ruta correcta
         router.refresh();
         router.push("/dashboard"); 
+        cerrarSidebar();
       }
     } catch (error) {
       console.error("Error crítico en el catch:", error);

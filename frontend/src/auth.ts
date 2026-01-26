@@ -1,7 +1,20 @@
-import NextAuth from "next-auth";
+import NextAuth, { type DefaultSession } from "next-auth";
 import Google from "next-auth/providers/google";
 import Credentials from "next-auth/providers/credentials";
 import { EsquemaLogin } from "@/components/auth/esquemas";
+
+declare module "next-auth" {
+  interface Session {
+    user: {
+      rol?: string | null;
+      id?: string | null;
+    } & DefaultSession["user"];
+  }
+
+  interface User {
+    rol?: string | null;
+  }
+}
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [
@@ -14,70 +27,69 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         const { email, password } = camposValidados.data;
 
         // Login normal con credenciales
-        const respuesta = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/login`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email, contrasena: password }),
-        });
+        const respuesta = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/auth/login`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email, contrasena: password }),
+          },
+        );
 
         if (!respuesta.ok) return null;
-        return await respuesta.json();
+
+        const data = await respuesta.json();
+
+        // El objeto usuario debe incluir: id, nombre, email y ROL
+        // Ahora devolvemos el objeto 'usuario' anidado en la respuesta
+        return data.usuario || null;
       },
     }),
   ],
   callbacks: {
-    // 1. AQUÍ ESTÁ LA SOLUCIÓN: Interceptamos el login de Google
     async signIn({ account, profile }) {
       if (account?.provider === "google") {
         try {
-          // Enviamos los datos de Google a TU Backend NestJS
-          const respuesta = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/usuarios/login-google`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              email: profile?.email,
-              nombreCompleto: profile?.name,
-              googleId: profile?.sub, // 'sub' es el ID único de Google
-              foto: profile?.picture,
-            }),
-          });
+          const respuesta = await fetch(
+            `${process.env.NEXT_PUBLIC_API_URL}/usuarios/login-google`,
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                email: profile?.email,
+                nombreCompleto: profile?.name,
+                googleId: profile?.sub,
+                foto: profile?.picture,
+              }),
+            },
+          );
 
           if (!respuesta.ok) {
             console.error("Error al registrar usuario de Google en Backend");
-            return false; // Esto deniega el login si el backend falla
+            return false;
           }
 
           const usuarioBackend = await respuesta.json();
-          
-          // Opcional: Si necesitas pasar el ROL del backend al token inmediatamente,
-          // podrías guardarlo en una variable global o usar una estrategia más avanzada,
-          // pero por ahora esto asegura que el usuario SE GUARDE en la BD.
-          return true; 
+
+          return true;
         } catch (error) {
           console.error("Error de conexión con Backend:", error);
           return false;
         }
       }
-      return true; // Para credenciales normales, dejamos pasar
+      return true;
     },
 
-    // 2. Persistencia de Roles (Igual que antes)
     async jwt({ token, user, account }) {
-      // Si es el primer login (cuando user está definido)
       if (user) {
-        // @ts-expect-error (user viene con rol si es credentials, pero si es google viene del profile)
-        token.rol = user.rol || "cliente"; 
+        token.rol = user.rol || "cliente";
         token.id = user.id;
       }
-      
-      // OPTIMIZACIÓN: Si venimos de Google, intentamos recuperar el rol si no está
+
       if (account?.provider === "google" && !token.rol) {
-          // En una implementación real robusta, aquí podrías llamar al backend 
-          // para pedir el rol actualizado del usuario recién creado.
-          // Por simplicidad, asignamos 'cliente' o esperamos al próximo refresh.
-          token.rol = "cliente"; 
+        token.rol = "cliente";
       }
-      
+
       return token;
     },
     async session({ session, token }) {
