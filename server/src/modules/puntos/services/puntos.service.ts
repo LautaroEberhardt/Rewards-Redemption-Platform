@@ -1,14 +1,71 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { TransaccionPuntosEntidad } from '../entities/transaccion-puntos.entity';
+import { UsuarioEntidad } from 'src/modules/usuarios/entities/usuario.entity';
+import { AsignarPuntosDto } from '../dtos/asignar-puntos.dto';
+import { TipoTransaccion } from '../enums/tipo-transaccion.enum';
 
 @Injectable()
 export class PuntosServicio {
   constructor(
     @InjectRepository(TransaccionPuntosEntidad)
     private readonly repositorioTransacciones: Repository<TransaccionPuntosEntidad>,
+    // Inyectamos el repositorio de Usuarios
+    @InjectRepository(UsuarioEntidad)
+    private readonly repositorioUsuarios: Repository<UsuarioEntidad>,
+
+    // Inyectamos el DataSource para manejar transacciones
+    private readonly dataSource: DataSource,
   ) {}
+
+  async asignarPuntos(asignarPuntosDto: AsignarPuntosDto): Promise<TransaccionPuntosEntidad> {
+    const { usuarioId, cantidad, concepto } = asignarPuntosDto;
+
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    try {
+      const usuario = await queryRunner.manager.findOneBy(UsuarioEntidad, { id: usuarioId });
+      if (!usuario) {
+        throw new NotFoundException(`Usuario con ID "${usuarioId}" no encontrado.`);
+      }
+
+      // Actualizamos el saldo del usuario
+      usuario.saldoPuntosActual += cantidad;
+      await queryRunner.manager.save(usuario);
+
+      // Creamos el registro de la transacción
+      const nuevaTransaccion = queryRunner.manager.create(TransaccionPuntosEntidad, {
+        usuario,
+        cantidad,
+        concepto,
+        tipo: cantidad > 0 ? TipoTransaccion.ACUMULACION : TipoTransaccion.CANJE,
+        saldoAnterior: usuario.saldoPuntosActual - cantidad,
+        saldoNuevo: usuario.saldoPuntosActual,
+      });
+
+      await queryRunner.manager.save(nuevaTransaccion);
+
+      await queryRunner.commitTransaction();
+      return nuevaTransaccion;
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+      if (error instanceof NotFoundException) throw error;
+      throw new InternalServerErrorException('Error al asignar los puntos.');
+    } finally {
+      await queryRunner.release();
+    }
+  }
+
+  async obtenerSaldoUsuario(usuarioId: string): Promise<{ saldo: number }> {
+    const usuario = await this.repositorioUsuarios.findOneBy({ id: usuarioId });
+    if (!usuario) {
+      throw new NotFoundException(`Usuario con ID "${usuarioId}" no encontrado.`);
+    }
+    return { saldo: usuario.saldoPuntosActual };
+  }
 
   /**
    * Obtiene el historial paginado para evitar saturar la RAM.

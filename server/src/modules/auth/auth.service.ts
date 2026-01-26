@@ -1,54 +1,48 @@
+// server/src/modules/auth/auth.service.ts
 import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
 import { UsuariosService } from '../usuarios/usuarios.service';
+import { compare } from 'bcrypt'; // Importación de la librería bcrypt
 import { LoginDto } from './dtos/login.dto';
-import * as bcrypt from 'bcrypt';
+import { UsuarioEntidad } from '../usuarios/entities/usuario.entity';
 
 @Injectable()
 export class AuthService {
-  constructor(
-    private readonly usuariosService: UsuariosService,
-    private readonly jwtService: JwtService,
-  ) {}
+  constructor(private readonly usuariosService: UsuariosService) {}
 
-  async validarUsuario(email: string, pass: string): Promise<any> {
-    // 1. Buscamos el usuario incluyendo su contraseña encriptada
-    const usuario = await this.usuariosService.buscarPorEmailConSecreto(email);
+  /**
+   * Valida las credenciales del usuario y verifica su existencia.
+   * @param loginDto Datos de acceso (email y contrasena).
+   * @returns El usuario validado con su respectivo rol.
+   */
+  async validarUsuario(loginDto: LoginDto): Promise<UsuarioEntidad> {
+    const { email, contrasena } = loginDto;
 
-    // 2. Si existe y la contraseña coincide
-    if (usuario && (await bcrypt.compare(pass, usuario.contrasena))) {
-      // 3. Eliminamos la contraseña del objeto antes de retornarlo
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { contrasena, ...resultado } = usuario;
-      return resultado;
+    try {
+      // 1. Buscamos al usuario incluyendo el campo contrasena (que está oculto por defecto)
+      // Utilizamos el método que definiremos en el UsuariosService
+      const usuario = await this.usuariosService.buscarPorEmailConPassword(email);
+
+      // 2. Si el usuario no existe, lanzamos excepción de unauthorized
+      if (!usuario) {
+        throw new UnauthorizedException('El correo electrónico o la contraseña son incorrectos');
+      }
+
+      // 3. Comparamos la contraseña ingresada con el hash almacenado en la DB usando bcrypt
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
+      const esContrasenaValida = await compare(contrasena, usuario.contrasena);
+
+      if (!esContrasenaValida) {
+        throw new UnauthorizedException('El correo electrónico o la contraseña son incorrectos');
+      }
+
+      return usuario;
+    } catch (error) {
+      // Si ya es una UnauthorizedException, la relanzamos, si no, lanzamos error genérico
+      if (error instanceof UnauthorizedException) {
+        throw error;
+      }
+      console.error('Error en AuthService:', error);
+      throw new UnauthorizedException('Error durante el proceso de validación');
     }
-
-    return null;
-  }
-
-  async login(loginDto: LoginDto) {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    const usuarioValidado = await this.validarUsuario(loginDto.email, loginDto.contrasena);
-
-    if (!usuarioValidado) {
-      throw new UnauthorizedException('Credenciales inválidas');
-    }
-
-    // Payload del Token (Información pública dentro del JWT)
-    const payload = {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
-      sub: usuarioValidado.id,
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
-      email: usuarioValidado.email,
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
-      rol: usuarioValidado.rol,
-    };
-
-    return {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
-      access_token: this.jwtService.sign(payload),
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-      usuario: usuarioValidado,
-    };
   }
 }

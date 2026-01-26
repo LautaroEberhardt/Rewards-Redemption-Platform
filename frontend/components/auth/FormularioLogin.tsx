@@ -7,6 +7,8 @@ import { EsquemaLogin, FormularioLoginDatos } from "./esquemas";
 import { Boton } from "../ui/boton";
 import { BotonSocial } from "./BotonSocial";
 import { useState } from "react";
+import { signIn } from "next-auth/react";
+
 
 export const FormularioLogin = () => {
   const [cargando, setCargando] = useState(false);
@@ -20,20 +22,27 @@ export const FormularioLogin = () => {
   });
 
   const alEnviar = async (datos: FormularioLoginDatos) => {
-    setCargando(true);
-    try {
-      // TODO: Integrar con Next-Auth v5 (Auth.js)
-      console.log("Enviando datos de acceso:", datos);
-      
-      // Simulación de delay de red
-      await new Promise((res) => setTimeout(res, 1000));
-      
-    } catch (error) {
-      console.error("Error en el inicio de sesión:", error);
-    } finally {
-      setCargando(false);
-    }
-  };
+      setCargando(true);
+      try {
+        const resultado = await signIn("credentials", {
+          email: datos.email,
+          password: datos.password,
+          redirect: false, // Manejamos la redirección manualmente para no recargar
+        });
+
+        if (resultado?.error) {
+          // Aquí podrías usar un Toast para mostrar el error
+          alert("Credenciales incorrectas o usuario no existe");
+        } else {
+          // Login exitoso, cerramos sidebar y refrescamos
+          window.location.reload(); 
+        }
+      } catch (error) {
+        console.error("Error crítico:", error);
+      } finally {
+        setCargando(false);
+      }
+    };
 
   return (
     <div className="flex flex-col gap-6">

@@ -47,6 +47,29 @@ export class UsuariosService {
     });
   }
 
+  async buscarPorEmailConPassword(email: string): Promise<UsuarioEntidad | null> {
+    return await this.usuarioRepositorio.findOne({
+      where: { email },
+      select: ['id', 'nombreCompleto', 'email', 'contrasena', 'rol'],
+    });
+  }
+
+  async buscarOCrearGoogle(perfil: any): Promise<UsuarioEntidad> {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+    const usuarioExistente = await this.usuarioRepositorio.findOneBy({ email: perfil.email });
+    if (usuarioExistente) return usuarioExistente;
+
+    // Si no existe, lo creamos (Estrategia para login social)
+    const nuevoUsuario = this.usuarioRepositorio.create({
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+      nombreCompleto: perfil.name,
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+      email: perfil.email,
+      rol: RolUsuario.CLIENTE, // Por defecto siempre es cliente
+    });
+    return await this.usuarioRepositorio.save(nuevoUsuario);
+  }
+
   async buscarPorId(id: string): Promise<UsuarioEntidad | null> {
     return this.usuarioRepositorio.findOneBy({ id });
   }
