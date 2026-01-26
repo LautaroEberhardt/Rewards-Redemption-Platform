@@ -43,7 +43,7 @@ export class UsuariosController {
   @HttpCode(HttpStatus.OK)
   async loginGoogle(@Body() loginGoogleDto: LoginGoogleDto) {
     const usuario = await this.usuariosService.validarORegistrarUsuarioGoogle(loginGoogleDto);
-    const access_token = this.authService.login(usuario);
+    const access_token = await this.authService.login(usuario);
 
     return {
       message: 'Autenticación exitosa',

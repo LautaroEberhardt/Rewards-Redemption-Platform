@@ -4,10 +4,14 @@ import { UsuariosService } from '../usuarios/usuarios.service';
 import { compare } from 'bcrypt'; // Importación de la librería bcrypt
 import { LoginDto } from './dtos/login.dto';
 import { UsuarioEntidad } from '../usuarios/entities/usuario.entity';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class AuthService {
-  constructor(private readonly usuariosService: UsuariosService) {}
+  constructor(
+    private readonly usuariosService: UsuariosService,
+    private readonly jwtService: JwtService,
+  ) {}
 
   /**
    * Valida las credenciales del usuario y verifica su existencia.
@@ -28,7 +32,7 @@ export class AuthService {
       }
 
       // 3. Comparamos la contraseña ingresada con el hash almacenado en la DB usando bcrypt
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
+
       const esContrasenaValida = await compare(contrasena, usuario.contrasena);
 
       if (!esContrasenaValida) {
@@ -44,5 +48,17 @@ export class AuthService {
       console.error('Error en AuthService:', error);
       throw new UnauthorizedException('Error durante el proceso de validación');
     }
+  }
+
+  /**
+   * Genera un token JWT para un usuario.
+   * @param usuario El usuario para el que se generará el token.
+   * @returns Un objeto con el token de acceso.
+   */
+  async login(usuario: UsuarioEntidad) {
+    const payload = { sub: usuario.id, rol: usuario.rol };
+    return {
+      access_token: this.jwtService.sign(payload),
+    };
   }
 }

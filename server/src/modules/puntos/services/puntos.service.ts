@@ -41,7 +41,7 @@ export class PuntosServicio {
         usuario,
         cantidad,
         concepto,
-        tipo: cantidad > 0 ? TipoTransaccion.ACUMULACION : TipoTransaccion.CANJE,
+        tipo: cantidad > 0 ? TipoTransaccion.INGRESO : TipoTransaccion.EGRESO,
         saldoAnterior: usuario.saldoPuntosActual - cantidad,
         saldoNuevo: usuario.saldoPuntosActual,
       });
