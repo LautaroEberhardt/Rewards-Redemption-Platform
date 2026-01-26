@@ -8,12 +8,14 @@ import { Boton } from "../ui/boton";
 import { BotonSocial } from "./BotonSocial";
 import { useState } from "react";
 import { signIn } from "next-auth/react";
+import { useUI } from "@/context/ui-context";
 import { useRouter } from "next/navigation"; // [!IMPORTANTE] Para redirigir correctamente
 
 export const FormularioLogin = () => {
   const [cargando, setCargando] = useState(false);
   const [errorVisual, setErrorVisual] = useState<string | null>(null);
   const router = useRouter();
+  const { abrirSidebar } = useUI();
 
   const {
     register,
@@ -123,7 +125,7 @@ export const FormularioLogin = () => {
 
       <p className="text-center text-sm text-gray-600">
         ¿No tienes una cuenta?{" "}
-        <button className="text-verde-primario font-semibold hover:underline">
+        <button className="text-verde-primario font-semibold hover:underline" onClick={() => abrirSidebar('registro')}>
           Regístrate aquí
         </button>
       </p>

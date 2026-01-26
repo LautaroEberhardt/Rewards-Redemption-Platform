@@ -22,16 +22,17 @@ export class AuthService {
     const { email, contrasena } = loginDto;
 
     try {
-      // 1. Buscamos al usuario incluyendo el campo contrasena (que está oculto por defecto)
-      // Utilizamos el método que definiremos en el UsuariosService
       const usuario = await this.usuariosService.buscarPorEmailConPassword(email);
 
-      // 2. Si el usuario no existe, lanzamos excepción de unauthorized
       if (!usuario) {
         throw new UnauthorizedException('El correo electrónico o la contraseña son incorrectos');
       }
 
-      // 3. Comparamos la contraseña ingresada con el hash almacenado en la DB usando bcrypt
+      if (!usuario.contrasena) {
+        throw new UnauthorizedException(
+          'Esta cuenta usa Google. Por favor inicia sesión con ese método.',
+        );
+      }
 
       const esContrasenaValida = await compare(contrasena, usuario.contrasena);
 
@@ -41,7 +42,6 @@ export class AuthService {
 
       return usuario;
     } catch (error) {
-      // Si ya es una UnauthorizedException, la relanzamos, si no, lanzamos error genérico
       if (error instanceof UnauthorizedException) {
         throw error;
       }
