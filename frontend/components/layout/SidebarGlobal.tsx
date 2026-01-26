@@ -3,7 +3,7 @@
 
 import { useUI } from "@/context/ui-context";
 import { FormularioRegistro } from "../auth/FormularioRegistro";
-import FormularioLogin from "../auth/FormularioLogin";
+import {FormularioLogin} from "../auth/FormularioLogin";
 // Asumiendo que crearás FormularioLogin
 // import FormularioLogin from "../auth/FormularioLogin"; 
 

@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { TransaccionPuntosEntidad } from './entities/transaccion-puntos.entity';
 import { PuntosServicio } from './services/puntos.service';
-import { UsuarioEntidad } from '../usuarios/entities/usuario.entity'; // 1. Importar UsuarioEntidad
+import { UsuarioEntidad } from '../usuarios/entities/usuario.entity';
 import { PuntosController } from './controllers/puntos.controller';
 
 @Module({
