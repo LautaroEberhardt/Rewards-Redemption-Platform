@@ -7,7 +7,7 @@ import { EsquemaLogin, FormularioLoginDatos } from "./esquemas";
 import { Boton } from "../ui/boton";
 import { BotonSocial } from "./BotonSocial";
 import { useState } from "react";
-import { signIn } from "next-auth/react";
+import { getSession, signIn } from "next-auth/react";
 import { useUI } from "@/context/ui-context";
 import { useRouter } from "next/navigation";
 
@@ -23,6 +23,11 @@ export const FormularioLogin = () => {
     formState: { errors },
   } = useForm<FormularioLoginDatos>({
     resolver: zodResolver(EsquemaLogin),
+
+    defaultValues: {
+      email: "admin@fidelizacion.com",
+      password: "Admin1234!",
+    }
   });
 
   const alEnviar = async (datos: FormularioLoginDatos) => {
@@ -44,9 +49,28 @@ export const FormularioLogin = () => {
         console.error("Login fallido:", resultado.error);
         setErrorVisual("Credenciales inválidas o usuario no encontrado.");
       } else {
-        console.log("3. Login exitoso. Redirigiendo a /dashboard...");
+        console.log("3. Login exitoso. Actualizando sesión...");
+
+        const newSession = await getSession();
+        console.log("4. Sesión actualizada:", newSession);
+
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const rawRole = (newSession as any)?.user?.rol ?? (newSession as any)?.user?.role;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const rolesList = (newSession as any)?.user?.roles;
+        const roleNormalized = typeof rawRole === "string" ? rawRole.toLowerCase() : "";
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const isAdmin = roleNormalized === "admin" || (Array.isArray(rolesList) && rolesList.map((r: any) => String(r).toLowerCase()).includes("admin"));
+
+        if (isAdmin) {
+          console.log("Usuario es admin, redirigiendo a /admin/panel...");
+          router.push("/admin/panel");
+        } else {
+          console.log("Usuario es cliente, redirigiendo a /cliente/inicio...");
+          router.push("/cliente/inicio");
+        }
+        
         router.refresh();
-        router.push("/dashboard"); 
         cerrarSidebar();
       }
     } catch (error) {
