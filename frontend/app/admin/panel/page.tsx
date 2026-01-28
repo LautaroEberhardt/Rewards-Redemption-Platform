@@ -1,19 +1,45 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useSession } from "next-auth/react";
 import { UsuariosServicio } from "@/servicios/usuarios.servicio";
-import { TablaClientes } from "@/components/admin/clientes/TablaClientes";
+// Usamos una tabla local para evitar incompatibilidades de props
 import { Usuario } from "@/tipos/usuario";
+import { ModalAsignarPuntos } from "@/components/admin/asignacion/FormularioAsignarPuntos";
 
 export default function PaginaPanelAdmin() {
+  const { data: sesion } = useSession();
   const [usuarios, setUsuarios] = useState<Usuario[]>([]);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [usuarioSeleccionado, setUsuarioSeleccionado] =
+    useState<Usuario | null>(null);
+  const [modalAbierto, setModalAbierto] = useState(false);
+
+  // Función para abrir el modal desde la tabla
+  const abrirModalAsignacion = (usuario: Usuario) => {
+    setUsuarioSeleccionado(usuario);
+    setModalAbierto(true);
+  };
+
+  const refrescarDatos = () => {
+    setCargando(true);
+  };
 
   useEffect(() => {
     const cargarDatos = async () => {
       try {
-        const datos = await UsuariosServicio.obtenerTodos();
+        const token =
+          (sesion as any)?.user?.token ??
+          (sesion as any)?.accessToken ??
+          (sesion as any)?.backendToken;
+        if (!token) {
+          setError(
+            "No autorizado: falta token de sesión para consultar usuarios.",
+          );
+          return;
+        }
+        const datos = await UsuariosServicio.obtenerTodos(token);
         const soloClientes = datos.filter((u) => u.rol === "cliente");
         setUsuarios(soloClientes);
       } catch (err) {
@@ -24,7 +50,7 @@ export default function PaginaPanelAdmin() {
     };
 
     cargarDatos();
-  }, []);
+  }, [sesion]);
 
   return (
     <div className="space-y-6">
@@ -52,9 +78,52 @@ export default function PaginaPanelAdmin() {
             {error}
           </div>
         ) : (
-          <TablaClientes usuarios={usuarios} />
+          <TablaClientesLocal
+            usuarios={usuarios}
+            onAsignar={abrirModalAsignacion}
+          />
         )}
       </section>
+
+      <ModalAsignarPuntos
+        usuario={usuarioSeleccionado}
+        estaAbierto={modalAbierto}
+        alCerrar={() => setModalAbierto(false)}
+        alCompletar={refrescarDatos}
+      />
     </div>
+  );
+}
+
+type TablaProps = { usuarios: Usuario[]; onAsignar: (u: Usuario) => void };
+function TablaClientesLocal({ usuarios, onAsignar }: TablaProps) {
+  return (
+    <table className="min-w-full border text-sm">
+      <thead>
+        <tr className="bg-gray-50">
+          <th className="text-left p-2 border">ID</th>
+          <th className="text-left p-2 border">Nombre</th>
+          <th className="text-left p-2 border">Email</th>
+          <th className="text-left p-2 border">Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        {usuarios.map((u) => (
+          <tr key={u.id}>
+            <td className="p-2 border">{u.id}</td>
+            <td className="p-2 border">{u.nombre}</td>
+            <td className="p-2 border">{u.email}</td>
+            <td className="p-2 border">
+              <button
+                className="text-primary hover:underline"
+                onClick={() => onAsignar(u)}
+              >
+                Asignar puntos
+              </button>
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
   );
 }

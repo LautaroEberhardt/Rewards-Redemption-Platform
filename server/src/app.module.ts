@@ -9,6 +9,7 @@ import { CanjesModule } from './modules/canjes/canjes.module';
 import { UsuarioEntidad } from './modules/usuarios/entities/usuario.entity';
 import { ConfigModule } from '@nestjs/config';
 import { AuthModule } from './modules/auth/auth.module';
+import { SeedService } from './seed.service';
 
 @Module({
   imports: [
@@ -33,6 +34,6 @@ import { AuthModule } from './modules/auth/auth.module';
     AuthModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, SeedService],
 })
 export class AppModule {}
