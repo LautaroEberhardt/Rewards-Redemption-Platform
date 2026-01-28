@@ -18,7 +18,7 @@ declare module "next-auth" {
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [
-    Google, // Se configura auto con process.env.AUTH_GOOGLE_ID
+    Google,
     Credentials({
       async authorize(credentials) {
         const camposValidados = EsquemaLogin.safeParse(credentials);
@@ -26,29 +26,39 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
         const { email, password } = camposValidados.data;
 
-        // Login normal con credenciales
-        const respuesta = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/auth/login`,
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ email, contrasena: password }),
-          },
-        );
+        try {
+          const respuesta = await fetch(
+            `${process.env.NEXT_PUBLIC_API_URL}/auth/login`,
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ email, contrasena: password }),
+            },
+          );
 
-        if (!respuesta.ok) return null;
+          if (!respuesta.ok) return null;
 
-        const data = await respuesta.json();
+          const data = await respuesta.json();
 
-        // El objeto usuario debe incluir: id, nombre, email y ROL
-        // Ahora devolvemos el objeto 'usuario' anidado en la respuesta
-        return data.usuario || null;
+          // Backend /auth/login devuelve: { access_token, usuario }
+          // Retornamos un objeto que NextAuth usará como "user" inicial
+          return {
+            ...data.usuario,
+            rol: data.usuario?.rol,
+            id: data.usuario?.id,
+            accessToken: data.access_token, // Guardamos el token JWT del backend
+          };
+        } catch (error) {
+          console.error("Error en authorize:", error);
+          return null;
+        }
       },
     }),
   ],
   callbacks: {
-    async signIn({ account, profile }) {
-      if (account?.provider === "google") {
+    async jwt({ token, user, account, profile }) {
+      // 1. Lógica para Login con Google (Solo ocurre la primera vez tras loguearse)
+      if (account?.provider === "google" && profile) {
         try {
           const respuesta = await fetch(
             `${process.env.NEXT_PUBLIC_API_URL}/usuarios/login-google`,
@@ -56,38 +66,37 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({
-                email: profile?.email,
-                nombreCompleto: profile?.name,
-                googleId: profile?.sub,
-                foto: profile?.picture,
+                email: profile.email,
+                nombreCompleto: profile.name,
+                googleId: profile.sub,
+                foto: profile.picture,
               }),
             },
           );
 
-          if (!respuesta.ok) {
-            console.error("Error al registrar usuario de Google en Backend");
-            return false;
+          if (respuesta.ok) {
+            const dataBackend = await respuesta.json();
+            // dataBackend puede ser { token: { access_token, usuario }, usuario } o { access_token, usuario }
+            const maybeTokenObj = (dataBackend as any)?.token;
+            const access =
+              maybeTokenObj?.access_token ?? (dataBackend as any)?.access_token;
+            token.accessToken = access;
+            token.rol = (dataBackend as any)?.usuario?.rol ?? token.rol;
+            token.id = (dataBackend as any)?.usuario?.id ?? token.id;
+          } else {
+            console.error("Fallo al autenticar Google con Backend");
+            // Aquí podrías forzar un error o invalidar, pero por ahora logueamos
           }
-
-          const usuarioBackend = await respuesta.json();
-
-          return true;
         } catch (error) {
-          console.error("Error de conexión con Backend:", error);
-          return false;
+          console.error("Error conectando con backend (Google Login):", error);
         }
       }
-      return true;
-    },
 
-    async jwt({ token, user, account }) {
+      // 2. Lógica para Credenciales (user viene del return de authorize)
       if (user) {
-        token.rol = user.rol || "cliente";
+        token.rol = user.rol;
         token.id = user.id;
-      }
-
-      if (account?.provider === "google" && !token.rol) {
-        token.rol = "cliente";
+        token.accessToken = user.accessToken; // Persistimos el token
       }
 
       return token;
@@ -96,10 +105,13 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       if (session.user) {
         session.user.rol = token.rol as string;
         session.user.id = token.id as string;
+        // Exponer el token del backend a los componentes cliente/servidor
+        (session.user as any).token = (token as any).accessToken;
       }
       return session;
     },
   },
+
   pages: {
     signIn: "/",
   },

@@ -15,6 +15,16 @@ export default function PaginaPanelAdmin() {
   const [usuarioSeleccionado, setUsuarioSeleccionado] =
     useState<Usuario | null>(null);
   const [modalAbierto, setModalAbierto] = useState(false);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const rol = (sesion as any)?.user?.rol ?? "sin-rol";
+  const tieneToken = Boolean(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (sesion as any)?.user?.token ||
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (sesion as any)?.accessToken ||
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (sesion as any)?.backendToken,
+  );
 
   // Función para abrir el modal desde la tabla
   const abrirModalAsignacion = (usuario: Usuario) => {
@@ -30,8 +40,11 @@ export default function PaginaPanelAdmin() {
     const cargarDatos = async () => {
       try {
         const token =
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           (sesion as any)?.user?.token ??
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           (sesion as any)?.accessToken ??
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           (sesion as any)?.backendToken;
         if (!token) {
           setError(
@@ -42,6 +55,7 @@ export default function PaginaPanelAdmin() {
         const datos = await UsuariosServicio.obtenerTodos(token);
         const soloClientes = datos.filter((u) => u.rol === "cliente");
         setUsuarios(soloClientes);
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       } catch (err) {
         setError("No se pudieron cargar los clientes.");
       } finally {
@@ -63,9 +77,26 @@ export default function PaginaPanelAdmin() {
             Vista general de clientes y actividad reciente.
           </p>
         </div>
-        <button className="bg-black text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-800 transition">
-          + Nuevo Cliente
-        </button>
+        <div className="flex items-center gap-3">
+          <span className="text-xs px-2 py-1 rounded bg-gray-100 border">
+            Rol: {rol}
+          </span>
+          <span
+            className={`text-xs px-2 py-1 rounded border ${
+              tieneToken
+                ? "bg-green-100 border-green-300"
+                : "bg-red-100 border-red-300"
+            }`}
+            title={
+              tieneToken ? "Token presente en sesión" : "Sin token en sesión"
+            }
+          >
+            {tieneToken ? "Token ✓" : "Token ✗"}
+          </span>
+          <button className="bg-black text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-800 transition">
+            + Nuevo Cliente
+          </button>
+        </div>
       </div>
 
       <section>
@@ -76,6 +107,10 @@ export default function PaginaPanelAdmin() {
         ) : error ? (
           <div className="rounded-md bg-red-50 p-4 text-sm text-red-700 border border-red-200">
             {error}
+          </div>
+        ) : usuarios.length === 0 ? (
+          <div className="rounded-md bg-gray-50 p-4 text-sm text-gray-700 border border-gray-200">
+            No hay clientes para mostrar. Crea un cliente o cambia el filtro.
           </div>
         ) : (
           <TablaClientesLocal

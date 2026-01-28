@@ -24,8 +24,16 @@ export const UsuariosServicio = {
       }
 
       const datos = await respuesta.json();
-      
-      return datos;
+      // Normalizamos estructura y rol proveniente del backend (ADMIN/CLIENTE -> admin/cliente)
+      const normalizados: Usuario[] = (datos as any[]).map((u: any) => ({
+        id: String(u.id),
+        email: u.email,
+        nombre: u.nombre ?? u.nombreCompleto ?? "",
+        rol: String(u.rol).toLowerCase() as Usuario["rol"],
+        puntos: typeof u.puntos === "number" ? u.puntos : undefined,
+      }));
+
+      return normalizados;
     } catch (error) {
       console.error("Error en UsuariosServicio:", error);
       throw error;
