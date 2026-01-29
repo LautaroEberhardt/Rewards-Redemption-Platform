@@ -8,6 +8,9 @@ import {
   HttpStatus,
   Get,
   UseGuards,
+  Query,
+  DefaultValuePipe,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { UsuariosService } from './usuarios.service';
 import { CrearUsuarioDto } from './dtos/crear-usuario.dto';
@@ -35,8 +38,11 @@ export class UsuariosController {
   @Get()
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(RolUsuario.ADMIN)
-  findAll() {
-    return this.usuariosService.findAll();
+  findAll(
+    @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
+    @Query('limit', new DefaultValuePipe(20), ParseIntPipe) limit: number,
+  ) {
+    return this.usuariosService.findPaginated(page, limit);
   }
 
   @Post('login-google')

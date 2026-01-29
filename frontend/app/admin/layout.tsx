@@ -7,11 +7,11 @@ export default function AdminLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="min-h-dvh grid grid-cols-12">
-      <aside className="col-span-12 md:col-span-3 lg:col-span-2 border-r bg-white">
+    <div className="grid grid-cols-12 items-start">
+      <aside className="col-span-12 md:col-span-1 lg:col-span-1 ">
         <SidebarAdmin />
       </aside>
-      <main className="col-span-12 md:col-span-9 lg:col-span-10 p-6">
+      <main className="col-span-12 md:col-span-10 lg:col-span-11 p-6">
         {children}
       </main>
     </div>

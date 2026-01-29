@@ -87,6 +87,27 @@ export class UsuariosService {
     }
   }
 
+  async findPaginated(
+    page = 1,
+    limit = 20,
+  ): Promise<{ items: UsuarioEntidad[]; total: number; page: number; limit: number }> {
+    try {
+      const skip = Math.max(0, (page - 1) * limit);
+      const take = Math.max(1, limit);
+
+      const [items, total] = await this.usuarioRepositorio.findAndCount({
+        order: { fechaCreacion: 'DESC' },
+        skip,
+        take,
+      });
+
+      return { items, total, page, limit };
+    } catch (error) {
+      console.error('Error al obtener usuarios paginados:', error);
+      throw new InternalServerErrorException('Error al cargar usuarios paginados');
+    }
+  }
+
   // --- LOGIN / REGISTRO CON GOOGLE (Lógica existente) ---
   async validarORegistrarUsuarioGoogle(loginGoogleDto: LoginGoogleDto): Promise<UsuarioEntidad> {
     const { email, googleId, nombreCompleto, foto } = loginGoogleDto;
