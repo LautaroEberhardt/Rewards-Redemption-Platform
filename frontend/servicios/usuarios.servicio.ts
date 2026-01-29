@@ -55,6 +55,11 @@ export const UsuariosServicio = {
 
       const respuesta = await fetch(
         `${API_URL}/usuarios?page=${page}&limit=${limit}`,
+        {
+          method: "GET",
+          headers: cabeceras,
+          cache: "no-store",
+        },
       );
       if (!respuesta.ok) throw new Error("Error al obtener usuarios paginados");
 
