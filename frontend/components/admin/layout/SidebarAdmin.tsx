@@ -1,20 +1,30 @@
 "use client";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
-import { Boton } from "@/components/ui/boton";
+import { usePathname } from "next/navigation";
+import { Pen, ShoppingCart, User } from "lucide-react";
 
 type ItemNav = { href: string; label: string; icon?: React.ReactNode };
 
 const items: ItemNav[] = [
-  { href: "/admin/panel", label: "Panel clientes" },
-  { href: "/admin/clientes", label: "Cargar Premios" },
-  { href: "/admin/puntos/asignar", label: "Asignar puntos" },
-  { href: "/admin/premios", label: "Premios" },
+  {
+    href: "/admin/panel",
+    label: "Panel clientes",
+    icon: <User className="h-4 w-4" />,
+  },
+  {
+    href: "/admin/premios",
+    label: "Cargar Premios",
+    icon: <ShoppingCart className="h-4 w-4" />,
+  },
+  {
+    href: "/admin/puntos/asignar",
+    label: "Asignar puntos",
+    icon: <Pen className="h-4 w-4" />,
+  },
 ];
 
 export const SidebarAdmin = () => {
   const pathname = usePathname();
-  const router = useRouter();
 
   const esActivo = (href: string) => pathname?.startsWith(href);
 
@@ -32,18 +42,25 @@ export const SidebarAdmin = () => {
           <li key={item.href}>
             <Link
               href={item.href}
-              className={`block rounded-md px-3 py-2 text-sm transition-colors border border-transparent ${
+              className={`flex items-center gap-2 rounded-md px-3 py-2 text-sm transition-colors border border-transparent ${
                 esActivo(item.href)
                   ? "bg-gray-100 text-gray-900 border-gray-200"
                   : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
               }`}
             >
-              {item.label}
+              {/* Icono lucide */}
+              <span
+                className={
+                  esActivo(item.href) ? "text-gray-900" : "text-gray-500"
+                }
+              >
+                {item.icon}
+              </span>
+              <span>{item.label}</span>
             </Link>
           </li>
         ))}
       </ul>
-
     </nav>
   );
 };

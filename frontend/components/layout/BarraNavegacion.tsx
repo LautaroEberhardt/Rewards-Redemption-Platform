@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { House, Pen, ShoppingCart, LogIn, Menu, X } from 'lucide-react'; // Agregamos Menu y X
+import { House, Pen, ShoppingCart, LogIn, Menu, X } from 'lucide-react';
 import { Boton } from '../ui/boton';
 import { useUI } from '@/context/ui-context';
 
