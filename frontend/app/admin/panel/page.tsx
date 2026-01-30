@@ -5,6 +5,7 @@ import { useSession } from "next-auth/react";
 import { UsuariosServicio } from "@/servicios/usuarios.servicio";
 import { Usuario } from "@/tipos/usuario";
 import { ModalAsignarPuntos } from "@/components/admin/asignacion/FormularioAsignarPuntos";
+import { Boton } from "@/components/ui/boton";
 
 // --- Componentes UI Locales (Iconos SVG puros para no depender de librerías externas) ---
 const IconoUsuario = () => (
@@ -51,6 +52,38 @@ export default function PaginaPanelAdmin() {
   const TAMANIO_PAGINA = 8;
   const [totalUsuarios, setTotalUsuarios] = useState(0);
 
+  // Refetch: cargar clientes (reutilizable)
+  const cargarClientes = async () => {
+    setCargando(true);
+    setError(null);
+    try {
+      const token =
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (sesion as any)?.user?.token ??
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (sesion as any)?.accessToken ??
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (sesion as any)?.backendToken;
+
+      if (!token) {
+        setError("No autorizado: falta token de sesión.");
+        return;
+      }
+      const resp = await UsuariosServicio.obtenerPagina(
+        pagina,
+        TAMANIO_PAGINA,
+        token,
+      );
+      const soloClientes = resp.items.filter((u) => u.rol === "cliente");
+      setUsuarios(soloClientes);
+      setTotalUsuarios(resp.total);
+    } catch (err) {
+      setError("No se pudieron cargar los clientes.");
+    } finally {
+      setCargando(false);
+    }
+  };
+
   // Función para abrir el modal desde la tabla
   const abrirModalAsignacion = (usuario: Usuario) => {
     setUsuarioSeleccionado(usuario);
@@ -62,37 +95,8 @@ export default function PaginaPanelAdmin() {
   };
 
   useEffect(() => {
-    const cargarDatos = async () => {
-      try {
-        const token =
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          (sesion as any)?.user?.token ??
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          (sesion as any)?.accessToken ??
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          (sesion as any)?.backendToken;
-
-        if (!token) {
-          setError("No autorizado: falta token de sesión.");
-          return;
-        }
-        const resp = await UsuariosServicio.obtenerPagina(
-          pagina,
-          TAMANIO_PAGINA,
-          token,
-        );
-        const soloClientes = resp.items.filter((u) => u.rol === "cliente");
-        setUsuarios(soloClientes);
-        setTotalUsuarios(resp.total);
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      } catch (err) {
-        setError("No se pudieron cargar los clientes.");
-      } finally {
-        setCargando(false);
-      }
-    };
-
-    cargarDatos();
+    cargarClientes();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sesion, pagina]);
 
   const totalPaginas = Math.max(1, Math.ceil(totalUsuarios / TAMANIO_PAGINA));
@@ -184,6 +188,8 @@ export default function PaginaPanelAdmin() {
           }}
           alCompletar={() => {
             setModalAbierto(false);
+            // Refrescar la tabla automáticamente después de asignar puntos
+            cargarClientes();
           }}
         />
       )}
@@ -220,7 +226,7 @@ function TablaClientesModerna({ usuarios, onAsignar }: TablaProps) {
             scope="col"
             className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider bg-gray-50"
           >
-            Balance
+            Cant. Puntos
           </th>
           <th scope="col" className="relative px-6 py-4 bg-gray-50">
             <span className="sr-only">Acciones</span>
@@ -263,12 +269,13 @@ function TablaClientesModerna({ usuarios, onAsignar }: TablaProps) {
               </div>
             </td>
             <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-              <button
+              <Boton
                 onClick={() => onAsignar(usuario)}
-                className="text-indigo-600 hover:text-indigo-900 font-semibold"
+                className="text-indigo-600  font-semibold"
+                variante="secundario"
               >
-                Asignar
-              </button>
+                Asignar Puntos
+              </Boton>
             </td>
           </tr>
         ))}

@@ -23,6 +23,12 @@ export class TransaccionPuntosEntidad {
   @Column()
   concepto: string; // Ej: "Compra Uniforme Verano" o "Canje Mochila #55"
 
+  @Column({ type: 'int', name: 'saldo_anterior' })
+  saldoAnterior: number;
+
+  @Column({ type: 'int', name: 'saldo_nuevo' })
+  saldoNuevo: number;
+
   @ManyToOne(() => UsuarioEntidad, (usuario) => usuario.historialPuntos)
   @JoinColumn({ name: 'usuario_id' })
   usuario: UsuarioEntidad;

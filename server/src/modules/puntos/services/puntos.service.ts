@@ -1,4 +1,9 @@
-import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
 import { TransaccionPuntosEntidad } from '../entities/transaccion-puntos.entity';
@@ -11,39 +16,55 @@ export class PuntosServicio {
   constructor(
     @InjectRepository(TransaccionPuntosEntidad)
     private readonly repositorioTransacciones: Repository<TransaccionPuntosEntidad>,
-    // Inyectamos el repositorio de Usuarios
     @InjectRepository(UsuarioEntidad)
     private readonly repositorioUsuarios: Repository<UsuarioEntidad>,
-
-    // Inyectamos el DataSource para manejar transacciones
     private readonly dataSource: DataSource,
   ) {}
 
   async asignarPuntos(asignarPuntosDto: AsignarPuntosDto): Promise<TransaccionPuntosEntidad> {
     const { usuarioId, cantidad, concepto } = asignarPuntosDto;
 
+    const conceptoFinal = concepto || 'Ajuste Administrativo de Puntos';
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
 
     try {
-      const usuario = await queryRunner.manager.findOneBy(UsuarioEntidad, { id: usuarioId });
+      const usuario = await queryRunner.manager.findOne(UsuarioEntidad, {
+        where: { id: usuarioId },
+        lock: { mode: 'pessimistic_write' },
+      });
+
       if (!usuario) {
         throw new NotFoundException(`Usuario con ID "${usuarioId}" no encontrado.`);
       }
 
-      // Actualizamos el saldo del usuario
-      usuario.saldoPuntosActual += cantidad;
+      // 3. Cálculos de Ledger (Libro Mayor)
+      // Nota: Si en el futuro tu DTO permite negativos (restas), esta lógica funciona automáticamente.
+      const saldoAnterior = usuario.saldoPuntosActual;
+      const saldoNuevo = saldoAnterior + cantidad;
+
+      // Validación: No permitir saldo negativo si es una resta
+      if (saldoNuevo < 0) {
+        throw new BadRequestException(
+          'La operación resultaría en un saldo negativo para el usuario.',
+        );
+      }
+
+      // 4. Actualizamos el Usuario
+      usuario.saldoPuntosActual = saldoNuevo;
       await queryRunner.manager.save(usuario);
 
-      // Creamos el registro de la transacción
+      // 5. Creamos la Transacción (Inmutable)
       const nuevaTransaccion = queryRunner.manager.create(TransaccionPuntosEntidad, {
         usuario,
-        cantidad,
-        concepto,
-        tipo: cantidad > 0 ? TipoTransaccion.INGRESO : TipoTransaccion.EGRESO,
-        saldoAnterior: usuario.saldoPuntosActual - cantidad,
-        saldoNuevo: usuario.saldoPuntosActual,
+        cantidad: cantidad, // Guardamos el valor con signo (+ o -)
+        concepto: conceptoFinal,
+        // Determinamos el tipo dinámicamente basado en el signo matemático
+        tipo: cantidad >= 0 ? TipoTransaccion.INGRESO : TipoTransaccion.EGRESO,
+        saldoAnterior, // Snapshot del estado previo
+        saldoNuevo,
+        fecha: new Date(),
       });
 
       await queryRunner.manager.save(nuevaTransaccion);
@@ -52,8 +73,12 @@ export class PuntosServicio {
       return nuevaTransaccion;
     } catch (error) {
       await queryRunner.rollbackTransaction();
-      if (error instanceof NotFoundException) throw error;
-      throw new InternalServerErrorException('Error al asignar los puntos.');
+      // Re-lanzamos errores controlados (404, 400)
+      if (error instanceof NotFoundException || error instanceof BadRequestException) {
+        throw error;
+      }
+      console.error('Error en transacción de puntos:', error);
+      throw new InternalServerErrorException('Error al procesar la asignación de puntos.');
     } finally {
       await queryRunner.release();
     }
@@ -67,12 +92,6 @@ export class PuntosServicio {
     return { saldo: usuario.saldoPuntosActual };
   }
 
-  /**
-   * Obtiene el historial paginado para evitar saturar la RAM.
-   * @param usuarioId ID del usuario a consultar
-   * @param pagina Número de página (default 1)
-   * @param limite Registros por página (default 10)
-   */
   async obtenerHistorial(
     usuarioId: string,
     pagina: number = 1,
@@ -88,7 +107,7 @@ export class PuntosServicio {
 
     const [datos, total] = await this.repositorioTransacciones.findAndCount({
       where: { usuario: { id: usuarioId } },
-      order: { fecha: 'DESC' }, // Lo más reciente primero
+      order: { fecha: 'DESC' },
       take: limite,
       skip: skip,
       // NOTA: No cargamos la relación 'usuario' aquí porque ya sabemos de quién es

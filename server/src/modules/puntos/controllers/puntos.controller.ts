@@ -10,14 +10,14 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 import { PuntosServicio } from '../services/puntos.service';
-import { RolesGuard } from 'src/common/guards/roles.guard';
-import { Roles } from 'src/common/decorators/roles.decorator';
+import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
+import { RolesGuard } from '../../auth/guards/roles.guard';
+import { Roles } from '../../auth/decorators/roles.decorator';
 import { RolUsuario } from 'src/common/enums/roles.enum';
 import { AsignarPuntosDto } from '../dtos/asignar-puntos.dto';
-import { TipoTransaccion } from '../enums/tipo-transaccion.enum';
 
 @Controller('puntos')
-@UseGuards(RolesGuard) // Protección de roles a nivel de controlador
+@UseGuards(JwtAuthGuard, RolesGuard) // Autenticación + roles a nivel de controlador
 export class PuntosController {
   constructor(private readonly puntosServicio: PuntosServicio) {}
 

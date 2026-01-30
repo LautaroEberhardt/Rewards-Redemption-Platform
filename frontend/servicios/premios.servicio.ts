@@ -30,7 +30,7 @@ export const PuntosServicio = {
           },
           body: JSON.stringify({
             usuarioId,
-            puntos: cantidad,
+            cantidad,
             concepto,
           }),
         },
