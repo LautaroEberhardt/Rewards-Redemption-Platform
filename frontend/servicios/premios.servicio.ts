@@ -116,10 +116,18 @@ export async function crearPremio(
   const headers: HeadersInit = { "Content-Type": "application/json" };
   if (token) headers["Authorization"] = `Bearer ${token}`;
 
+  const cuerpo = {
+    nombre: payload.nombre,
+    titulo: payload.nombre, // compatibilidad
+    costoPuntos: payload.costoPuntos,
+    costo: payload.costoPuntos, // compatibilidad
+    descripcion: payload.descripcion,
+  };
+
   const respuesta = await fetch(`${API_URL}/premios`, {
     method: "POST",
     headers,
-    body: JSON.stringify(payload),
+    body: JSON.stringify(cuerpo),
   });
   if (!respuesta.ok) {
     const err = await safeJson(respuesta);
@@ -136,15 +144,37 @@ export async function actualizarPremio(
 ): Promise<Premio> {
   const headers: HeadersInit = { "Content-Type": "application/json" };
   if (token) headers["Authorization"] = `Bearer ${token}`;
+  const cuerpo = {
+    ...(payload.nombre !== undefined
+      ? { nombre: payload.nombre, titulo: payload.nombre }
+      : {}),
+    ...(payload.costoPuntos !== undefined
+      ? { costoPuntos: payload.costoPuntos, costo: payload.costoPuntos }
+      : {}),
+    ...(payload.descripcion !== undefined
+      ? { descripcion: payload.descripcion }
+      : {}),
+  };
 
-  const respuesta = await fetch(`${API_URL}/premios/${id}`, {
-    method: "PUT",
+  // Intento con PATCH primero (más común en APIs REST para updates)
+  let respuesta = await fetch(`${API_URL}/premios/${id}`, {
+    method: "PATCH",
     headers,
-    body: JSON.stringify(payload),
+    body: JSON.stringify(cuerpo),
   });
+  // Si el backend no soporta PATCH, probamos con PUT
+  if (!respuesta.ok && (respuesta.status === 404 || respuesta.status === 405)) {
+    respuesta = await fetch(`${API_URL}/premios/${id}`, {
+      method: "PUT",
+      headers,
+      body: JSON.stringify(cuerpo),
+    });
+  }
   if (!respuesta.ok) {
     const err = await safeJson(respuesta);
-    throw new Error(err?.message || "Error al actualizar premio");
+    throw new Error(
+      err?.message || `Error al actualizar premio (status ${respuesta.status})`,
+    );
   }
   const data: PremioBackend = await respuesta.json();
   return normalizarPremio(data);
