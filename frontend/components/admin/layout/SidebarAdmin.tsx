@@ -15,7 +15,7 @@ const items: ItemNav[] = [
     icon: <User className="h-4 w-4" />,
   },
   {
-    href: "/admin/premios",
+    href: "/?edit=premios",
     label: "Cargar Premios",
     icon: <ShoppingCart className="h-4 w-4" />,
   },

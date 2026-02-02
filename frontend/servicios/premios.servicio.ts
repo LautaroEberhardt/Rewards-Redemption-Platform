@@ -3,13 +3,19 @@
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
-export type Premio = { id: number; nombre: string; costoPuntos: number };
+export type Premio = {
+  id: number;
+  nombre: string;
+  costoPuntos: number;
+  descripcion?: string;
+};
 type PremioBackend = {
   id: number | string;
   nombre?: string;
   titulo?: string;
   costoPuntos?: number;
   costo?: number;
+  descripcion?: string;
 };
 
 export const PuntosServicio = {
@@ -78,11 +84,93 @@ export async function listarPremios(token?: string): Promise<Premio[]> {
           : typeof p.costo === "number"
             ? p.costo
             : 0,
+      descripcion: p.descripcion ?? undefined,
     }));
 
     return premios;
   } catch (error) {
     console.error("Error en listarPremios:", error);
     throw error;
+  }
+}
+
+// Helpers
+function normalizarPremio(p: PremioBackend): Premio {
+  return {
+    id: Number(p.id),
+    nombre: p.nombre ?? p.titulo ?? "",
+    costoPuntos:
+      typeof p.costoPuntos === "number"
+        ? p.costoPuntos
+        : typeof p.costo === "number"
+          ? p.costo
+          : 0,
+    descripcion: p.descripcion ?? undefined,
+  };
+}
+
+export async function crearPremio(
+  payload: { nombre: string; costoPuntos: number; descripcion?: string },
+  token?: string,
+): Promise<Premio> {
+  const headers: HeadersInit = { "Content-Type": "application/json" };
+  if (token) headers["Authorization"] = `Bearer ${token}`;
+
+  const respuesta = await fetch(`${API_URL}/premios`, {
+    method: "POST",
+    headers,
+    body: JSON.stringify(payload),
+  });
+  if (!respuesta.ok) {
+    const err = await safeJson(respuesta);
+    throw new Error(err?.message || "Error al crear premio");
+  }
+  const data: PremioBackend = await respuesta.json();
+  return normalizarPremio(data);
+}
+
+export async function actualizarPremio(
+  id: number,
+  payload: { nombre?: string; costoPuntos?: number; descripcion?: string },
+  token?: string,
+): Promise<Premio> {
+  const headers: HeadersInit = { "Content-Type": "application/json" };
+  if (token) headers["Authorization"] = `Bearer ${token}`;
+
+  const respuesta = await fetch(`${API_URL}/premios/${id}`, {
+    method: "PUT",
+    headers,
+    body: JSON.stringify(payload),
+  });
+  if (!respuesta.ok) {
+    const err = await safeJson(respuesta);
+    throw new Error(err?.message || "Error al actualizar premio");
+  }
+  const data: PremioBackend = await respuesta.json();
+  return normalizarPremio(data);
+}
+
+export async function eliminarPremio(
+  id: number,
+  token?: string,
+): Promise<void> {
+  const headers: HeadersInit = { "Content-Type": "application/json" };
+  if (token) headers["Authorization"] = `Bearer ${token}`;
+
+  const respuesta = await fetch(`${API_URL}/premios/${id}`, {
+    method: "DELETE",
+    headers,
+  });
+  if (!respuesta.ok) {
+    const err = await safeJson(respuesta);
+    throw new Error(err?.message || "Error al eliminar premio");
+  }
+}
+
+async function safeJson(res: Response): Promise<any | null> {
+  try {
+    return await res.json();
+  } catch {
+    return null;
   }
 }
