@@ -11,7 +11,7 @@ export const Boton = ({ children, className = '', variante = 'primario', ...prop
   const variantes = {
     primario: "bg-primary text-text-on-primary hover:bg-primary-hover focus:ring-primary",
     secundario: "bg-background-secondary text-text-primary hover:bg-primary-hover focus:ring-gray-500",
-    peligro: "bg-state-error text-white hover:bg-red-600 focus:ring-red-500",
+    peligro: "bg-error-light text-white hover:bg-red-600 focus:ring-red-500",
     sencillo: "bg-transparent text-text-primary hover:text-primary hover:underline px-2 py-1 rounded-md focus:ring-primary",
   };
 

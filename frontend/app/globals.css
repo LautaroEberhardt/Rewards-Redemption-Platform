@@ -24,6 +24,7 @@
   
   --color-state-error: var(--color-error);
   --color-border: var(--color-border);
+  --color-error-light: var(--color-error-light);
 
   --font-sans: system-ui, -apple-system, sans-serif;
   --breakpoint-lg: 1200px;

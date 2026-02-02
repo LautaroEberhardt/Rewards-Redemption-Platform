@@ -1,7 +1,7 @@
 "use client";
 
 import { Boton } from "@/components/ui/boton";
-import { Pencil, Trash2 } from "lucide-react"; // Asumo que usas lucide-react, si no, usa texto o svg
+import { Pencil, Trash2 } from "lucide-react";
 import { eliminarPremio } from "@/servicios/premios.servicio";
 import { useSession } from "next-auth/react";
 
@@ -22,10 +22,12 @@ export const AccionesTarjetaAdmin = ({ idPremio, onDeleted }: Props) => {
     if (!confirm("¿Estás seguro de eliminar este premio?")) return;
     try {
       const token =
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (sesion as any)?.accessToken || (sesion as any)?.user?.token;
       await eliminarPremio(idPremio, token);
       alert("Premio eliminado");
       onDeleted?.();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (e: any) {
       alert(e?.message || "No se pudo eliminar el premio");
     }

@@ -1,4 +1,5 @@
 "use client";
+import { useState } from "react";
 import { useSession } from "next-auth/react";
 import { EditorTarjetaPremioOverlay } from "@/components/admin/premios/EditorTarjetaPremioOverlay";
 import {
@@ -14,6 +15,7 @@ type Props = {
 
 export function OverlayEditableWrapper({ id, initial }: Props) {
   const { data: sesion } = useSession();
+  const [visible, setVisible] = useState(true);
 
   const token = (sesion as any)?.accessToken || (sesion as any)?.user?.token;
 
@@ -69,12 +71,14 @@ export function OverlayEditableWrapper({ id, initial }: Props) {
     }
   };
 
+  if (!visible) return null;
   return (
     <EditorTarjetaPremioOverlay
       id={id}
       initial={initial}
       onSave={handleSave}
       onDelete={handleDelete}
+      onClose={() => setVisible(false)}
     />
   );
 }

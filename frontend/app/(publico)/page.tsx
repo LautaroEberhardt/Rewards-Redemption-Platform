@@ -1,8 +1,8 @@
 import React from "react";
 import { Boton } from "@/components/ui/boton";
 import { TarjetaPremio } from "@/components/ui/TarjetaModulo";
-import { OverlayEditableWrapper } from "@/components/admin/premios/OverlayEditableWrapper";
 import { BotonAgregarPremioFlotante } from "@/components/admin/premios/BotonAgregarPremioFlotante";
+import { CatalogoPremiosEditableClient } from "@/components/admin/premios/CatalogoPremiosEditableClient";
 
 export default async function PaginaInicio({
   searchParams,
@@ -94,50 +94,29 @@ export default async function PaginaInicio({
           {/* Botón flotante para crear en modo edición */}
           {modoEdicion && <BotonAgregarPremioFlotante />}
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 mt-12">
-            {/* Card "nueva" si crear=1 */}
-            {modoEdicion && crearNuevo && (
-              <TarjetaPremio
-                key={0}
-                id={0}
-                nombre={"Nuevo premio"}
-                descripcion={"Describe el premio..."}
-                costoPuntos={0}
-                acciones={
-                  <OverlayEditableWrapper
-                    id={0}
-                    initial={{
-                      nombre: "Nuevo premio",
-                      descripcion: "Describe el premio...",
-                      costoPuntos: 0,
-                    }}
-                  />
-                }
-              />
-            )}
-
-            {premiosDestacados.map((premio) => (
-              <TarjetaPremio
-                key={premio.id}
-                id={premio.id}
-                nombre={premio.nombre}
-                descripcion={premio.desc}
-                costoPuntos={premio.costo}
-                acciones={
-                  modoEdicion ? (
-                    <OverlayEditableWrapper
-                      id={premio.id}
-                      initial={{
-                        nombre: premio.nombre,
-                        descripcion: premio.desc,
-                        costoPuntos: premio.costo,
-                      }}
-                    />
-                  ) : undefined
-                }
-              />
-            ))}
-          </div>
+          {modoEdicion ? (
+            <CatalogoPremiosEditableClient
+              crearNuevo={crearNuevo}
+              premios={premiosDestacados.map((p) => ({
+                id: p.id,
+                nombre: p.nombre,
+                descripcion: p.desc,
+                costoPuntos: p.costo,
+              }))}
+            />
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 mt-12">
+              {premiosDestacados.map((premio) => (
+                <TarjetaPremio
+                  key={premio.id}
+                  id={premio.id}
+                  nombre={premio.nombre}
+                  descripcion={premio.desc}
+                  costoPuntos={premio.costo}
+                />
+              ))}
+            </div>
+          )}
 
           <div className="mt-12 text-center md:hidden">
             <Boton variante="secundario" className="w-full">
