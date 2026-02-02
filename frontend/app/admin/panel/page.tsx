@@ -130,8 +130,8 @@ export default function PaginaPanelAdmin() {
           <EstadoVacio />
         ) : (
           <div className="flex flex-col rounded-xl border border-gray-200 shadow-sm bg-white overflow-hidden">
-            {/* Contenedor principal de la tabla (sin scroll vertical) */}
-            <div className="relative">
+            {/* Contenedor principal de la tabla: permitir scroll horizontal en móvil */}
+            <div className="relative overflow-x-auto">
               <TablaClientesModerna
                 usuarios={usuarios}
                 onAsignar={abrirModalAsignacion}

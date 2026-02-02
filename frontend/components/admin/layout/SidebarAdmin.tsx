@@ -1,7 +1,10 @@
+/* Ubicación: frontend/components/admin/layout/SidebarAdmin.tsx
+  Cambios: Se agregó la sección inferior para "Volver al Inicio" usando mt-auto para empujarlo al final.
+*/
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Pen, ShoppingCart, User } from "lucide-react";
+import { Pen, ShoppingCart, User, ArrowLeft } from "lucide-react";
 
 type ItemNav = { href: string; label: string; icon?: React.ReactNode };
 
@@ -33,11 +36,11 @@ export const SidebarAdmin = () => {
       {/* Encabezado / Branding */}
       <div className="px-2">
         <h2 className="text-lg font-semibold">Administración</h2>
-        <p className="text-xs text-gray-500">Opciones</p>
+        <p className="text-xs text-gray-500">Opciones de gestión</p>
       </div>
 
-      {/* Navegación */}
-      <ul className="space-y-1">
+      {/* Navegación Principal */}
+      <ul className="space-y-1 flex-1">
         {items.map((item) => (
           <li key={item.href}>
             <Link
@@ -48,7 +51,6 @@ export const SidebarAdmin = () => {
                   : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
               }`}
             >
-              {/* Icono lucide */}
               <span
                 className={
                   esActivo(item.href) ? "text-gray-900" : "text-gray-500"
@@ -61,6 +63,18 @@ export const SidebarAdmin = () => {
           </li>
         ))}
       </ul>
+
+      {/* Navegación Secundaria (Bottom) */}
+      <div className="border-t border-gray-200 pt-4 mt-auto">
+        <Link
+          href="/"
+          className="flex items-center gap-2 rounded-md px-3 py-2 text-sm text-gray-600 hover:bg-red-50 hover:text-red-700 transition-colors"
+          title="Volver a la vista pública sin cerrar sesión"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          <span>Volver al Inicio</span>
+        </Link>
+      </div>
     </nav>
   );
 };

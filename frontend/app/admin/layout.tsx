@@ -10,7 +10,7 @@ export default function AdminLayout({
   const [menuAbierto, setMenuAbierto] = useState(false);
 
   return (
-    <div className="flex h-screen w-full bg-slate-200 text-slate-900 overflow-hidden">
+    <div className="flex h-screen w-full bg-slate-200 text-slate-900 overflow-x-hidden">
       {/* Barra Lateral de Navegación */}
       <aside className="w-64 shrink-0 border-r border-slate-200 bg-white shadow-sm z-20 hidden md:block">
         <SidebarAdmin />
