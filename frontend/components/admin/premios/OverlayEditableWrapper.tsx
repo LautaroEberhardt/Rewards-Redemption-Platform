@@ -1,7 +1,9 @@
 "use client";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useToast } from "@/components/ui/toast";
 import { useSession } from "next-auth/react";
-import { EditorTarjetaPremioOverlay } from "@/components/admin/premios/EditorTarjetaPremioOverlay";
+import { EditorTarjetaPremioOverlay } from "./EditorTarjetaPremioOverlay";
 import {
   crearPremio,
   actualizarPremio,
@@ -16,6 +18,8 @@ type Props = {
 export function OverlayEditableWrapper({ id, initial }: Props) {
   const { data: sesion } = useSession();
   const [visible, setVisible] = useState(true);
+  const router = useRouter();
+  const { showSuccess, showError } = useToast();
 
   const token = (sesion as any)?.accessToken || (sesion as any)?.user?.token;
 
@@ -37,10 +41,11 @@ export function OverlayEditableWrapper({ id, initial }: Props) {
           },
           token,
         );
-        alert("Premio creado");
+        showSuccess("Premio creado");
+        router.refresh();
       } else {
         await actualizarPremio(
-          premioId,
+          Number(premioId),
           {
             nombre: data.nombre,
             costoPuntos: data.costoPuntos,
@@ -48,11 +53,12 @@ export function OverlayEditableWrapper({ id, initial }: Props) {
           },
           token,
         );
-        alert("Premio actualizado");
+        showSuccess("Premio actualizado");
+        router.refresh();
       }
       // TODO: opcional - disparar un refresh del router
     } catch (e: any) {
-      alert(e?.message || "No se pudo guardar el premio");
+      showError(e?.message || "No se pudo guardar el premio");
     }
   };
 
@@ -63,11 +69,11 @@ export function OverlayEditableWrapper({ id, initial }: Props) {
         alert("No hay token de sesión");
         return;
       }
-      await eliminarPremio(premioId, token);
-      alert("Premio eliminado");
-      // TODO: opcional - disparar un refresh del router
+      await eliminarPremio(Number(premioId), token);
+      showSuccess("Premio eliminado");
+      router.refresh();
     } catch (e: any) {
-      alert(e?.message || "No se pudo eliminar el premio");
+      showError(e?.message || "No se pudo eliminar el premio");
     }
   };
 

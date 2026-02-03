@@ -1,5 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useToast } from "@/components/ui/toast";
 import { useSession } from "next-auth/react";
 import { TarjetaPremio } from "@/components/ui/TarjetaModulo";
 import { EditorTarjetaPremioOverlay } from "@/components/admin/premios/EditorTarjetaPremioOverlay";
@@ -15,6 +17,8 @@ import { Boton } from "@/components/ui/boton";
 export function AdminPremiosClient() {
   const { data: sesion } = useSession();
   const token = (sesion as any)?.accessToken || (sesion as any)?.user?.token;
+  const router = useRouter();
+  const { showSuccess, showError } = useToast();
 
   const [premios, setPremios] = useState<Premio[]>([]);
   const [overlayPremio, setOverlayPremio] = useState<Premio | null>(null);
@@ -41,7 +45,7 @@ export function AdminPremiosClient() {
   ) => {
     try {
       if (!token) {
-        alert("No hay token de sesión");
+        showError("No hay token de sesión");
         return;
       }
       if (id === 0) {
@@ -54,7 +58,8 @@ export function AdminPremiosClient() {
           token,
         );
         setPremios((prev) => [...prev, creado]);
-        alert("Premio creado");
+        showSuccess("Premio creado");
+        router.refresh();
       } else {
         const actualizado = await actualizarPremio(
           id,
@@ -66,11 +71,12 @@ export function AdminPremiosClient() {
           token,
         );
         setPremios((prev) => prev.map((p) => (p.id === id ? actualizado : p)));
-        alert("Premio actualizado");
+        showSuccess("Premio actualizado");
+        router.refresh();
       }
       cerrarOverlay();
     } catch (e: any) {
-      alert(e?.message || "No se pudo guardar el premio");
+      showError(e?.message || "No se pudo guardar el premio");
     }
   };
 
@@ -78,15 +84,16 @@ export function AdminPremiosClient() {
     if (!confirm("¿Eliminar este premio?")) return;
     try {
       if (!token) {
-        alert("No hay token de sesión");
+        showError("No hay token de sesión");
         return;
       }
       await eliminarPremio(id, token);
       setPremios((prev) => prev.filter((p) => p.id !== id));
-      alert("Premio eliminado");
+      showSuccess("Premio eliminado");
+      router.refresh();
       cerrarOverlay();
     } catch (e: any) {
-      alert(e?.message || "No se pudo eliminar el premio");
+      showError(e?.message || "No se pudo eliminar el premio");
     }
   };
 

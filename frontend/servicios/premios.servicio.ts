@@ -1,59 +1,8 @@
-// import { apiCliente } from "./api-cliente";
-// import { TransaccionPuntosInterfaz } from "@/tipos/puntos";
+import { Premio } from "@/tipos/premio";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
-export type Premio = {
-  id: number;
-  nombre: string;
-  costoPuntos: number;
-  descripcion?: string;
-};
-type PremioBackend = {
-  id: number | string;
-  nombre?: string;
-  titulo?: string;
-  costoPuntos?: number;
-  costo?: number;
-  descripcion?: string;
-};
-
-export const PuntosServicio = {
-  asignar: async (
-    usuarioId: string,
-    cantidad: number,
-    concepto: string,
-    token: string,
-  ) => {
-    try {
-      const respuesta = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/puntos/asignar`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            usuarioId,
-            cantidad,
-            concepto,
-          }),
-        },
-      );
-
-      if (!respuesta.ok) {
-        const errorData = await respuesta.json();
-        throw new Error(errorData.message || "Error al asignar puntos");
-      }
-
-      return await respuesta.json();
-    } catch (error) {
-      console.error("Error en PuntosServicio:", error);
-      throw error;
-    }
-  },
-};
+// Clase de error específica eliminada por no utilizarse actualmente
 
 export async function listarPremios(token?: string): Promise<Premio[]> {
   try {
@@ -74,39 +23,12 @@ export async function listarPremios(token?: string): Promise<Premio[]> {
     if (!Array.isArray(datos)) {
       throw new Error("Formato inválido de respuesta de premios");
     }
-    // Normalización defensiva por si el backend usa otro nombre de campo
-    const premios: Premio[] = (datos as PremioBackend[]).map((p) => ({
-      id: Number(p.id),
-      nombre: p.nombre ?? p.titulo ?? "",
-      costoPuntos:
-        typeof p.costoPuntos === "number"
-          ? p.costoPuntos
-          : typeof p.costo === "number"
-            ? p.costo
-            : 0,
-      descripcion: p.descripcion ?? undefined,
-    }));
-
-    return premios;
+    // Confiamos en el contrato compartido de Premio
+    return datos as Premio[];
   } catch (error) {
     console.error("Error en listarPremios:", error);
     throw error;
   }
-}
-
-// Helpers
-function normalizarPremio(p: PremioBackend): Premio {
-  return {
-    id: Number(p.id),
-    nombre: p.nombre ?? p.titulo ?? "",
-    costoPuntos:
-      typeof p.costoPuntos === "number"
-        ? p.costoPuntos
-        : typeof p.costo === "number"
-          ? p.costo
-          : 0,
-    descripcion: p.descripcion ?? undefined,
-  };
 }
 
 export async function crearPremio(
@@ -130,11 +52,11 @@ export async function crearPremio(
     body: JSON.stringify(cuerpo),
   });
   if (!respuesta.ok) {
-    const err = await safeJson(respuesta);
+    const err = (await safeJson(respuesta)) as { message?: string } | null;
     throw new Error(err?.message || "Error al crear premio");
   }
-  const data: PremioBackend = await respuesta.json();
-  return normalizarPremio(data);
+  const data: Premio = await respuesta.json();
+  return data;
 }
 
 export async function actualizarPremio(
@@ -171,13 +93,13 @@ export async function actualizarPremio(
     });
   }
   if (!respuesta.ok) {
-    const err = await safeJson(respuesta);
+    const err = (await safeJson(respuesta)) as { message?: string } | null;
     throw new Error(
       err?.message || `Error al actualizar premio (status ${respuesta.status})`,
     );
   }
-  const data: PremioBackend = await respuesta.json();
-  return normalizarPremio(data);
+  const data: Premio = await respuesta.json();
+  return data;
 }
 
 export async function eliminarPremio(
@@ -192,12 +114,12 @@ export async function eliminarPremio(
     headers,
   });
   if (!respuesta.ok) {
-    const err = await safeJson(respuesta);
+    const err = (await safeJson(respuesta)) as { message?: string } | null;
     throw new Error(err?.message || "Error al eliminar premio");
   }
 }
 
-async function safeJson(res: Response): Promise<any | null> {
+async function safeJson(res: Response): Promise<unknown | null> {
   try {
     return await res.json();
   } catch {

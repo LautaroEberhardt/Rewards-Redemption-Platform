@@ -3,6 +3,7 @@ import { Boton } from "@/components/ui/boton";
 import { TarjetaPremio } from "@/components/ui/TarjetaModulo";
 import { BotonAgregarPremioFlotante } from "@/components/admin/premios/BotonAgregarPremioFlotante";
 import { CatalogoPremiosEditableClient } from "@/components/admin/premios/CatalogoPremiosEditableClient";
+import { listarPremios } from "@/servicios/premios.servicio";
 
 export default async function PaginaInicio({
   searchParams,
@@ -14,44 +15,61 @@ export default async function PaginaInicio({
   const modoEdicion = sp.edit === "premios";
   const crearNuevo = sp.crear === "1";
 
-  const premiosDestacados = [
-    {
-      id: 1,
-      nombre: "Gift Card Amazon",
-      costo: 500,
-      desc: "Canjeable por cualquier producto en la tienda.",
-    },
-    {
-      id: 2,
-      nombre: "Auriculares Bluetooth",
-      costo: 1200,
-      desc: "Sonido de alta fidelidad con cancelación de ruido.",
-    },
-    {
-      id: 3,
-      nombre: "Cena para Dos",
-      costo: 2500,
-      desc: "Experiencia gourmet en restaurantes seleccionados.",
-    },
-    {
-      id: 4,
-      nombre: "Kit Merchandising",
-      costo: 300,
-      desc: "Camiseta, taza y stickers de la marca.",
-    },
-    {
-      id: 5,
-      nombre: "Día de Spa",
-      costo: 5000,
-      desc: "Circuito completo de relajación y masaje.",
-    },
-    {
-      id: 6,
-      nombre: "Entradas de Cine",
-      costo: 450,
-      desc: "Pack de 2 entradas + combo de palomitas.",
-    },
-  ];
+  // Intentamos traer premios reales desde el backend; si falla, usamos fallback estático
+  let premiosReales: {
+    id: number;
+    nombre: string;
+    descripcion: string;
+    costoPuntos: number;
+  }[] = [];
+  try {
+    const apiPremios = await listarPremios();
+    premiosReales = apiPremios.map((p) => ({
+      id: p.id,
+      nombre: p.nombre,
+      descripcion: p.descripcion ?? "",
+      costoPuntos: p.costoPuntos,
+    }));
+  } catch {
+    premiosReales = [
+      {
+        id: 1,
+        nombre: "Gift Card Amazon",
+        descripcion: "Canjeable por cualquier producto en la tienda.",
+        costoPuntos: 500,
+      },
+      {
+        id: 2,
+        nombre: "Auriculares Bluetooth",
+        descripcion: "Sonido de alta fidelidad con cancelación de ruido.",
+        costoPuntos: 1200,
+      },
+      {
+        id: 3,
+        nombre: "Cena para Dos",
+        descripcion: "Experiencia gourmet en restaurantes seleccionados.",
+        costoPuntos: 2500,
+      },
+      {
+        id: 4,
+        nombre: "Kit Merchandising",
+        descripcion: "Camiseta, taza y stickers de la marca.",
+        costoPuntos: 300,
+      },
+      {
+        id: 5,
+        nombre: "Día de Spa",
+        descripcion: "Circuito completo de relajación y masaje.",
+        costoPuntos: 5000,
+      },
+      {
+        id: 6,
+        nombre: "Entradas de Cine",
+        descripcion: "Pack de 2 entradas + combo de palomitas.",
+        costoPuntos: 450,
+      },
+    ];
+  }
 
   // Los handlers se gestionan dentro del wrapper cliente
 
@@ -97,22 +115,17 @@ export default async function PaginaInicio({
           {modoEdicion ? (
             <CatalogoPremiosEditableClient
               crearNuevo={crearNuevo}
-              premios={premiosDestacados.map((p) => ({
-                id: p.id,
-                nombre: p.nombre,
-                descripcion: p.desc,
-                costoPuntos: p.costo,
-              }))}
+              premios={premiosReales}
             />
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 mt-12">
-              {premiosDestacados.map((premio) => (
+              {premiosReales.map((premio) => (
                 <TarjetaPremio
                   key={premio.id}
                   id={premio.id}
                   nombre={premio.nombre}
-                  descripcion={premio.desc}
-                  costoPuntos={premio.costo}
+                  descripcion={premio.descripcion}
+                  costoPuntos={premio.costoPuntos}
                 />
               ))}
             </div>

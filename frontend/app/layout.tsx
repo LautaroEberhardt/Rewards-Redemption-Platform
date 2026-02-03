@@ -5,6 +5,7 @@ import { FondoDegradado } from "@/components/ui/fondo-degradado";
 import { ProveedorUI } from "@/context/ui-context";
 import { SidebarGlobal } from "@/components/layout/SidebarGlobal";
 import { SessionProvider } from "next-auth/react";
+import { ToastProvider, ToastViewport } from "../components/ui/toast";
 
 export const metadata = {
   title: "Sistema Uniformes",
@@ -21,10 +22,13 @@ export default function RootLayout({
       <body>
         <FondoDegradado>
           <SessionProvider>
-            <ProveedorUI>
-              <main>{children}</main>
-              <SidebarGlobal />
-            </ProveedorUI>
+            <ToastProvider>
+              <ProveedorUI>
+                <main>{children}</main>
+                <SidebarGlobal />
+                <ToastViewport />
+              </ProveedorUI>
+            </ToastProvider>
           </SessionProvider>
         </FondoDegradado>
       </body>

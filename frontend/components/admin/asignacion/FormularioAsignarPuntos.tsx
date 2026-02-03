@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Usuario } from "@/tipos/usuario";
-import { PuntosServicio } from "@/servicios/premios.servicio";
+import { PuntosServicio } from "@/servicios/puntos.servicio";
 import { useSession } from "next-auth/react";
 import { Boton } from "@/components/ui/boton";
 

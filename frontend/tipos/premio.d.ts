@@ -4,4 +4,5 @@ export interface Premio {
   descripcion?: string;
   costoPuntos: number;
   imagenUrl?: string;
+  activo?: boolean;
 }

@@ -1,5 +1,7 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useToast } from "@/components/ui/toast";
 import { useSession } from "next-auth/react";
 import { TarjetaPremio } from "@/components/ui/TarjetaModulo";
 import { Pencil, Trash } from "lucide-react";
@@ -24,6 +26,10 @@ type Props = {
 
 export function CatalogoPremiosEditableClient({ premios, crearNuevo }: Props) {
   const { data: sesion } = useSession();
+  const router = useRouter();
+  const pathname = usePathname();
+  const urlParams = useSearchParams();
+  const { showSuccess, showError } = useToast();
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const token = (sesion as any)?.accessToken || (sesion as any)?.user?.token;
 
@@ -39,8 +45,31 @@ export function CatalogoPremiosEditableClient({ premios, crearNuevo }: Props) {
       : null,
   );
 
+  // Si el query param `crear=1` cambia después del primer render,
+  // abrimos el overlay de creación de manera reactiva.
+  useEffect(() => {
+    if (crearNuevo && !overlayPremio) {
+      setOverlayPremio({
+        id: 0,
+        nombre: "Nuevo premio",
+        descripcion: "Describe el premio...",
+        costoPuntos: 0,
+      });
+    }
+  }, [crearNuevo]);
+
   const abrirOverlay = (p: PremioUI) => setOverlayPremio(p);
-  const cerrarOverlay = () => setOverlayPremio(null);
+  const cerrarOverlay = () => {
+    setOverlayPremio(null);
+    // Limpiar el query param `crear=1` para permitir re-apertura en clicks siguientes
+    const isCrear = urlParams.get("crear") === "1";
+    if (isCrear) {
+      const nextParams = new URLSearchParams(urlParams.toString());
+      nextParams.delete("crear");
+      const query = nextParams.toString();
+      router.replace(query ? `${pathname}?${query}` : pathname);
+    }
+  };
 
   const handleSave = async (
     id: number,
@@ -69,10 +98,11 @@ export function CatalogoPremiosEditableClient({ premios, crearNuevo }: Props) {
             costoPuntos: creado.costoPuntos,
           },
         ]);
-        alert("Premio creado");
+        showSuccess("Premio creado");
+        router.refresh();
       } else {
         const actualizado = await actualizarPremio(
-          id,
+          Number(id),
           {
             nombre: data.nombre,
             costoPuntos: data.costoPuntos,
@@ -92,12 +122,13 @@ export function CatalogoPremiosEditableClient({ premios, crearNuevo }: Props) {
               : p,
           ),
         );
-        alert("Premio actualizado");
+        showSuccess("Premio actualizado");
+        router.refresh();
       }
       cerrarOverlay();
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (e: any) {
-      alert(e?.message || "No se pudo guardar el premio");
+      showError(e?.message || "No se pudo guardar el premio");
     }
   };
 
@@ -108,13 +139,14 @@ export function CatalogoPremiosEditableClient({ premios, crearNuevo }: Props) {
         alert("No hay token de sesión");
         return;
       }
-      await eliminarPremio(id, token);
+      await eliminarPremio(Number(id), token);
       setLista((prev) => prev.filter((p) => p.id !== id));
-      alert("Premio eliminado");
+      showSuccess("Premio eliminado");
+      router.refresh();
       cerrarOverlay();
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (e: any) {
-      alert(e?.message || "No se pudo eliminar el premio");
+      showError(e?.message || "No se pudo eliminar el premio");
     }
   };
 
