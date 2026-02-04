@@ -1,14 +1,20 @@
 "use client";
-import { useState } from "react";
+import { useState, ChangeEvent } from "react";
 import { X, Save, Trash2, Gift, Coins, AlignLeft } from "lucide-react";
 import { Boton } from "@/components/ui/boton";
 
 type Props = {
   id: number;
   initial: { nombre: string; descripcion: string; costoPuntos: number };
+  imagenUrl?: string;
   onSave?: (
     id: number,
-    data: { nombre: string; descripcion: string; costoPuntos: number },
+    data: {
+      nombre: string;
+      descripcion: string;
+      costoPuntos: number;
+      imagen?: File;
+    },
   ) => void;
   onDelete?: (id: number) => void;
   onClose: () => void;
@@ -17,15 +23,39 @@ type Props = {
 export function EditorTarjetaPremioOverlay({
   id,
   initial,
+  imagenUrl,
   onSave,
   onDelete,
   onClose,
 }: Props) {
   const [formulario, setFormulario] = useState(initial);
   const [confirmarEliminacion, setConfirmarEliminacion] = useState(false);
+  const [archivo, setArchivo] = useState<File | undefined>(undefined);
+  const baseApi = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
+  const initialPreview = imagenUrl
+    ? imagenUrl.startsWith("http")
+      ? imagenUrl
+      : `${baseApi}${imagenUrl}`
+    : undefined;
+  const [previewUrl, setPreviewUrl] = useState<string | undefined>(
+    initialPreview,
+  );
 
   const manejarGuardado = () => {
-    onSave?.(id, formulario);
+    onSave?.(id, { ...formulario, imagen: archivo });
+  };
+
+  const manejarCambioArchivo = (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setArchivo(file);
+      const reader = new FileReader();
+      reader.onload = () => setPreviewUrl(reader.result as string);
+      reader.readAsDataURL(file);
+    } else {
+      setArchivo(undefined);
+      setPreviewUrl(undefined);
+    }
   };
 
   return (
@@ -34,7 +64,7 @@ export function EditorTarjetaPremioOverlay({
         <div className="relative bg-linear-to-r from-(--primary)/10 to-transparent p-6 border-b border-gray-100">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-background-secondary rounded-lg shadow-sm text-(--primary)">
-              <Gift className="w-6 h-6"/>
+              <Gift className="w-6 h-6" />
             </div>
             <div>
               <h3 className="text-lg font-bold text-gray-800">Editar Premio</h3>
@@ -104,6 +134,27 @@ export function EditorTarjetaPremioOverlay({
                 setFormulario({ ...formulario, descripcion: e.target.value })
               }
             />
+          </div>
+
+          <div className="space-y-1.5">
+            <label className="text-xs font-semibold uppercase tracking-wider text-gray-500">
+              Imagen (opcional)
+            </label>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={manejarCambioArchivo}
+              className="w-full rounded-xl border border-background-secondary bg-gray-50 px-4 py-2 text-sm"
+            />
+            {previewUrl && (
+              <div className="mt-2">
+                <img
+                  src={previewUrl}
+                  alt="Vista previa"
+                  className="max-h-40 rounded-md border"
+                />
+              </div>
+            )}
           </div>
         </div>
 

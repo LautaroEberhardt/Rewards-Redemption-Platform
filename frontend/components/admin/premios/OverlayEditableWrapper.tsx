@@ -25,7 +25,12 @@ export function OverlayEditableWrapper({ id, initial }: Props) {
 
   const handleSave = async (
     premioId: number,
-    data: { nombre: string; descripcion: string; costoPuntos: number },
+    data: {
+      nombre: string;
+      descripcion: string;
+      costoPuntos: number;
+      imagen?: File;
+    },
   ) => {
     try {
       if (!token) {
@@ -38,6 +43,7 @@ export function OverlayEditableWrapper({ id, initial }: Props) {
             nombre: data.nombre,
             costoPuntos: data.costoPuntos,
             descripcion: data.descripcion,
+            imagen: data.imagen,
           },
           token,
         );

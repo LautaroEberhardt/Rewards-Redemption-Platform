@@ -21,6 +21,7 @@ export default async function PaginaInicio({
     nombre: string;
     descripcion: string;
     costoPuntos: number;
+    imagenUrl?: string;
   }[] = [];
   try {
     const apiPremios = await listarPremios();
@@ -29,6 +30,7 @@ export default async function PaginaInicio({
       nombre: p.nombre,
       descripcion: p.descripcion ?? "",
       costoPuntos: p.costoPuntos,
+      imagenUrl: p.imagenUrl,
     }));
   } catch {
     premiosReales = [
@@ -126,6 +128,7 @@ export default async function PaginaInicio({
                   nombre={premio.nombre}
                   descripcion={premio.descripcion}
                   costoPuntos={premio.costoPuntos}
+                  imagenUrl={premio.imagenUrl}
                 />
               ))}
             </div>

@@ -41,7 +41,12 @@ export function AdminPremiosClient() {
 
   const handleSave = async (
     id: number,
-    data: { nombre: string; descripcion: string; costoPuntos: number },
+    data: {
+      nombre: string;
+      descripcion: string;
+      costoPuntos: number;
+      imagen?: File;
+    },
   ) => {
     try {
       if (!token) {
@@ -54,6 +59,7 @@ export function AdminPremiosClient() {
             nombre: data.nombre,
             costoPuntos: data.costoPuntos,
             descripcion: data.descripcion,
+            imagen: data.imagen,
           },
           token,
         );
@@ -67,6 +73,7 @@ export function AdminPremiosClient() {
             nombre: data.nombre,
             costoPuntos: data.costoPuntos,
             descripcion: data.descripcion,
+            imagen: data.imagen,
           },
           token,
         );
@@ -116,6 +123,7 @@ export function AdminPremiosClient() {
             nombre={premio.nombre}
             descripcion={premio.descripcion ?? ""}
             costoPuntos={premio.costoPuntos}
+            imagenUrl={premio.imagenUrl}
             acciones={
               <div className="flex gap-2 w-full">
                 <Boton
@@ -146,6 +154,7 @@ export function AdminPremiosClient() {
             descripcion: overlayPremio.descripcion ?? "",
             costoPuntos: overlayPremio.costoPuntos,
           }}
+          imagenUrl={overlayPremio.imagenUrl}
           onSave={handleSave}
           onDelete={handleDelete}
           onClose={cerrarOverlay}

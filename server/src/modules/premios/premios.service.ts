@@ -8,6 +8,7 @@ export type PremioDto = {
   nombre: string;
   descripcion?: string | null;
   costoPuntos: number;
+  urlImagen?: string | null;
 };
 
 @Injectable()
@@ -23,6 +24,7 @@ export class PremiosService {
       nombre: entidad.nombre,
       descripcion: entidad.descripcion ?? null,
       costoPuntos: entidad.costoEnPuntos,
+      urlImagen: entidad.urlImagen ?? null,
     };
   }
 
@@ -42,11 +44,13 @@ export class PremiosService {
     descripcion?: string;
     costoPuntos?: number; // aceptamos costoPuntos
     costo?: number; // y costo para compatibilidad
+    urlImagen?: string; // ruta relativa de imagen
   }): Promise<PremioDto> {
     const entidad = this.repo.create({
       nombre: input.nombre,
       // DeepPartial espera undefined para opcionales, no null
       descripcion: input.descripcion ?? undefined,
+      urlImagen: input.urlImagen ?? undefined,
       costoEnPuntos:
         typeof input.costoPuntos === 'number'
           ? input.costoPuntos
@@ -66,6 +70,7 @@ export class PremiosService {
       descripcion?: string;
       costoPuntos?: number;
       costo?: number;
+      urlImagen?: string;
     },
   ): Promise<PremioDto> {
     const existente = await this.repo.findOne({ where: { id } });
@@ -75,16 +80,24 @@ export class PremiosService {
     if (typeof input.descripcion === 'string') existente.descripcion = input.descripcion;
     if (typeof input.costoPuntos === 'number') existente.costoEnPuntos = input.costoPuntos;
     else if (typeof input.costo === 'number') existente.costoEnPuntos = input.costo;
+    if (typeof input.urlImagen === 'string') existente.urlImagen = input.urlImagen;
 
     const guardado = await this.repo.save(existente);
     return this.toDto(guardado);
   }
 
   async remove(id: number): Promise<void> {
-    const existente = await this.repo.findOne({ where: { id } });
-    if (!existente) throw new NotFoundException('Premio no encontrado');
-    // Soft delete: marcamos como inactivo
-    existente.activo = false;
-    await this.repo.save(existente);
+    try {
+      const resultado = await this.repo.delete(id);
+      if (!resultado.affected || resultado.affected < 1) {
+        throw new NotFoundException('Premio no encontrado');
+      }
+    } catch (e) {
+      // Fallback de seguridad: si hay restricciones de FK, aplicamos soft delete
+      const existente = await this.repo.findOne({ where: { id } });
+      if (!existente) throw new NotFoundException('Premio no encontrado');
+      existente.activo = false;
+      await this.repo.save(existente);
+    }
   }
 }

@@ -17,6 +17,7 @@ type PremioUI = {
   nombre: string;
   descripcion: string;
   costoPuntos: number;
+  imagenUrl?: string;
 };
 
 type Props = {
@@ -73,7 +74,12 @@ export function CatalogoPremiosEditableClient({ premios, crearNuevo }: Props) {
 
   const handleSave = async (
     id: number,
-    data: { nombre: string; descripcion: string; costoPuntos: number },
+    data: {
+      nombre: string;
+      descripcion: string;
+      costoPuntos: number;
+      imagen?: File;
+    },
   ) => {
     try {
       if (!token) {
@@ -86,6 +92,7 @@ export function CatalogoPremiosEditableClient({ premios, crearNuevo }: Props) {
             nombre: data.nombre,
             costoPuntos: data.costoPuntos,
             descripcion: data.descripcion,
+            imagen: data.imagen,
           },
           token,
         );
@@ -96,6 +103,7 @@ export function CatalogoPremiosEditableClient({ premios, crearNuevo }: Props) {
             nombre: creado.nombre,
             descripcion: creado.descripcion ?? "",
             costoPuntos: creado.costoPuntos,
+            imagenUrl: creado.imagenUrl,
           },
         ]);
         showSuccess("Premio creado");
@@ -107,6 +115,7 @@ export function CatalogoPremiosEditableClient({ premios, crearNuevo }: Props) {
             nombre: data.nombre,
             costoPuntos: data.costoPuntos,
             descripcion: data.descripcion,
+            imagen: data.imagen,
           },
           token,
         );
@@ -118,6 +127,7 @@ export function CatalogoPremiosEditableClient({ premios, crearNuevo }: Props) {
                   nombre: actualizado.nombre,
                   descripcion: actualizado.descripcion ?? "",
                   costoPuntos: actualizado.costoPuntos,
+                  imagenUrl: actualizado.imagenUrl ?? p.imagenUrl,
                 }
               : p,
           ),
@@ -159,6 +169,7 @@ export function CatalogoPremiosEditableClient({ premios, crearNuevo }: Props) {
           nombre={premio.nombre}
           descripcion={premio.descripcion}
           costoPuntos={premio.costoPuntos}
+          imagenUrl={premio.imagenUrl}
           acciones={
             <div className="flex gap-2">
               <button
@@ -190,6 +201,7 @@ export function CatalogoPremiosEditableClient({ premios, crearNuevo }: Props) {
             descripcion: overlayPremio.descripcion,
             costoPuntos: overlayPremio.costoPuntos,
           }}
+          imagenUrl={(overlayPremio as any).imagenUrl}
           onSave={handleSave}
           onDelete={handleDelete}
           onClose={cerrarOverlay}

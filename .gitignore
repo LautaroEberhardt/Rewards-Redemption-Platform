@@ -3,6 +3,12 @@
 /node_modules
 /build
 
+/uploads/*
+
+# Pero mantener la estructura de carpetas (gitkeep)
+!/uploads/.gitkeep
+!/uploads/premios/.gitkeep
+
 # Logs
 logs
 *.log
