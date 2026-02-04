@@ -40,7 +40,7 @@ export default function BarraNavegacion() {
         
         {/* 1. LOGO */}
         <Link href="/" className="text-primary font-bold text-2xl z-50">
-          A.V
+          AyV
         </Link>
 
         {/* 2. NAVEGACIÓN DESKTOP */}

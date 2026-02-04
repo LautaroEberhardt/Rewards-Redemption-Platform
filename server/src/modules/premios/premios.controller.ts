@@ -11,12 +11,17 @@ import {
   UseInterceptors,
   BadRequestException,
   UploadedFile,
+  UseGuards,
 } from '@nestjs/common';
 import { PremiosService, PremioDto } from './premios.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
 import { existsSync, mkdirSync } from 'fs';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { RolesGuard } from '../auth/guards/roles.guard';
+import { Roles } from '../auth/decorators/roles.decorator';
+import { RolUsuario } from '../../common/enums/roles.enum';
 
 @Controller('premios')
 export class PremiosController {
@@ -33,6 +38,8 @@ export class PremiosController {
   }
 
   @Post()
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(RolUsuario.ADMIN)
   @UseInterceptors(
     FileInterceptor('imagen', {
       storage: diskStorage({
@@ -98,6 +105,8 @@ export class PremiosController {
   }
 
   @Patch(':id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(RolUsuario.ADMIN)
   @UseInterceptors(
     FileInterceptor('imagen', {
       storage: diskStorage({
@@ -157,6 +166,8 @@ export class PremiosController {
   }
 
   @Put(':id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(RolUsuario.ADMIN)
   @UseInterceptors(
     FileInterceptor('imagen', {
       storage: diskStorage({
@@ -216,6 +227,8 @@ export class PremiosController {
   }
 
   @Delete(':id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(RolUsuario.ADMIN)
   remove(@Param('id', ParseIntPipe) id: number): Promise<void> {
     return this.service.remove(id);
   }

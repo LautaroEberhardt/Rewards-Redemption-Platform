@@ -6,39 +6,7 @@ import { UsuariosServicio } from "@/servicios/usuarios.servicio";
 import { Usuario } from "@/tipos/usuario";
 import { ModalAsignarPuntos } from "@/components/admin/asignacion/FormularioAsignarPuntos";
 import { Boton } from "@/components/ui/boton";
-
-// --- Componentes UI Locales (Iconos SVG puros para no depender de librerías externas) ---
-const IconoUsuario = () => (
-  <svg
-    className="h-5 w-5 text-gray-400"
-    fill="none"
-    viewBox="0 0 24 24"
-    stroke="currentColor"
-  >
-    <path
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      strokeWidth={2}
-      d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"
-    />
-  </svg>
-);
-
-const IconoPuntos = () => (
-  <svg
-    className="h-4 w-4 mr-1 text-emerald-600"
-    fill="none"
-    viewBox="0 0 24 24"
-    stroke="currentColor"
-  >
-    <path
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      strokeWidth={2}
-      d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-    />
-  </svg>
-);
+import { Search } from "lucide-react";
 
 export default function PaginaPanelAdmin() {
   const { data: sesion } = useSession();
@@ -51,6 +19,10 @@ export default function PaginaPanelAdmin() {
   const [pagina, setPagina] = useState(1);
   const TAMANIO_PAGINA = 8;
   const [totalUsuarios, setTotalUsuarios] = useState(0);
+  const [busqueda, setBusqueda] = useState("");
+  const usuariosFiltrados = usuarios.filter((u) =>
+    (u.nombre || "").toLowerCase().includes(busqueda.toLowerCase().trim()),
+  );
 
   // Refetch: cargar clientes (reutilizable)
   const cargarClientes = async () => {
@@ -77,7 +49,7 @@ export default function PaginaPanelAdmin() {
       const soloClientes = resp.items.filter((u) => u.rol === "cliente");
       setUsuarios(soloClientes);
       setTotalUsuarios(resp.total);
-    } catch (err) {
+    } catch {
       setError("No se pudieron cargar los clientes.");
     } finally {
       setCargando(false);
@@ -90,9 +62,7 @@ export default function PaginaPanelAdmin() {
     setModalAbierto(true);
   };
 
-  const refrescarDatos = () => {
-    setCargando(true);
-  };
+  // refrescarDatos eliminado (no usado)
 
   useEffect(() => {
     cargarClientes();
@@ -101,16 +71,16 @@ export default function PaginaPanelAdmin() {
 
   const totalPaginas = Math.max(1, Math.ceil(totalUsuarios / TAMANIO_PAGINA));
   const inicio = (pagina - 1) * TAMANIO_PAGINA;
-  const fin = Math.min(inicio + TAMANIO_PAGINA, totalUsuarios);
+  // fin eliminado (no usado)
 
   // Si cambia la cantidad de usuarios, re-clamp de página
   useEffect(() => {
     const nuevasTotal = Math.max(1, Math.ceil(totalUsuarios / TAMANIO_PAGINA));
     if (pagina > nuevasTotal) setPagina(nuevasTotal);
-  }, [totalUsuarios]);
+  }, [totalUsuarios, pagina]);
 
   return (
-    <div className="max-w-6xl mx-auto space-y-6 py-4 flex flex-col">
+    <div className="max-w-6xl mx-auto space-y-6 py-4 flex flex-col mt-5">
       {/* Encabezado fijo (no scrollea) */}
       <div className="md:flex md:items-center md:justify-between shrink-0">
         <div className="min-w-0 flex-1">
@@ -118,7 +88,19 @@ export default function PaginaPanelAdmin() {
             Panel de clientes
           </h2>
         </div>
-        {/* ... botón nuevo cliente ... */}
+        <div className="relative w-full max-w-xs mt-2">
+          <Search
+            className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-500"
+            aria-hidden="true"
+          />
+          <input
+            type="text"
+            value={busqueda}
+            onChange={(e) => setBusqueda(e.target.value)}
+            placeholder="Buscar por nombre..."
+            className="w-full rounded-md border-2 border-background-secondary p-2 pl-10 focus:ring-2 focus:ring-background-secondary focus:outline-none"
+          />
+        </div>
       </div>
 
       <section className="flex-1 min-h-0">
@@ -126,14 +108,14 @@ export default function PaginaPanelAdmin() {
           <SkeletonTabla />
         ) : error ? (
           <EstadoError mensaje={error} />
-        ) : usuarios.length === 0 ? (
+        ) : usuariosFiltrados.length === 0 ? (
           <EstadoVacio />
         ) : (
           <div className="flex flex-col rounded-xl border border-gray-200 shadow-sm bg-white overflow-hidden">
             {/* Contenedor principal de la tabla: permitir scroll horizontal en móvil */}
             <div className="relative overflow-x-auto">
               <TablaClientesModerna
-                usuarios={usuarios}
+                usuarios={usuariosFiltrados}
                 onAsignar={abrirModalAsignacion}
               />
             </div>
@@ -143,8 +125,8 @@ export default function PaginaPanelAdmin() {
               <div className="flex items-center justify-between text-xs text-gray-500">
                 <span>
                   Mostrando {totalUsuarios === 0 ? 0 : inicio + 1}-
-                  {inicio + usuarios.length} de {totalUsuarios} clientes ·
-                  Página {pagina} de {totalPaginas}
+                  {inicio + usuariosFiltrados.length} de {totalUsuarios}{" "}
+                  clientes · Página {pagina} de {totalPaginas}
                 </span>
                 <div className="flex gap-2">
                   <button

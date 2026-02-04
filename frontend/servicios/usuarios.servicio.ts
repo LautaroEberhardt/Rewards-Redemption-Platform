@@ -61,7 +61,23 @@ export const UsuariosServicio = {
           cache: "no-store",
         },
       );
-      if (!respuesta.ok) throw new Error("Error al obtener usuarios paginados");
+      if (!respuesta.ok) {
+        let detalle: string | undefined;
+        try {
+          const data = await respuesta.json();
+          detalle = (data as any)?.message || (data as any)?.error;
+        } catch {
+          // ignore
+        }
+        const base = `Error al obtener usuarios paginados (status ${respuesta.status})`;
+        if (respuesta.status === 401)
+          throw new Error(detalle || `${base}: sesión no válida o expirada.`);
+        if (respuesta.status === 403)
+          throw new Error(
+            detalle || `${base}: permiso denegado (rol insuficiente).`,
+          );
+        throw new Error(detalle || base);
+      }
 
       const datos = await respuesta.json();
       const items: Usuario[] = (datos.items as any[]).map((u: any) => ({

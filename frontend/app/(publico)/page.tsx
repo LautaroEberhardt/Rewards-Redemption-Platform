@@ -1,4 +1,5 @@
 import React from "react";
+import { auth } from "@/auth";
 import { Boton } from "@/components/ui/boton";
 import { TarjetaPremio } from "@/components/ui/TarjetaModulo";
 import { BotonAgregarPremioFlotante } from "@/components/admin/premios/BotonAgregarPremioFlotante";
@@ -12,8 +13,12 @@ export default async function PaginaInicio({
   searchParams?: Promise<{ edit?: string; crear?: string }>;
 }) {
   const sp = (await searchParams) ?? {};
-  const modoEdicion = sp.edit === "premios";
-  const crearNuevo = sp.crear === "1";
+  // Seguridad: solo admins pueden activar modo edición vía query string
+  const sesion = await auth();
+  const rol = (sesion?.user as { rol?: string } | undefined)?.rol;
+  const esAdmin = rol === "ADMIN" || rol === "admin";
+  const modoEdicion = esAdmin && sp.edit === "premios";
+  const crearNuevo = modoEdicion && sp.crear === "1";
 
   // Intentamos traer premios reales desde el backend; si falla, usamos fallback estático
   let premiosReales: {

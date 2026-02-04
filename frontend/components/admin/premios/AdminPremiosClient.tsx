@@ -10,8 +10,8 @@ import {
   crearPremio,
   actualizarPremio,
   eliminarPremio,
-  Premio,
 } from "@/servicios/premios.servicio";
+import type { Premio } from "@/tipos/premio";
 import { Boton } from "@/components/ui/boton";
 
 export function AdminPremiosClient() {

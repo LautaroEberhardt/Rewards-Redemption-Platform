@@ -44,6 +44,33 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   ],
   callbacks: {
     async jwt({ token, user, account, profile }) {
+      // Intercambio de token cuando el login es con Google
+      if (account?.provider === "google" && profile) {
+        try {
+          const respuesta = await fetch(`${API_URL}/usuarios/login-google`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              email: (profile as any)?.email,
+              nombreCompleto: (profile as any)?.name,
+              googleId: (profile as any)?.sub,
+              foto: (profile as any)?.picture,
+            }),
+          });
+          if (respuesta.ok) {
+            const data = await respuesta.json();
+            // Estructura: { message, usuario, token: { access_token, usuario } }
+            const backendToken = data?.token?.access_token as
+              | string
+              | undefined;
+            const rolBackend = (data?.usuario?.rol as any) || token.rol;
+            if (backendToken) (token as any).backendToken = backendToken;
+            if (rolBackend) (token as any).rol = rolBackend;
+          }
+        } catch {
+          // Si falla, mantenemos el token/rol existentes
+        }
+      }
       // Persist token and role on JWT
       if (user && (user as any).token) {
         token.backendToken = (user as any).token;

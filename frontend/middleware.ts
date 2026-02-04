@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { auth } from "@/auth";
 
 const SESSION_COOKIES = [
   "authjs.session-token",
@@ -8,19 +9,39 @@ const SESSION_COOKIES = [
   "__Secure-next-auth.session-token",
 ];
 
-export function middleware(req: NextRequest) {
+export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
-  const requiresAuth =
-    pathname.startsWith("/admin") || pathname.startsWith("/cliente");
-  if (!requiresAuth) return NextResponse.next();
 
-  const hasSession = SESSION_COOKIES.some((key) => req.cookies.get(key)?.value);
-  if (hasSession) return NextResponse.next();
+  // Solo actuamos en rutas con protección
+  const isAdminRoute = pathname.startsWith("/admin");
+  const isClienteRoute = pathname.startsWith("/cliente");
+  if (!isAdminRoute && !isClienteRoute) {
+    return NextResponse.next();
+  }
 
-  const url = req.nextUrl.clone();
-  url.pathname = "/login";
-  url.searchParams.set("callbackUrl", pathname);
-  return NextResponse.redirect(url);
+  // Obtenemos sesión segura del lado del servidor
+  const session = await auth();
+  const rol = (session?.user as { rol?: string } | undefined)?.rol;
+  const esAdmin = rol === "ADMIN" || rol === "admin";
+
+  // Si no hay sesión, redirigimos a login
+  if (!session) {
+    const url = req.nextUrl.clone();
+    url.pathname = "/login";
+    url.searchParams.set("callbackUrl", pathname);
+    return NextResponse.redirect(url);
+  }
+
+  // Bloqueo explícito: rutas /admin requieren rol ADMIN
+  if (isAdminRoute && !esAdmin) {
+    const url = req.nextUrl.clone();
+    url.pathname = "/";
+    url.searchParams.delete("callbackUrl");
+    return NextResponse.redirect(url);
+  }
+
+  // Para /cliente basta estar autenticado (rol libre)
+  return NextResponse.next();
 }
 
 export const config = {
