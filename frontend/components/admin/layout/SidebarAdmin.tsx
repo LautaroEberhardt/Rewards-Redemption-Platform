@@ -20,8 +20,8 @@ const items: ItemNav[] = [
     icon: <ShoppingCart className="h-4 w-4" />,
   },
   {
-    href: "/admin/puntos/asignar",
-    label: "Asignar puntos",
+    href: "/admin/clientes",
+    label: "Modificación y Datos de usuarios",
     icon: <Pen className="h-4 w-4" />,
   },
 ];

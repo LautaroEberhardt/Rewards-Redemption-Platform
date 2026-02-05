@@ -1,11 +1,18 @@
-import { ConflictException, Injectable, InternalServerErrorException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, ILike, FindOptionsWhere } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { RolUsuario } from 'src/common/enums/roles.enum';
 import { UsuarioEntidad } from './entities/usuario.entity';
 import { CrearUsuarioDto } from './dtos/crear-usuario.dto';
 import { LoginGoogleDto } from './dtos/login-google.dto';
+import { PaginacionDto } from '../../common/dtos/paginacion.dto';
+import { ActualizarUsuarioDto } from './dtos/actualizar-usuario.dto';
 
 @Injectable()
 export class UsuariosService {
@@ -91,20 +98,57 @@ export class UsuariosService {
     page = 1,
     limit = 20,
   ): Promise<{ items: UsuarioEntidad[]; total: number; page: number; limit: number }> {
+    // Compatibilidad: delega en el método con DTO sin término de búsqueda
+    return this.obtenerTodosPaginados({ pagina: page, limite: limit } as PaginacionDto).then(
+      ({ items, total, pagina, limite }) => ({ items, total, page: pagina, limit: limite }),
+    );
+  }
+
+  // Búsqueda paginada con filtro por nombre o email
+  async obtenerTodosPaginados(
+    paginacionDto: PaginacionDto,
+  ): Promise<{ items: UsuarioEntidad[]; total: number; pagina: number; limite: number }> {
+    const { pagina = 1, limite = 20, busqueda } = paginacionDto;
+
     try {
-      const skip = Math.max(0, (page - 1) * limit);
-      const take = Math.max(1, limit);
+      const saltar = Math.max(0, (pagina - 1) * limite);
+
+      let condiciones: FindOptionsWhere<UsuarioEntidad>[] | FindOptionsWhere<UsuarioEntidad> = {};
+      if (busqueda && busqueda.trim().length > 0) {
+        const termino = busqueda.trim();
+        condiciones = [{ nombreCompleto: ILike(`%${termino}%`) }, { email: ILike(`%${termino}%`) }];
+      }
 
       const [items, total] = await this.usuarioRepositorio.findAndCount({
+        where: condiciones,
         order: { fechaCreacion: 'DESC' },
-        skip,
-        take,
+        skip: saltar,
+        take: limite,
       });
 
-      return { items, total, page, limit };
+      return { items, total, pagina, limite };
     } catch (error) {
       console.error('Error al obtener usuarios paginados:', error);
-      throw new InternalServerErrorException('Error al cargar usuarios paginados');
+      throw new InternalServerErrorException('Error al cargar usuarios');
+    }
+  }
+
+  // Actualizar Usuario
+  async actualizar(
+    id: string,
+    actualizarUsuarioDto: ActualizarUsuarioDto,
+  ): Promise<UsuarioEntidad> {
+    const usuario = await this.buscarPorId(id);
+    if (!usuario) {
+      throw new NotFoundException(`Usuario con ID ${id} no encontrado`);
+    }
+
+    const usuarioActualizado = this.usuarioRepositorio.merge(usuario, actualizarUsuarioDto);
+    try {
+      return await this.usuarioRepositorio.save(usuarioActualizado);
+    } catch (error) {
+      console.error(error);
+      throw new InternalServerErrorException('No se pudo actualizar el usuario');
     }
   }
 

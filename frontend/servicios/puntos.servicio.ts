@@ -30,8 +30,24 @@ export const PuntosServicio = {
       cache: "no-store",
     });
     if (!res.ok) {
-      const text = await res.text().catch(() => "");
-      throw new Error(`Error ${res.status} ${res.statusText} - ${text}`);
+      // Intentar obtener un mensaje amigable desde la respuesta
+      let mensaje = "No se pudo completar la operación. Intenta nuevamente.";
+      try {
+        const data = await res.json();
+        const original = (data?.message ?? "").toString().toLowerCase();
+        if (original.includes("saldo negativo")) {
+          mensaje =
+            "Saldo insuficiente: no puedes retirar más puntos de los disponibles.";
+        } else if (original.includes("no autorizado") || res.status === 401) {
+          mensaje = "Sesión no válida. Vuelve a iniciar sesión.";
+        } else if (original) {
+          // Usa el mensaje del backend si existe, pero sin detalles técnicos
+          mensaje = data.message;
+        }
+      } catch {
+        // si la respuesta no es JSON, usar un texto genérico
+      }
+      throw new Error(mensaje);
     }
     return res.json();
   },

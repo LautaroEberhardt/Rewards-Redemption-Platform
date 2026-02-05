@@ -40,21 +40,29 @@ export const UsuariosServicio = {
     }
   },
   obtenerPagina: async (
-    page: number,
-    limit: number,
+    pagina: number,
+    limite: number,
     token?: string,
+    busqueda?: string,
   ): Promise<{
     items: Usuario[];
     total: number;
-    page: number;
-    limit: number;
+    pagina: number;
+    limite: number;
   }> => {
     try {
       const cabeceras: HeadersInit = { "Content-Type": "application/json" };
       if (token) cabeceras["Authorization"] = `Bearer ${token}`;
 
+      const params = new URLSearchParams();
+      params.set("pagina", String(pagina));
+      params.set("limite", String(limite));
+      if (busqueda && busqueda.trim().length > 0) {
+        params.set("busqueda", busqueda.trim());
+      }
+
       const respuesta = await fetch(
-        `${API_URL}/usuarios?page=${page}&limit=${limit}`,
+        `${API_URL}/usuarios?${params.toString()}`,
         {
           method: "GET",
           headers: cabeceras,
@@ -96,8 +104,8 @@ export const UsuariosServicio = {
       return {
         items,
         total: datos.total ?? items.length,
-        page: datos.page ?? page,
-        limit: datos.limit ?? limit,
+        pagina: datos.pagina ?? datos.page ?? pagina,
+        limite: datos.limite ?? datos.limit ?? limite,
       };
     } catch (error) {
       console.error("Error en UsuariosServicio (paginado):", error);

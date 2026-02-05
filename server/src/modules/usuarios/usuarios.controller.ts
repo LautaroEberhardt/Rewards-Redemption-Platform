@@ -9,13 +9,16 @@ import {
   Get,
   UseGuards,
   Query,
-  DefaultValuePipe,
-  ParseIntPipe,
+  Patch,
+  Param,
+  ValidationPipe,
 } from '@nestjs/common';
 import { UsuariosService } from './usuarios.service';
 import { CrearUsuarioDto } from './dtos/crear-usuario.dto';
 import { LoginGoogleDto } from './dtos/login-google.dto';
 import { AuthService } from '../auth/auth.service';
+import { PaginacionDto } from '../../common/dtos/paginacion.dto';
+import { ActualizarUsuarioDto } from './dtos/actualizar-usuario.dto';
 
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
@@ -38,11 +41,15 @@ export class UsuariosController {
   @Get()
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(RolUsuario.ADMIN)
-  findAll(
-    @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
-    @Query('limit', new DefaultValuePipe(20), ParseIntPipe) limit: number,
-  ) {
-    return this.usuariosService.findPaginated(page, limit);
+  obtenerUsuarios(@Query(new ValidationPipe({ transform: true })) paginacionDto: PaginacionDto) {
+    return this.usuariosService.obtenerTodosPaginados(paginacionDto);
+  }
+
+  @Patch(':id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(RolUsuario.ADMIN)
+  actualizarUsuario(@Param('id') id: string, @Body() actualizarUsuarioDto: ActualizarUsuarioDto) {
+    return this.usuariosService.actualizar(id, actualizarUsuarioDto);
   }
 
   @Post('login-google')
