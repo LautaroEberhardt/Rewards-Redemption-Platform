@@ -20,8 +20,7 @@ export function OverlayEditableWrapper({ id, initial }: Props) {
   const [visible, setVisible] = useState(true);
   const router = useRouter();
   const { showSuccess, showError } = useToast();
-
-  const token = (sesion as any)?.accessToken || (sesion as any)?.user?.token;
+  const token = sesion?.user?.accessToken;
 
   const handleSave = async (
     premioId: number,

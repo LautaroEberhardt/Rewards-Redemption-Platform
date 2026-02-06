@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { useSession } from "next-auth/react";
-
+import { Boton } from "@/components/ui/boton";
+import { TablaClientes } from "@/components/admin/clientes/TablaClientes";
 import { UsuariosServicio } from "@/servicios/usuarios.servicio";
 import type { Usuario } from "@/tipos/usuario";
 
@@ -24,21 +25,24 @@ export default function PageClientes() {
   const [cargando, setCargando] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
-  const token = (session?.user as any)?.token as string | undefined;
+  const token = session?.user?.accessToken;
 
-  const manejarBusqueda = (termino: string) => {
-    const params = new URLSearchParams(searchParams.toString());
+  const manejarBusqueda = useCallback(
+    (termino: string) => {
+      const params = new URLSearchParams(searchParams.toString());
 
-    if (termino) {
-      params.set("busqueda", termino);
-      params.set("pagina", "1");
-    } else {
-      params.delete("busqueda");
-      params.delete("pagina");
-    }
+      if (termino) {
+        params.set("busqueda", termino);
+        params.set("pagina", "1");
+      } else {
+        params.delete("busqueda");
+        params.delete("pagina");
+      }
 
-    replace(`${pathname}?${params.toString()}`);
-  };
+      replace(`${pathname}?${params.toString()}`);
+    },
+    [pathname, replace, searchParams],
+  );
 
   const cambiarPagina = (nuevaPagina: number) => {
     if (nuevaPagina < 1) return;
@@ -72,9 +76,13 @@ export default function PageClientes() {
 
         setUsuarios(respuesta.items);
         setTotal(respuesta.total);
-      } catch (e: any) {
+      } catch (error) {
         if (cancelado) return;
-        setError(e?.message ?? "Error al cargar usuarios");
+        const mensaje =
+          error instanceof Error
+            ? error.message
+            : "Error al cargar usuarios";
+        setError(mensaje);
       } finally {
         if (!cancelado) setCargando(false);
       }
@@ -86,6 +94,22 @@ export default function PageClientes() {
       cancelado = true;
     };
   }, [token, status, paginaActual, busquedaActual]);
+
+  // Debounce para la búsqueda: dispara automáticamente 500ms después de dejar de escribir
+  useEffect(() => {
+    const termino = busquedaInput.trim();
+
+    // Si el valor del input ya coincide con el de la URL, no hacemos nada
+    if (termino === (busquedaActual ?? "").trim()) {
+      return;
+    }
+
+    const handler = setTimeout(() => {
+      manejarBusqueda(termino);
+    }, 500);
+
+    return () => clearTimeout(handler);
+  }, [busquedaInput, busquedaActual, manejarBusqueda]);
 
   // Sin sesión (por ejemplo, no logueado)
   if (status === "unauthenticated") {
@@ -124,25 +148,25 @@ export default function PageClientes() {
             placeholder="Buscar por nombre o email"
             className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
           />
-          <button
+          <Boton
             type="button"
             onClick={() => manejarBusqueda(busquedaInput.trim())}
-            className="inline-flex items-center rounded-md bg-primary px-3 py-2 text-sm font-medium text-white hover:bg-primary/90"
+            variante="secundario"
           >
             Buscar
-          </button>
+          </Boton>
         </div>
         {busquedaActual && (
-          <button
+          <Boton
             type="button"
             onClick={() => {
               setBusquedaInput("");
               manejarBusqueda("");
             }}
-            className="text-xs text-gray-600 hover:underline self-start sm:self-auto"
+            variante="primario"
           >
             Limpiar búsqueda
-          </button>
+          </Boton>
         )}
       </div>
 
@@ -154,43 +178,8 @@ export default function PageClientes() {
 
       {cargando ? (
         <p className="text-sm text-gray-600">Cargando clientes...</p>
-      ) : usuarios.length === 0 ? (
-        <p className="text-sm text-gray-600">
-          No se encontraron usuarios con los criterios actuales.
-        </p>
       ) : (
-        <div className="overflow-x-auto rounded-md border border-gray-200 bg-white">
-          <table className="min-w-full text-sm">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-3 py-2 text-left font-medium text-gray-700">
-                  Nombre
-                </th>
-                <th className="px-3 py-2 text-left font-medium text-gray-700">
-                  Email
-                </th>
-                <th className="px-3 py-2 text-left font-medium text-gray-700">
-                  Rol
-                </th>
-                <th className="px-3 py-2 text-right font-medium text-gray-700">
-                  Puntos
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {usuarios.map((u) => (
-                <tr key={u.id} className="border-t border-gray-100">
-                  <td className="px-3 py-2">{u.nombre}</td>
-                  <td className="px-3 py-2 text-gray-700">{u.email}</td>
-                  <td className="px-3 py-2 capitalize">{u.rol}</td>
-                  <td className="px-3 py-2 text-right">
-                    {typeof u.puntos === "number" ? u.puntos : "-"}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <TablaClientes usuarios={usuarios} />
       )}
 
       <div className="flex items-center justify-between text-xs text-gray-600">

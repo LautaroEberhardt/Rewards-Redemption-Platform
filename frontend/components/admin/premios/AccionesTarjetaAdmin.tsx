@@ -21,13 +21,11 @@ export const AccionesTarjetaAdmin = ({ idPremio, onDeleted }: Props) => {
   const manejarEliminacion = async () => {
     if (!confirm("¿Estás seguro de eliminar este premio?")) return;
     try {
-      const token =
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (sesion as any)?.accessToken || (sesion as any)?.user?.token;
+      const token = sesion?.user?.accessToken;
       await eliminarPremio(idPremio, token);
       alert("Premio eliminado");
       onDeleted?.();
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (e: any) {
       alert(e?.message || "No se pudo eliminar el premio");
     }

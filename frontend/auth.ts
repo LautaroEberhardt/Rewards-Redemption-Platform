@@ -3,18 +3,7 @@ import Google from "next-auth/providers/google";
 import Credentials from "next-auth/providers/credentials";
 import { EsquemaLogin } from "@/components/auth/esquemas";
 
-declare module "next-auth" {
-  interface Session {
-    user: {
-      rol?: string | null;
-      id?: string | null;
-    } & DefaultSession["user"];
-  }
-
-  interface User {
-    rol?: string | null;
-  }
-}
+// La extensión de tipos de NextAuth se declara globalmente en types/next-auth.d.ts
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [
@@ -96,7 +85,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       if (user) {
         token.rol = user.rol;
         token.id = user.id;
-        token.accessToken = user.accessToken; // Persistimos el token
+        token.accessToken = user.accessToken; // Persistimos el token del backend en el JWT
       }
 
       return token;
@@ -105,8 +94,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       if (session.user) {
         session.user.rol = token.rol as string;
         session.user.id = token.id as string;
-        // Exponer el token del backend a los componentes cliente/servidor
-        (session.user as any).token = (token as any).accessToken;
+        // Exponer el token del backend a los componentes cliente/servidor de forma tipada
+        session.user.accessToken = token.accessToken as string;
       }
       return session;
     },

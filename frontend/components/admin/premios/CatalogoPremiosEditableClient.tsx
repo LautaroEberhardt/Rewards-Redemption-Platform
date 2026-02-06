@@ -31,8 +31,7 @@ export function CatalogoPremiosEditableClient({ premios, crearNuevo }: Props) {
   const pathname = usePathname();
   const urlParams = useSearchParams();
   const { showSuccess, showError } = useToast();
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const token = (sesion as any)?.accessToken || (sesion as any)?.user?.token;
+  const token = sesion?.user?.accessToken;
 
   const [lista, setLista] = useState<PremioUI[]>(premios);
   const [overlayPremio, setOverlayPremio] = useState<PremioUI | null>(
@@ -202,6 +201,7 @@ export function CatalogoPremiosEditableClient({ premios, crearNuevo }: Props) {
             costoPuntos: overlayPremio.costoPuntos,
           }}
           imagenUrl={(overlayPremio as any).imagenUrl}
+          imagenUrl={overlayPremio.imagenUrl}
           onSave={handleSave}
           onDelete={handleDelete}
           onClose={cerrarOverlay}

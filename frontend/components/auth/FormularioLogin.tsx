@@ -27,7 +27,7 @@ export const FormularioLogin = () => {
     defaultValues: {
       email: "admin@fidelizacion.com",
       password: "Admin1234!",
-    }
+    },
   });
 
   const alEnviar = async (datos: FormularioLoginDatos) => {
@@ -54,13 +54,17 @@ export const FormularioLogin = () => {
         const newSession = await getSession();
         console.log("4. Sesión actualizada:", newSession);
 
+        const rawRole = newSession?.user?.rol ?? newSession?.user?.role;
+        const rolesList = newSession?.user?.roles;
+        const roleNormalized =
+          typeof rawRole === "string" ? rawRole.toLowerCase() : "";
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const rawRole = (newSession as any)?.user?.rol ?? (newSession as any)?.user?.role;
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const rolesList = (newSession as any)?.user?.roles;
-        const roleNormalized = typeof rawRole === "string" ? rawRole.toLowerCase() : "";
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const isAdmin = roleNormalized === "admin" || (Array.isArray(rolesList) && rolesList.map((r: any) => String(r).toLowerCase()).includes("admin"));
+        const isAdmin =
+          roleNormalized === "admin" ||
+          (Array.isArray(rolesList) &&
+            rolesList
+              .map((r: any) => String(r).toLowerCase())
+              .includes("admin"));
 
         if (isAdmin) {
           console.log("Usuario es admin, redirigiendo a /admin/panel...");
@@ -69,7 +73,7 @@ export const FormularioLogin = () => {
           console.log("Usuario es cliente, redirigiendo a /cliente/inicio...");
           router.push("/cliente/inicio");
         }
-        
+
         router.refresh();
         cerrarSidebar();
       }
@@ -93,23 +97,34 @@ export const FormularioLogin = () => {
       <form onSubmit={handleSubmit(alEnviar)} className="space-y-4">
         {/* Email */}
         <div className="flex flex-col gap-1">
-          <label className="text-sm font-medium text-gray-700">Correo Electrónico</label>
+          <label className="text-sm font-medium text-gray-700">
+            Correo Electrónico
+          </label>
           <input
             {...register("email")}
             type="email"
             placeholder="tu@ejemplo.com"
             className={`w-full p-3 border rounded-lg outline-none transition-all ${
-              errors.email ? "border-red-500 focus:ring-1 focus:ring-red-500" : "border-gray-300 focus:ring-1 focus:ring-verde-primario"
+              errors.email
+                ? "border-red-500 focus:ring-1 focus:ring-red-500"
+                : "border-gray-300 focus:ring-1 focus:ring-verde-primario"
             }`}
           />
-          {errors.email && <span className="text-xs text-red-500">{errors.email.message}</span>}
+          {errors.email && (
+            <span className="text-xs text-red-500">{errors.email.message}</span>
+          )}
         </div>
 
         {/* Password */}
         <div className="flex flex-col gap-1">
           <div className="flex justify-between items-center">
-            <label className="text-sm font-medium text-gray-700">Contraseña</label>
-            <button type="button" className="text-xs text-verde-primario hover:underline">
+            <label className="text-sm font-medium text-gray-700">
+              Contraseña
+            </label>
+            <button
+              type="button"
+              className="text-xs text-verde-primario hover:underline"
+            >
               ¿Olvidaste tu contraseña?
             </button>
           </div>
@@ -118,14 +133,20 @@ export const FormularioLogin = () => {
             type="password"
             placeholder="••••••••"
             className={`w-full p-3 border rounded-lg outline-none transition-all ${
-              errors.password ? "border-red-500 focus:ring-1 focus:ring-red-500" : "border-gray-300 focus:ring-1 focus:ring-verde-primario"
+              errors.password
+                ? "border-red-500 focus:ring-1 focus:ring-red-500"
+                : "border-gray-300 focus:ring-1 focus:ring-verde-primario"
             }`}
           />
-          {errors.password && <span className="text-xs text-red-500">{errors.password.message}</span>}
+          {errors.password && (
+            <span className="text-xs text-red-500">
+              {errors.password.message}
+            </span>
+          )}
         </div>
 
-        <Boton 
-          variante="secundario" 
+        <Boton
+          variante="secundario"
           className="w-full py-3 mt-2"
           disabled={cargando}
         >
@@ -134,7 +155,9 @@ export const FormularioLogin = () => {
       </form>
 
       <div className="relative">
-        <div className="absolute inset-0 flex items-center"><span className="w-full border-t border-gray-300"></span></div>
+        <div className="absolute inset-0 flex items-center">
+          <span className="w-full border-t border-gray-300"></span>
+        </div>
         <div className="relative flex justify-center text-xs uppercase">
           <span className="bg-white px-2 text-gray-500">O continuar con</span>
         </div>
@@ -146,7 +169,10 @@ export const FormularioLogin = () => {
 
       <p className="text-center text-sm text-gray-600">
         ¿No tienes una cuenta?{" "}
-        <button className="text-verde-primario font-semibold hover:underline" onClick={() => abrirSidebar('registro')}>
+        <button
+          className="text-verde-primario font-semibold hover:underline"
+          onClick={() => abrirSidebar("registro")}
+        >
           Regístrate aquí
         </button>
       </p>

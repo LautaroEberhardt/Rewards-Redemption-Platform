@@ -34,14 +34,7 @@ export const ModalAsignarPuntos = ({
     setCargando(true);
 
     try {
-      const token =
-        // Compatibilidad con distintas formas de exponer el token en la sesión
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (sesion as any)?.user?.token ??
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (sesion as any)?.accessToken ??
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (sesion as any)?.backendToken;
+      const token = sesion?.user?.accessToken;
 
       if (!token) throw new Error("No autorizado: falta token de sesión");
 

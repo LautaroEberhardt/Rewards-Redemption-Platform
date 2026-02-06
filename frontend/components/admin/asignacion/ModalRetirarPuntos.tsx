@@ -33,15 +33,8 @@ export const ModalRetirarPuntos = ({
     setMensajeError(null);
     setCargando(true);
     try {
-      // Obtener token de la sesión (distintas formas posibles)
-
-      const token =
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (sesion as any)?.user?.token ??
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (sesion as any)?.accessToken ??
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (sesion as any)?.backendToken;
+      // Obtener token del backend desde la sesión tipada
+      const token = sesion?.user?.accessToken;
       if (!token) throw new Error("No autorizado: falta token de sesión");
 
       const puntosNumero = parseInt(puntos, 10);

@@ -16,7 +16,7 @@ import { Boton } from "@/components/ui/boton";
 
 export function AdminPremiosClient() {
   const { data: sesion } = useSession();
-  const token = (sesion as any)?.accessToken || (sesion as any)?.user?.token;
+  const token = sesion?.user?.accessToken;
   const router = useRouter();
   const { showSuccess, showError } = useToast();
 
