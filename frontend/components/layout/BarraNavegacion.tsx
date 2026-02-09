@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
@@ -15,9 +15,11 @@ import {
   LogOut,
   LayoutDashboard,
   UserCircle,
+  Star,
 } from "lucide-react";
 import { Boton } from "../ui/boton";
 import { useUI } from "@/context/ui-context";
+import { obtenerPerfilAction } from "@/actions/perfil";
 
 export default function BarraNavegacion() {
   const { abrirSidebar } = useUI();
@@ -31,6 +33,24 @@ export default function BarraNavegacion() {
 
   const esAdmin = sesion?.user?.rol?.toLowerCase() === "admin";
   const rutaDashboard = esAdmin ? "/admin/panel" : "/";
+
+  const [puntos, setPuntos] = useState<number | null>(null);
+
+  const cargarPuntos = useCallback(async () => {
+    if (!estaAutenticado || esAdmin) return;
+    try {
+      const res = await obtenerPerfilAction();
+      if (res.ok && res.usuario.puntos !== undefined) {
+        setPuntos(res.usuario.puntos);
+      }
+    } catch {
+      // Silenciar — los puntos son informativos
+    }
+  }, [estaAutenticado, esAdmin]);
+
+  useEffect(() => {
+    cargarPuntos();
+  }, [cargarPuntos]);
 
   const manejarNavegacion = (accion: () => void) => {
     setMenuAbierto(false);
@@ -85,6 +105,21 @@ export default function BarraNavegacion() {
 
         {/* 3. ACCIONES DESKTOP (Login vs User Menu) */}
         <div className="hidden md:flex items-center gap-4">
+          {/* Badge de puntos para clientes */}
+          {estaAutenticado && !esAdmin && puntos !== null && (
+            <Link
+              href="/cliente/perfil"
+              className="flex items-center gap-1.5 px-3 py-3 rounded-full bg-background-secondary border border-gray-200 hover:bg-secondary/20 transition-colors"
+              title="Tus puntos"
+            >
+              <Star className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
+              <span className="text-sm font-semibold text-secondary">
+                {puntos.toLocaleString("es-AR")}
+              </span>
+              <span className="text-xs text-text-primary">pts</span>
+            </Link>
+          )}
+
           {estaCargando ? (
             <div className="h-10 w-24 bg-gray-200 animate-pulse rounded-md"></div>
           ) : estaAutenticado ? (
@@ -159,8 +194,22 @@ export default function BarraNavegacion() {
         </div>
 
         {/* 4. BOTÓN HAMBURGUESA MOVIL */}
-        <div className="md:hidden flex items-center gap-4">
-          
+        <div className="md:hidden flex items-center gap-3">
+          {/* Badge de puntos móvil */}
+          {estaAutenticado && !esAdmin && puntos !== null && (
+            <Link
+              href="/cliente/perfil"
+              className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-background-secondary border border-gray-200 transition-colors"
+              title="Tus puntos"
+            >
+              <Star className="w-3 h-3  text-amber-400 fill-amber-400" />
+              <span className="text-xs font-semibold text-secondary">
+                {puntos.toLocaleString("es-AR")}
+              </span>
+              <span className="text-xs text-text-primary">pts</span>
+            </Link>
+          )}
+
           {estaAutenticado && (
             <div
               onClick={() =>

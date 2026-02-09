@@ -175,7 +175,7 @@ export default function FormularioPerfil({
       <div className="flex justify-end">
         <Boton
           type="submit"
-          variante="primario"
+          variante="secundario"
           disabled={!hayCambios || guardando}
           className="min-w-40 flex items-center justify-center gap-2"
         >
