@@ -1,22 +1,21 @@
-'use client';
+"use client";
 
-import { signIn } from 'next-auth/react';
-import { Boton } from '../ui/boton';
-import { Chrome } from 'lucide-react';
+import { signIn } from "next-auth/react";
+import { Boton } from "../ui/boton";
+import { Chrome } from "lucide-react";
 
 interface BotonSocialProps {
-  proveedor: 'google';
+  proveedor: "google";
   onClick?: () => void;
 }
 
 export const BotonSocial = ({ proveedor, onClick }: BotonSocialProps) => {
-  
   const manejarClick = () => {
     if (onClick) {
       onClick();
     } else {
       signIn(proveedor, {
-        callbackUrl: '/dashboard',
+        callbackUrl: "/",
       });
     }
   };

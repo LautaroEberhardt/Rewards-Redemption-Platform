@@ -5,6 +5,7 @@ import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { Boton } from "@/components/ui/boton";
 import { TablaClientes } from "@/components/admin/clientes/TablaClientes";
+import { ModalEditarUsuario } from "@/components/admin/clientes/ModalEditarUsuario";
 import { UsuariosServicio } from "@/servicios/usuarios.servicio";
 import type { Usuario } from "@/tipos/usuario";
 
@@ -24,6 +25,10 @@ export default function PageClientes() {
   const [total, setTotal] = useState<number>(0);
   const [cargando, setCargando] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+  const [usuarioEditar, setUsuarioEditar] = useState<Usuario | null>(null);
+  const [modalEditarAbierto, setModalEditarAbierto] = useState(false);
+  const [cargandoEdicion, setCargandoEdicion] = useState(false);
+  const [errorEdicion, setErrorEdicion] = useState<string | null>(null);
 
   const token = session?.user?.accessToken;
 
@@ -54,6 +59,68 @@ export default function PageClientes() {
     replace(`${pathname}?${params.toString()}`);
   };
 
+  const abrirEdicionUsuario = (usuario: Usuario) => {
+    setUsuarioEditar(usuario);
+    setErrorEdicion(null);
+    setModalEditarAbierto(true);
+  };
+
+  const cerrarEdicionUsuario = () => {
+    setModalEditarAbierto(false);
+    setUsuarioEditar(null);
+    setErrorEdicion(null);
+  };
+
+  const guardarUsuarioEditado = async ({
+    nombre,
+    email,
+    telefono,
+  }: {
+    nombre: string;
+    email: string;
+    telefono: string;
+  }) => {
+    if (!usuarioEditar) return;
+    if (!token) {
+      setErrorEdicion("No hay token de sesión para actualizar el usuario");
+      return;
+    }
+
+    try {
+      setCargandoEdicion(true);
+      setErrorEdicion(null);
+      // No enviar email si la cuenta es de Google (protección)
+      const datosActualizar: {
+        nombre?: string;
+        email?: string;
+        telefono?: string;
+      } = {
+        nombre,
+        telefono,
+      };
+      if (!usuarioEditar.googleId) {
+        datosActualizar.email = email;
+      }
+
+      const actualizado = await UsuariosServicio.actualizar(
+        usuarioEditar.id,
+        datosActualizar,
+        token,
+      );
+
+      setUsuarios((prev) =>
+        prev.map((u) => (u.id === actualizado.id ? actualizado : u)),
+      );
+      cerrarEdicionUsuario();
+    } catch (error) {
+      const mensaje =
+        error instanceof Error ? error.message : "Error al actualizar usuario";
+      setErrorEdicion(mensaje);
+    } finally {
+      setCargandoEdicion(false);
+    }
+  };
+
   useEffect(() => {
     // Sin sesión todavía o sin token, no intentamos cargar
     if (!token || status === "loading") return;
@@ -79,9 +146,7 @@ export default function PageClientes() {
       } catch (error) {
         if (cancelado) return;
         const mensaje =
-          error instanceof Error
-            ? error.message
-            : "Error al cargar usuarios";
+          error instanceof Error ? error.message : "Error al cargar usuarios";
         setError(mensaje);
       } finally {
         if (!cancelado) setCargando(false);
@@ -179,7 +244,7 @@ export default function PageClientes() {
       {cargando ? (
         <p className="text-sm text-gray-600">Cargando clientes...</p>
       ) : (
-        <TablaClientes usuarios={usuarios} />
+        <TablaClientes usuarios={usuarios} onEditar={abrirEdicionUsuario} />
       )}
 
       <div className="flex items-center justify-between text-xs text-gray-600">
@@ -205,6 +270,15 @@ export default function PageClientes() {
           </button>
         </div>
       </div>
+
+      <ModalEditarUsuario
+        usuario={usuarioEditar}
+        abierto={modalEditarAbierto}
+        cargando={cargandoEdicion}
+        error={errorEdicion}
+        onClose={cerrarEdicionUsuario}
+        onSave={guardarUsuarioEditado}
+      />
     </div>
   );
 }

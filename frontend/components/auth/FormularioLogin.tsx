@@ -58,7 +58,7 @@ export const FormularioLogin = () => {
         const rolesList = newSession?.user?.roles;
         const roleNormalized =
           typeof rawRole === "string" ? rawRole.toLowerCase() : "";
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
         const isAdmin =
           roleNormalized === "admin" ||
           (Array.isArray(rolesList) &&
@@ -70,8 +70,8 @@ export const FormularioLogin = () => {
           console.log("Usuario es admin, redirigiendo a /admin/panel...");
           router.push("/admin/panel");
         } else {
-          console.log("Usuario es cliente, redirigiendo a /cliente/inicio...");
-          router.push("/cliente/inicio");
+          console.log("Usuario es cliente, redirigiendo a inicio...");
+          router.push("/");
         }
 
         router.refresh();

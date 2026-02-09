@@ -2,9 +2,10 @@ import { Usuario } from "@/tipos/usuario";
 
 interface Props {
   usuarios: Usuario[];
+  onEditar?: (usuario: Usuario) => void;
 }
 
-export const TablaClientes = ({ usuarios }: Props) => {
+export const TablaClientes = ({ usuarios, onEditar }: Props) => {
   return (
     <div className="overflow-x-auto rounded-lg border border-gray-200 bg-white shadow-sm">
       <table className="w-full text-left text-sm text-gray-600">
@@ -26,7 +27,10 @@ export const TablaClientes = ({ usuarios }: Props) => {
             </tr>
           ) : (
             usuarios.map((usuario) => (
-              <tr key={usuario.id} className="hover:bg-gray-50 transition-colors">
+              <tr
+                key={usuario.id}
+                className="hover:bg-gray-50 transition-colors"
+              >
                 <td className="px-6 py-4 font-medium text-gray-900">
                   {usuario.nombre}
                 </td>
@@ -37,14 +41,17 @@ export const TablaClientes = ({ usuarios }: Props) => {
                   </span>
                 </td>
                 <td className="px-6 py-4 text-center">
-                  <span className="inline-block h-2 w-2 rounded-full bg-green-500" title="Activo"></span>
+                  <span
+                    className="inline-block h-2 w-2 rounded-full bg-green-500"
+                    title="Activo"
+                  ></span>
                 </td>
                 <td className="px-6 py-4 text-right">
-                  <button 
+                  <button
                     className="text-indigo-600 hover:text-indigo-900 font-medium text-xs uppercase"
-                    onClick={() => console.log("Ver detalle", usuario.id)}
+                    onClick={() => onEditar?.(usuario)}
                   >
-                    Ver Detalle
+                    Ver / Editar
                   </button>
                 </td>
               </tr>

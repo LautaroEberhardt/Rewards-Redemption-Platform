@@ -65,7 +65,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
           if (respuesta.ok) {
             const dataBackend = await respuesta.json();
-            // dataBackend puede ser { token: { access_token, usuario }, usuario } o { access_token, usuario }
+            // dataBackend: { message, usuario, token: { access_token, usuario } }
             const maybeTokenObj = (dataBackend as any)?.token;
             const access =
               maybeTokenObj?.access_token ?? (dataBackend as any)?.access_token;
@@ -74,7 +74,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             token.id = (dataBackend as any)?.usuario?.id ?? token.id;
           } else {
             console.error("Fallo al autenticar Google con Backend");
-            // Aquí podrías forzar un error o invalidar, pero por ahora logueamos
           }
         } catch (error) {
           console.error("Error conectando con backend (Google Login):", error);
@@ -86,6 +85,37 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         token.rol = user.rol;
         token.id = user.id;
         token.accessToken = user.accessToken; // Persistimos el token del backend en el JWT
+      }
+
+      // 3. Renovar accessToken si falta (sesión vieja de Google que no lo tenía)
+      if (!token.accessToken && token.email) {
+        try {
+          const respuesta = await fetch(
+            `${process.env.NEXT_PUBLIC_API_URL}/usuarios/login-google`,
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                email: token.email,
+                nombreCompleto: token.name ?? "",
+                googleId: token.sub ?? "",
+              }),
+            },
+          );
+          if (respuesta.ok) {
+            const dataBackend = await respuesta.json();
+            const maybeTokenObj = (dataBackend as any)?.token;
+            const access =
+              maybeTokenObj?.access_token ?? (dataBackend as any)?.access_token;
+            if (access) token.accessToken = access;
+            if (!token.rol)
+              token.rol = (dataBackend as any)?.usuario?.rol ?? token.rol;
+            if (!token.id)
+              token.id = (dataBackend as any)?.usuario?.id ?? token.id;
+          }
+        } catch {
+          // Silenciar — se reintentará en la próxima request
+        }
       }
 
       return token;

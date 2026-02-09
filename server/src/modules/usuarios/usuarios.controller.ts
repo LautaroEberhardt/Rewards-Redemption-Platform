@@ -11,6 +11,7 @@ import {
   Query,
   Patch,
   Param,
+  Req,
   ValidationPipe,
 } from '@nestjs/common';
 import { UsuariosService } from './usuarios.service';
@@ -19,11 +20,13 @@ import { LoginGoogleDto } from './dtos/login-google.dto';
 import { AuthService } from '../auth/auth.service';
 import { PaginacionDto } from '../../common/dtos/paginacion.dto';
 import { ActualizarUsuarioDto } from './dtos/actualizar-usuario.dto';
+import { ActualizarPerfilDto } from './dtos/actualizar-perfil.dto';
 
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { RolUsuario } from '../../common/enums/roles.enum';
+import { UsuarioEntidad } from './entities/usuario.entity';
 
 @Controller('usuarios')
 @UseInterceptors(ClassSerializerInterceptor)
@@ -44,6 +47,25 @@ export class UsuariosController {
   obtenerUsuarios(@Query(new ValidationPipe({ transform: true })) paginacionDto: PaginacionDto) {
     return this.usuariosService.obtenerTodosPaginados(paginacionDto);
   }
+
+  // --- Perfil del usuario autenticado (sin restricción de rol) ---
+
+  @Get('perfil')
+  @UseGuards(JwtAuthGuard)
+  obtenerPerfil(@Req() req: { user: UsuarioEntidad }) {
+    return req.user;
+  }
+
+  @Patch('perfil')
+  @UseGuards(JwtAuthGuard)
+  actualizarPerfil(
+    @Req() req: { user: UsuarioEntidad },
+    @Body() actualizarPerfilDto: ActualizarPerfilDto,
+  ) {
+    return this.usuariosService.actualizar(req.user.id, actualizarPerfilDto);
+  }
+
+  // --- Endpoints admin ---
 
   @Patch(':id')
   @UseGuards(JwtAuthGuard, RolesGuard)

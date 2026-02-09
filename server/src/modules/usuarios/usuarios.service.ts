@@ -162,13 +162,21 @@ export class UsuariosService {
     });
 
     if (usuarioExistente) {
-      // 2. Si existe, vinculamos la cuenta si no lo estaba
+      // 2. Si existe, vinculamos la cuenta y actualizamos la foto de Google
+      let necesitaGuardar = false;
+
       if (!usuarioExistente.googleId) {
         usuarioExistente.googleId = googleId;
-        usuarioExistente.foto = foto || usuarioExistente.foto;
-        return this.usuarioRepositorio.save(usuarioExistente);
+        necesitaGuardar = true;
       }
-      return usuarioExistente;
+
+      // Siempre sincronizar la foto de Google (puede cambiar)
+      if (foto && usuarioExistente.foto !== foto) {
+        usuarioExistente.foto = foto;
+        necesitaGuardar = true;
+      }
+
+      return necesitaGuardar ? this.usuarioRepositorio.save(usuarioExistente) : usuarioExistente;
     }
 
     // 3. Si no existe, creamos uno nuevo
