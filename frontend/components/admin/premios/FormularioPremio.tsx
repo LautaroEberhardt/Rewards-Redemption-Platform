@@ -22,7 +22,7 @@ export function FormularioPremio({ token, onSaved, onCancel }: Props) {
   const { showSuccess, showError } = useToast();
   const [cargando, setCargando] = useState(false);
   const [nombre, setNombre] = useState("");
-  const [costo, setCosto] = useState<number>(0);
+  const [costo, setCosto] = useState<number | "">("");
   const [descripcion, setDescripcion] = useState<string>("");
   const [archivo, setArchivo] = useState<File | undefined>(undefined);
   const [previewUrl, setPreviewUrl] = useState<string | undefined>(undefined);
@@ -51,7 +51,7 @@ export function FormularioPremio({ token, onSaved, onCancel }: Props) {
       const nuevo = await crearPremio(
         {
           nombre,
-          costoPuntos: costo,
+          costoPuntos: costo || 0,
           descripcion: descripcion?.trim() || undefined,
           imagen: archivo,
         },
@@ -61,7 +61,7 @@ export function FormularioPremio({ token, onSaved, onCancel }: Props) {
       onSaved(nuevo);
       // limpiar formulario
       setNombre("");
-      setCosto(0);
+      setCosto("");
       setDescripcion("");
       setArchivo(undefined);
       setPreviewUrl(undefined);
@@ -99,7 +99,10 @@ export function FormularioPremio({ token, onSaved, onCancel }: Props) {
         <input
           type="number"
           value={costo}
-          onChange={(e) => setCosto(Number(e.target.value))}
+          onChange={(e) => {
+            const valor = e.target.value;
+            setCosto(valor === "" ? "" : Number(valor));
+          }}
           required
           min={1}
           className="border p-2 w-full rounded"

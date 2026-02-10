@@ -4,6 +4,7 @@ import {
   Post,
   Get,
   Body,
+  Query,
   UseGuards,
   Request,
   HttpCode,
@@ -65,8 +66,13 @@ export class PuntosController {
    */
   @Get('historial')
   @Roles(RolUsuario.CLIENTE, RolUsuario.ADMIN)
-  async obtenerHistorial(@Request() req) {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
-    return await this.puntosServicio.obtenerHistorial(req.user.id);
+  async obtenerHistorial(
+    @Request() req,
+    @Query('pagina') pagina?: string,
+    @Query('limite') limite?: string,
+  ) {
+    const pag = pagina ? parseInt(pagina, 10) : 1;
+    const lim = limite ? parseInt(limite, 10) : 20;
+    return await this.puntosServicio.obtenerHistorial(req.user.id, pag, lim);
   }
 }

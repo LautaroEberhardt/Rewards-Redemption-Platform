@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
@@ -16,6 +16,7 @@ import {
   LayoutDashboard,
   UserCircle,
   Star,
+  History,
 } from "lucide-react";
 import { Boton } from "../ui/boton";
 import { useUI } from "@/context/ui-context";
@@ -36,21 +37,24 @@ export default function BarraNavegacion() {
 
   const [puntos, setPuntos] = useState<number | null>(null);
 
-  const cargarPuntos = useCallback(async () => {
-    if (!estaAutenticado || esAdmin) return;
-    try {
-      const res = await obtenerPerfilAction();
-      if (res.ok && res.usuario.puntos !== undefined) {
-        setPuntos(res.usuario.puntos);
-      }
-    } catch {
-      // Silenciar — los puntos son informativos
-    }
-  }, [estaAutenticado, esAdmin]);
-
   useEffect(() => {
-    cargarPuntos();
-  }, [cargarPuntos]);
+    if (!estaAutenticado || esAdmin) return;
+
+    let cancelado = false;
+    obtenerPerfilAction()
+      .then((res) => {
+        if (!cancelado && res.ok && res.usuario.puntos !== undefined) {
+          setPuntos(res.usuario.puntos);
+        }
+      })
+      .catch(() => {
+        // Silenciar — los puntos son informativos
+      });
+
+    return () => {
+      cancelado = true;
+    };
+  }, [estaAutenticado, esAdmin]);
 
   const manejarNavegacion = (accion: () => void) => {
     setMenuAbierto(false);
@@ -172,6 +176,21 @@ export default function BarraNavegacion() {
                     )}
                   </button>
 
+                  {/* Historial de puntos — solo clientes */}
+                  {!esAdmin && (
+                    <button
+                      onClick={() =>
+                        manejarNavegacion(() =>
+                          router.push("/cliente/historial"),
+                        )
+                      }
+                      className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
+                    >
+                      <History className="w-4 h-4" />
+                      Historial de Puntos
+                    </button>
+                  )}
+
                   <button
                     onClick={cerrarSesionUsuario}
                     className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
@@ -289,6 +308,20 @@ export default function BarraNavegacion() {
                     )}
                   </span>
                 </Boton>
+                {/* Historial de puntos — solo clientes (móvil) */}
+                {!esAdmin && (
+                  <Boton
+                    onClick={() =>
+                      manejarNavegacion(() => router.push("/cliente/historial"))
+                    }
+                    variante="sencillo"
+                    className="w-full justify-center mb-2"
+                  >
+                    <span className="flex items-center gap-2">
+                      <History className="w-4 h-4" /> Historial de Puntos
+                    </span>
+                  </Boton>
+                )}
                 <Boton
                   onClick={cerrarSesionUsuario}
                   variante="sencillo"

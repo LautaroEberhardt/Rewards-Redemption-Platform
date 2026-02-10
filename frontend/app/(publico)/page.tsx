@@ -1,9 +1,9 @@
 import React from "react";
 import { auth } from "@/auth";
 import { Boton } from "@/components/ui/boton";
-import { TarjetaPremio } from "@/components/ui/TarjetaModulo";
 import { BotonAgregarPremioFlotante } from "@/components/admin/premios/BotonAgregarPremioFlotante";
 import { CatalogoPremiosEditableClient } from "@/components/admin/premios/CatalogoPremiosEditableClient";
+import { CatalogoPremiosPublico } from "@/components/ui/CatalogoPremiosPublico";
 import { listarPremios } from "@/servicios/premios.servicio";
 
 export default async function PaginaInicio({
@@ -125,18 +125,7 @@ export default async function PaginaInicio({
               premios={premiosReales}
             />
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 mt-12">
-              {premiosReales.map((premio) => (
-                <TarjetaPremio
-                  key={premio.id}
-                  id={premio.id}
-                  nombre={premio.nombre}
-                  descripcion={premio.descripcion}
-                  costoPuntos={premio.costoPuntos}
-                  imagenUrl={premio.imagenUrl}
-                />
-              ))}
-            </div>
+            <CatalogoPremiosPublico premios={premiosReales} />
           )}
 
           <div className="mt-12 text-center md:hidden">

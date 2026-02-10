@@ -28,7 +28,11 @@ export function EditorTarjetaPremioOverlay({
   onDelete,
   onClose,
 }: Props) {
-  const [formulario, setFormulario] = useState(initial);
+  const [formulario, setFormulario] = useState<{
+    nombre: string;
+    descripcion: string;
+    costoPuntos: number | "";
+  }>(initial);
   const [confirmarEliminacion, setConfirmarEliminacion] = useState(false);
   const [archivo, setArchivo] = useState<File | undefined>(undefined);
   const baseApi = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
@@ -42,7 +46,11 @@ export function EditorTarjetaPremioOverlay({
   );
 
   const manejarGuardado = () => {
-    onSave?.(id, { ...formulario, imagen: archivo });
+    onSave?.(id, {
+      ...formulario,
+      costoPuntos: formulario.costoPuntos || 0,
+      imagen: archivo,
+    });
   };
 
   const manejarCambioArchivo = (e: ChangeEvent<HTMLInputElement>) => {
@@ -107,12 +115,13 @@ export function EditorTarjetaPremioOverlay({
                   type="number"
                   className="w-full rounded-xl border border-background-secondary bg-gray-50 px-4 py-3 text-sm font-medium text-gray-900 focus:border-(--primary) focus:bg-white focus:ring-2 focus:ring-(--primary)/20 transition-all outline-none"
                   value={formulario.costoPuntos}
-                  onChange={(e) =>
+                  onChange={(e) => {
+                    const valor = e.target.value;
                     setFormulario({
                       ...formulario,
-                      costoPuntos: Number(e.target.value),
-                    })
-                  }
+                      costoPuntos: valor === "" ? "" : Number(valor),
+                    });
+                  }}
                 />
                 <span className="absolute right-4 top-3 text-xs font-bold text-gray-400 pointer-events-none">
                   PTS
