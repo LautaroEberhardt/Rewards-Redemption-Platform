@@ -32,9 +32,28 @@ export class PremiosController {
     return this.service.findAll();
   }
 
+  /** Lista todos los premios incluyendo los deshabilitados (solo admin) */
+  @Get('admin')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(RolUsuario.ADMIN)
+  findAllAdmin(): Promise<PremioDto[]> {
+    return this.service.findAllAdmin();
+  }
+
   @Get(':id')
   findOne(@Param('id', ParseIntPipe) id: number): Promise<PremioDto> {
     return this.service.findOne(id);
+  }
+
+  /** Habilita o deshabilita un premio */
+  @Patch(':id/estado')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(RolUsuario.ADMIN)
+  cambiarEstado(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() body: { activo: boolean },
+  ): Promise<PremioDto> {
+    return this.service.cambiarEstado(id, body.activo);
   }
 
   @Post()

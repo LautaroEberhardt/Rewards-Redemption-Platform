@@ -1,15 +1,17 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useToast } from "@/components/ui/toast";
 import { useSession } from "next-auth/react";
 import { TarjetaPremio } from "@/components/ui/TarjetaModulo";
-import { Pencil, Trash } from "lucide-react";
+import { Pencil, Trash, ToggleLeft, ToggleRight } from "lucide-react";
 import { EditorTarjetaPremioOverlay } from "@/components/admin/premios/EditorTarjetaPremioOverlay";
 import {
   crearPremio,
   actualizarPremio,
   eliminarPremio,
+  listarPremiosAdmin,
+  cambiarEstadoPremio,
 } from "@/servicios/premios.servicio";
 
 type PremioUI = {
@@ -18,6 +20,7 @@ type PremioUI = {
   descripcion: string;
   costoPuntos: number;
   imagenUrl?: string;
+  activo?: boolean;
 };
 
 type Props = {
@@ -45,18 +48,46 @@ export function CatalogoPremiosEditableClient({ premios, crearNuevo }: Props) {
       : null,
   );
 
+  // Cargar premios con estado activo desde el backend (admin)
+  useEffect(() => {
+    if (!token) return;
+    listarPremiosAdmin(token)
+      .then((data) => {
+        setLista(
+          data.map((p) => ({
+            id: p.id,
+            nombre: p.nombre,
+            descripcion: p.descripcion ?? "",
+            costoPuntos: p.costoPuntos,
+            imagenUrl: p.imagenUrl,
+            activo: p.activo ?? true,
+          })),
+        );
+      })
+      .catch(() => {
+        // Si falla, mantener los premios pasados por props
+      });
+  }, [token]);
+
   // Si el query param `crear=1` cambia después del primer render,
   // abrimos el overlay de creación de manera reactiva.
+  const crearNuevoPrevio = useRef(crearNuevo);
   useEffect(() => {
-    if (crearNuevo && !overlayPremio) {
-      setOverlayPremio({
-        id: 0,
-        nombre: "Nuevo premio",
-        descripcion: "Describe el premio...",
-        costoPuntos: 0,
-      });
+    // Solo abrir si crearNuevo cambió de false a true (no en el montaje inicial)
+    if (crearNuevo && !crearNuevoPrevio.current && !overlayPremio) {
+      // Usar setTimeout para evitar el setState síncrono dentro del effect
+      const timeout = setTimeout(() => {
+        setOverlayPremio({
+          id: 0,
+          nombre: "Nuevo premio",
+          descripcion: "Describe el premio...",
+          costoPuntos: 0,
+        });
+      }, 0);
+      return () => clearTimeout(timeout);
     }
-  }, [crearNuevo]);
+    crearNuevoPrevio.current = crearNuevo;
+  }, [crearNuevo, overlayPremio]);
 
   const abrirOverlay = (p: PremioUI) => setOverlayPremio(p);
   const cerrarOverlay = () => {
@@ -159,38 +190,105 @@ export function CatalogoPremiosEditableClient({ premios, crearNuevo }: Props) {
     }
   };
 
+  const handleToggleEstado = async (id: number, estadoActual: boolean) => {
+    try {
+      if (!token) {
+        showError("No hay token de sesión");
+        return;
+      }
+      const actualizado = await cambiarEstadoPremio(id, !estadoActual, token);
+      setLista((prev) =>
+        prev.map((p) =>
+          p.id === id
+            ? {
+                ...p,
+                activo: actualizado.activo,
+              }
+            : p,
+        ),
+      );
+      showSuccess(
+        actualizado.activo ? "Premio habilitado" : "Premio deshabilitado",
+      );
+    } catch (e: unknown) {
+      showError(
+        e instanceof Error
+          ? e.message
+          : "No se pudo cambiar el estado del premio",
+      );
+    }
+  };
+
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 mt-12">
-      {lista.map((premio) => (
-        <TarjetaPremio
-          key={premio.id}
-          id={premio.id}
-          nombre={premio.nombre}
-          descripcion={premio.descripcion}
-          costoPuntos={premio.costoPuntos}
-          imagenUrl={premio.imagenUrl}
-          acciones={
-            <div className="flex gap-2">
-              <button
-                className="text-xs rounded-md border px-10 py-2 bg-gray-200 hover:bg-gray-300"
-                onClick={() => abrirOverlay(premio)}
-                title="Editar"
-              >
-                <Pencil className="w-4 h-4 inline-block mr-1" />
-                Editar
-              </button>
-              <button
-                className="text-xs rounded-md border px-10 py-2 bg-red-100 text-red-700 hover:bg-red-200"
-                onClick={() => handleDelete(premio.id)}
-                title="Eliminar"
-              >
-                <Trash className="w-4 h-4 inline-block mr-1" />
-                Borrar
-              </button>
-            </div>
-          }
-        />
-      ))}
+      {lista.map((premio) => {
+        const estaDeshabilitado = premio.activo === false;
+        return (
+          <div
+            key={premio.id}
+            className={`relative ${estaDeshabilitado ? "opacity-60" : ""}`}
+          >
+            {/* Badge de estado */}
+            {estaDeshabilitado && (
+              <div className="absolute top-2 left-2 z-10 bg-red-500 text-white text-xs font-semibold px-2 py-1 rounded-full shadow">
+                Deshabilitado
+              </div>
+            )}
+            <TarjetaPremio
+              id={premio.id}
+              nombre={premio.nombre}
+              descripcion={premio.descripcion}
+              costoPuntos={premio.costoPuntos}
+              imagenUrl={premio.imagenUrl}
+              acciones={
+                <div className="flex flex-col gap-2 w-full">
+                  {/* Toggle de estado */}
+                  <button
+                    onClick={() =>
+                      handleToggleEstado(premio.id, premio.activo ?? true)
+                    }
+                    className={`flex items-center justify-center gap-2 w-full py-1.5 px-3 rounded-lg text-xs font-medium transition-colors ${
+                      premio.activo !== false
+                        ? "bg-green-100 text-green-700 hover:bg-green-200"
+                        : "bg-red-100 text-red-700 hover:bg-red-200"
+                    }`}
+                  >
+                    {premio.activo !== false ? (
+                      <>
+                        <ToggleRight className="w-4 h-4" />
+                        Habilitado
+                      </>
+                    ) : (
+                      <>
+                        <ToggleLeft className="w-4 h-4" />
+                        Deshabilitado
+                      </>
+                    )}
+                  </button>
+                  <div className="flex gap-2 w-full">
+                    <button
+                      className="flex-1 text-xs rounded-md border px-4 py-2 bg-gray-200 hover:bg-gray-300"
+                      onClick={() => abrirOverlay(premio)}
+                      title="Editar"
+                    >
+                      <Pencil className="w-4 h-4 inline-block mr-1" />
+                      Editar
+                    </button>
+                    <button
+                      className="flex-1 text-xs rounded-md border px-4 py-2 bg-red-100 text-red-700 hover:bg-red-200"
+                      onClick={() => handleDelete(premio.id)}
+                      title="Eliminar"
+                    >
+                      <Trash className="w-4 h-4 inline-block mr-1" />
+                      Borrar
+                    </button>
+                  </div>
+                </div>
+              }
+            />
+          </div>
+        );
+      })}
 
       {overlayPremio && (
         <EditorTarjetaPremioOverlay
@@ -200,7 +298,6 @@ export function CatalogoPremiosEditableClient({ premios, crearNuevo }: Props) {
             descripcion: overlayPremio.descripcion,
             costoPuntos: overlayPremio.costoPuntos,
           }}
-          imagenUrl={(overlayPremio as any).imagenUrl}
           imagenUrl={overlayPremio.imagenUrl}
           onSave={handleSave}
           onDelete={handleDelete}

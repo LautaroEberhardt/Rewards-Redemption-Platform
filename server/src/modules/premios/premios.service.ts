@@ -9,6 +9,7 @@ export type PremioDto = {
   descripcion?: string | null;
   costoPuntos: number;
   urlImagen?: string | null;
+  activo: boolean;
 };
 
 @Injectable()
@@ -25,12 +26,28 @@ export class PremiosService {
       descripcion: entidad.descripcion ?? null,
       costoPuntos: entidad.costoEnPuntos,
       urlImagen: entidad.urlImagen ?? null,
+      activo: entidad.activo,
     };
   }
 
   async findAll(): Promise<PremioDto[]> {
     const items = await this.repo.find({ where: { activo: true } });
     return items.map((i) => this.toDto(i));
+  }
+
+  /** Lista todos los premios incluyendo los deshabilitados (para administradores) */
+  async findAllAdmin(): Promise<PremioDto[]> {
+    const items = await this.repo.find({ order: { id: 'ASC' } });
+    return items.map((i) => this.toDto(i));
+  }
+
+  /** Habilita o deshabilita un premio */
+  async cambiarEstado(id: number, activo: boolean): Promise<PremioDto> {
+    const existente = await this.repo.findOne({ where: { id } });
+    if (!existente) throw new NotFoundException('Premio no encontrado');
+    existente.activo = activo;
+    const guardado = await this.repo.save(existente);
+    return this.toDto(guardado);
   }
 
   async findOne(id: number): Promise<PremioDto> {

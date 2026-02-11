@@ -38,6 +38,75 @@ export async function listarPremios(token?: string): Promise<Premio[]> {
   }
 }
 
+/**
+ * Lista todos los premios incluyendo los deshabilitados (para administradores)
+ */
+export async function listarPremiosAdmin(token: string): Promise<Premio[]> {
+  try {
+    const respuesta = await fetch(`${API_URL}/premios/admin`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      cache: "no-store",
+    });
+
+    if (!respuesta.ok) {
+      throw new Error("Error al listar premios de administrador");
+    }
+
+    const datos: unknown = await respuesta.json();
+    if (!Array.isArray(datos)) {
+      throw new Error("Formato inválido de respuesta de premios");
+    }
+    return (datos as any[]).map((p) => ({
+      id: Number(p.id),
+      nombre: p.nombre,
+      descripcion: p.descripcion ?? undefined,
+      costoPuntos: Number(p.costoPuntos ?? p.costoEnPuntos ?? 0),
+      imagenUrl: p.imagenUrl ?? p.urlImagen ?? undefined,
+      activo: p.activo ?? true,
+    }));
+  } catch (error) {
+    console.error("Error en listarPremiosAdmin:", error);
+    throw error;
+  }
+}
+
+/**
+ * Cambia el estado habilitado/deshabilitado de un premio
+ */
+export async function cambiarEstadoPremio(
+  id: number,
+  activo: boolean,
+  token: string,
+): Promise<Premio> {
+  const respuesta = await fetch(`${API_URL}/premios/${id}/estado`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ activo }),
+  });
+
+  if (!respuesta.ok) {
+    const err = (await safeJson(respuesta)) as { message?: string } | null;
+    throw new Error(err?.message || "Error al cambiar estado del premio");
+  }
+
+  const p: any = await respuesta.json();
+  return {
+    id: Number(p.id),
+    nombre: p.nombre,
+    descripcion: p.descripcion ?? undefined,
+    costoPuntos: Number(p.costoPuntos ?? p.costoEnPuntos ?? 0),
+    imagenUrl: p.imagenUrl ?? p.urlImagen ?? undefined,
+    activo: p.activo ?? true,
+  };
+}
+
 export async function crearPremio(
   payload: {
     nombre: string;

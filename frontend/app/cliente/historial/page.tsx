@@ -106,7 +106,7 @@ export default function PageHistorial() {
       {/* Encabezado */}
       <div>
         <h1 className="text-2xl font-bold text-neutral-800 flex items-center gap-2">
-          <History className="w-6 h-6 text-primary" />
+          <History className="w-6 h-6 text-secondary" />
           Historial de Puntos
         </h1>
         <p className="text-sm text-text-secondary mt-1">
