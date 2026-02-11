@@ -4,7 +4,14 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useToast } from "@/components/ui/toast";
 import { useSession } from "next-auth/react";
 import { TarjetaPremio } from "@/components/ui/TarjetaModulo";
-import { Pencil, Trash, ToggleLeft, ToggleRight } from "lucide-react";
+import {
+  Pencil,
+  Trash,
+  ToggleLeft,
+  ToggleRight,
+  AlertTriangle,
+  X,
+} from "lucide-react";
 import { EditorTarjetaPremioOverlay } from "@/components/admin/premios/EditorTarjetaPremioOverlay";
 import {
   crearPremio,
@@ -37,6 +44,7 @@ export function CatalogoPremiosEditableClient({ premios, crearNuevo }: Props) {
   const token = sesion?.user?.accessToken;
 
   const [lista, setLista] = useState<PremioUI[]>(premios);
+  const [premioAEliminar, setPremioAEliminar] = useState<PremioUI | null>(null);
   const [overlayPremio, setOverlayPremio] = useState<PremioUI | null>(
     crearNuevo
       ? {
@@ -173,7 +181,6 @@ export function CatalogoPremiosEditableClient({ premios, crearNuevo }: Props) {
   };
 
   const handleDelete = async (id: number) => {
-    if (!confirm("¿Eliminar este premio?")) return;
     try {
       if (!token) {
         alert("No hay token de sesión");
@@ -184,10 +191,15 @@ export function CatalogoPremiosEditableClient({ premios, crearNuevo }: Props) {
       showSuccess("Premio eliminado");
       router.refresh();
       cerrarOverlay();
+      setPremioAEliminar(null);
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (e: any) {
       showError(e?.message || "No se pudo eliminar el premio");
     }
+  };
+
+  const pedirConfirmacionEliminar = (premio: PremioUI) => {
+    setPremioAEliminar(premio);
   };
 
   const handleToggleEstado = async (id: number, estadoActual: boolean) => {
@@ -276,7 +288,7 @@ export function CatalogoPremiosEditableClient({ premios, crearNuevo }: Props) {
                     </button>
                     <button
                       className="flex-1 text-xs rounded-md border px-4 py-2 bg-red-100 text-red-700 hover:bg-red-200"
-                      onClick={() => handleDelete(premio.id)}
+                      onClick={() => pedirConfirmacionEliminar(premio)}
                       title="Eliminar"
                     >
                       <Trash className="w-4 h-4 inline-block mr-1" />
@@ -300,9 +312,67 @@ export function CatalogoPremiosEditableClient({ premios, crearNuevo }: Props) {
           }}
           imagenUrl={overlayPremio.imagenUrl}
           onSave={handleSave}
-          onDelete={handleDelete}
+          onDelete={(id) => {
+            const premio = lista.find((p) => p.id === id);
+            if (premio) pedirConfirmacionEliminar(premio);
+          }}
           onClose={cerrarOverlay}
         />
+      )}
+
+      {/* Modal de confirmación para eliminar */}
+      {premioAEliminar && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+          <div className="bg-white rounded-2xl shadow-xl max-w-md w-full mx-4 p-6 animate-in fade-in zoom-in-95">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-3">
+                <div className="bg-red-100 p-2.5 rounded-full">
+                  <AlertTriangle className="w-5 h-5 text-red-600" />
+                </div>
+                <h3 className="text-lg font-bold text-neutral-800">
+                  Eliminar premio
+                </h3>
+              </div>
+              <button
+                onClick={() => setPremioAEliminar(null)}
+                className="p-1 rounded-lg hover:bg-neutral-100 transition-colors"
+              >
+                <X className="w-5 h-5 text-neutral-400" />
+              </button>
+            </div>
+
+            <p className="text-sm text-neutral-600 mb-2">
+              ¿Estás seguro de que querés eliminar el premio?
+            </p>
+            <div className="bg-neutral-50 border border-neutral-200 rounded-lg p-3 mb-6">
+              <p className="font-semibold text-neutral-800">
+                {premioAEliminar.nombre}
+              </p>
+              <p className="text-xs text-neutral-500 mt-0.5">
+                {premioAEliminar.costoPuntos.toLocaleString("es-AR")} puntos
+              </p>
+            </div>
+            <p className="text-xs text-red-600 mb-5">
+              Esta acción no se puede deshacer. Si solo querés ocultarlo, usá el
+              botón de deshabilitar.
+            </p>
+
+            <div className="flex gap-3 justify-end">
+              <button
+                onClick={() => setPremioAEliminar(null)}
+                className="px-4 py-2 text-sm font-medium rounded-lg border border-neutral-200 text-neutral-600 hover:bg-neutral-50 transition-colors"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={() => handleDelete(premioAEliminar.id)}
+                className="px-4 py-2 text-sm font-medium rounded-lg bg-red-600 text-white hover:bg-red-700 transition-colors"
+              >
+                Sí, eliminar
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

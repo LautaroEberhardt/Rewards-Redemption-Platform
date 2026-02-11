@@ -34,8 +34,8 @@ export function CatalogoPremiosPublico({ premios }: { premios: Premio[] }) {
     setPremioSeleccionado(premio);
   };
 
-  const manejarCanjeExitoso = (codigo: string) => {
-    showSuccess(`¡Canje exitoso! Tu código: ${codigo}`);
+  const manejarCanjeExitoso = () => {
+    showSuccess("¡Canje solicitado! Queda pendiente de entrega.");
   };
 
   return (

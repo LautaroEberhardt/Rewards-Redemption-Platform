@@ -15,10 +15,6 @@ export class CanjeEntidad {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  // Código corto para que el gerente valide (ej: "XJ9-22")
-  @Column({ unique: true, length: 10 })
-  codigoVerificacion: string;
-
   @Column({ type: 'enum', enum: EstadoCanje, default: EstadoCanje.PENDIENTE })
   estado: EstadoCanje;
 

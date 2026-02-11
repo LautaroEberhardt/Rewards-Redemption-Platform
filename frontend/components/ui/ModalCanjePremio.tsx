@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import { X, Gift, CheckCircle, AlertCircle } from "lucide-react";
+import { X, Gift, CheckCircle, AlertCircle, Clock } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { canjearPremio } from "@/servicios/canjes.servicio";
 import { Boton } from "@/components/ui/boton";
@@ -19,7 +19,7 @@ interface PropsModalCanje {
   premio: PropsPremioModal;
   abierto: boolean;
   onCerrar: () => void;
-  onCanjeExitoso?: (codigoVerificacion: string) => void;
+  onCanjeExitoso?: () => void;
 }
 
 type EstadoCanje = "confirmacion" | "procesando" | "exito" | "error";
@@ -32,7 +32,6 @@ export function ModalCanjePremio({
 }: PropsModalCanje) {
   const { data: sesion } = useSession();
   const [estado, setEstado] = useState<EstadoCanje>("confirmacion");
-  const [codigoVerificacion, setCodigoVerificacion] = useState("");
   const [mensajeError, setMensajeError] = useState("");
 
   const baseApi = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
@@ -44,7 +43,6 @@ export function ModalCanjePremio({
 
   const reiniciarEstado = () => {
     setEstado("confirmacion");
-    setCodigoVerificacion("");
     setMensajeError("");
   };
 
@@ -64,10 +62,9 @@ export function ModalCanjePremio({
     setEstado("procesando");
 
     try {
-      const respuesta = await canjearPremio(premio.id, token);
-      setCodigoVerificacion(respuesta.canje.codigoVerificacion);
+      await canjearPremio(premio.id, token);
       setEstado("exito");
-      onCanjeExitoso?.(respuesta.canje.codigoVerificacion);
+      onCanjeExitoso?.();
     } catch (err: unknown) {
       const mensaje =
         err instanceof Error ? err.message : "Error inesperado al canjear.";
@@ -181,18 +178,20 @@ export function ModalCanjePremio({
               <CheckCircle className="w-9 h-9 text-green-600" />
             </div>
             <h3 className="text-2xl font-bold text-neutral-800">
-              ¡Canje exitoso!
+              ¡Canje solicitado!
             </h3>
             <p className="text-text-secondary">
-              Mostrá este código al gerente para retirar tu premio:
+              Tu solicitud fue registrada correctamente.
             </p>
-            <div className="bg-neutral-100 px-6 py-3 rounded-xl">
-              <span className="text-3xl font-mono font-bold tracking-widest text-primary">
-                {codigoVerificacion}
-              </span>
+            <div className="bg-amber-50 border border-amber-200 rounded-xl px-5 py-3 flex items-center gap-3">
+              <Clock className="w-5 h-5 text-amber-600 shrink-0" />
+              <p className="text-sm text-amber-800 text-left">
+                Tu premio queda <strong>pendiente de entrega</strong>. El
+                administrador lo marcará como completado cuando lo retires.
+              </p>
             </div>
             <p className="text-sm text-neutral-400 mt-1">
-              Premio: <strong>{premio.nombre}</strong>
+              Premio: <strong>{premio.nombre}</strong> — {premio.costoPuntos} pts
             </p>
             <Boton
               onClick={cerrarModal}

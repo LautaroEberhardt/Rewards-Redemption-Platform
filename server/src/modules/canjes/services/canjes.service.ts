@@ -22,7 +22,7 @@ export class CanjesServicio {
   ) {}
 
   /**
-   * Crea un canje: descuenta puntos del usuario y genera un código de verificación.
+   * Crea un canje: descuenta puntos del usuario y lo agrega a la lista de espera.
    * Usa una transacción para garantizar atomicidad.
    */
   async crearCanje(usuarioId: string, premioId: number): Promise<CanjeEntidad> {
@@ -75,14 +75,11 @@ export class CanjesServicio {
       });
       await queryRunner.manager.save(transaccion);
 
-      // 6. Crear el canje con código de verificación único
-      const codigoVerificacion = this.generarCodigoVerificacion();
-
+      // 6. Crear el canje en estado PENDIENTE (lista de espera)
       const canje = queryRunner.manager.create(CanjeEntidad, {
         usuario,
         premio,
         puntosGastados: premio.costoEnPuntos,
-        codigoVerificacion,
         estado: EstadoCanje.PENDIENTE,
       });
       await queryRunner.manager.save(canje);
@@ -116,16 +113,81 @@ export class CanjesServicio {
   }
 
   /**
-   * Genera un código de verificación alfanumérico corto (ej: "A3X-7K").
+   * Lista todos los canjes (para administradores), con filtro opcional por estado.
    */
-  private generarCodigoVerificacion(): string {
-    const caracteres = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-    const parte1 = Array.from({ length: 3 }, () =>
-      caracteres.charAt(Math.floor(Math.random() * caracteres.length)),
-    ).join('');
-    const parte2 = Array.from({ length: 2 }, () =>
-      caracteres.charAt(Math.floor(Math.random() * caracteres.length)),
-    ).join('');
-    return `${parte1}-${parte2}`;
+  async listarTodosLosCanjes(estado?: EstadoCanje): Promise<CanjeEntidad[]> {
+    const where = estado ? { estado } : {};
+    return this.repositorioCanjes.find({
+      where,
+      relations: ['premio', 'usuario'],
+      order: { fechaSolicitud: 'DESC' },
+    });
+  }
+
+  /**
+   * Cambia el estado de un canje (admin). Si se marca como CANCELADO, devuelve los puntos.
+   */
+  async cambiarEstadoCanje(canjeId: string, nuevoEstado: EstadoCanje): Promise<CanjeEntidad> {
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    try {
+      const canje = await queryRunner.manager.findOne(CanjeEntidad, {
+        where: { id: canjeId },
+        relations: ['usuario', 'premio'],
+      });
+
+      if (!canje) {
+        throw new NotFoundException('Canje no encontrado.');
+      }
+
+      // Si se cancela, devolver los puntos al usuario
+      if (nuevoEstado === EstadoCanje.CANCELADO && canje.estado !== EstadoCanje.CANCELADO) {
+        const usuario = await queryRunner.manager.findOne(UsuarioEntidad, {
+          where: { id: canje.usuario.id },
+          lock: { mode: 'pessimistic_write' },
+        });
+
+        if (usuario) {
+          const saldoAnterior = usuario.saldoPuntosActual;
+          const saldoNuevo = saldoAnterior + canje.puntosGastados;
+          usuario.saldoPuntosActual = saldoNuevo;
+          await queryRunner.manager.save(usuario);
+
+          // Registrar la devolución como INGRESO
+          const transaccion = queryRunner.manager.create(TransaccionPuntosEntidad, {
+            usuario,
+            cantidad: canje.puntosGastados,
+            concepto: `Devolución por canje cancelado: ${canje.premio?.nombre ?? 'Premio'}`,
+            tipo: TipoTransaccion.INGRESO,
+            saldoAnterior,
+            saldoNuevo,
+            fecha: new Date(),
+          });
+          await queryRunner.manager.save(transaccion);
+        }
+      }
+
+      canje.estado = nuevoEstado;
+      if (nuevoEstado === EstadoCanje.ENTREGADO) {
+        canje.fechaEntrega = new Date();
+      }
+      await queryRunner.manager.save(canje);
+
+      await queryRunner.commitTransaction();
+      return canje;
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+
+      if (error instanceof NotFoundException || error instanceof BadRequestException) {
+        throw error;
+      }
+
+      console.error('Error al cambiar estado del canje:', error);
+      throw new InternalServerErrorException('Error al actualizar el estado del canje.');
+    } finally {
+      await queryRunner.release();
+    }
   }
 }

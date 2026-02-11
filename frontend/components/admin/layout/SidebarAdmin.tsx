@@ -4,7 +4,7 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Pen, ShoppingCart, User, ArrowLeft } from "lucide-react";
+import { Pen, ShoppingCart, User, ArrowLeft, Package } from "lucide-react";
 
 type ItemNav = { href: string; label: string; icon?: React.ReactNode };
 
@@ -18,6 +18,11 @@ const items: ItemNav[] = [
     href: "/?edit=premios",
     label: "Cargar Premios",
     icon: <ShoppingCart className="h-4 w-4" />,
+  },
+  {
+    href: "/admin/canjes",
+    label: "Solicitudes de Canje",
+    icon: <Package className="h-4 w-4" />,
   },
   {
     href: "/admin/clientes",
