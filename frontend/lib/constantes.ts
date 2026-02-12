@@ -9,3 +9,8 @@ export const Rutas = {
   admin: "/admin",
   cliente: "/cliente",
 } as const;
+
+export const ConfigNegocio = {
+  TELEFONO_PEDIDOS: process.env.NEXT_PUBLIC_WHATSAPP_TELEFONO || "",
+  NOMBRE_EMPRESA: "AyV Uniformes",
+} as const;

@@ -19,7 +19,7 @@ export class CanjeEntidad {
   estado: EstadoCanje;
 
   @Column({ type: 'int' })
-  puntosGastados: number; // Guardamos el costo histórico (por si el precio del premio cambia después)
+  puntosGastados: number;
 
   @Column({ nullable: true })
   fechaEntrega: Date;

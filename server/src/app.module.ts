@@ -2,7 +2,6 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
-import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UsuariosModule } from './modules/usuarios/usuarios.module';
 import { PremiosModule } from './modules/premios/premios.module';
@@ -11,7 +10,6 @@ import { CanjesModule } from './modules/canjes/canjes.module';
 import { UsuarioEntidad } from './modules/usuarios/entities/usuario.entity';
 import { ConfigModule } from '@nestjs/config';
 import { AuthModule } from './modules/auth/auth.module';
-import { SeedService } from './seed.service';
 
 @Module({
   imports: [
@@ -40,7 +38,7 @@ import { SeedService } from './seed.service';
     CanjesModule,
     AuthModule,
   ],
-  controllers: [AppController],
-  providers: [AppService, SeedService],
+  controllers: [],
+  providers: [AppService],
 })
 export class AppModule {}

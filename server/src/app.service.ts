@@ -38,8 +38,4 @@ export class AppService implements OnApplicationBootstrap {
     await this.usuarioRepo.save(nuevoAdmin);
     console.log('✨ Admin creado exitosamente');
   }
-
-  getHello(): string {
-    return 'API Funcionando 🚀';
-  }
 }
