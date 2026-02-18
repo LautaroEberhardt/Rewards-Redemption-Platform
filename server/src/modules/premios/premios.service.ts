@@ -103,18 +103,16 @@ export class PremiosService {
     return this.toDto(guardado);
   }
 
-  async remove(id: number): Promise<void> {
-    try {
-      const resultado = await this.repo.delete(id);
-      if (!resultado.affected || resultado.affected < 1) {
-        throw new NotFoundException('Premio no encontrado');
-      }
-    } catch (e) {
-      // Fallback de seguridad: si hay restricciones de FK, aplicamos soft delete
-      const existente = await this.repo.findOne({ where: { id } });
-      if (!existente) throw new NotFoundException('Premio no encontrado');
-      existente.activo = false;
-      await this.repo.save(existente);
+  async remove(id: number): Promise<{ mensaje: string }> {
+    const existente = await this.repo.findOne({ where: { id } });
+    if (!existente) throw new NotFoundException('Premio no encontrado');
+
+    if (!existente.activo) {
+      return { mensaje: 'El premio ya se encontraba desactivado' };
     }
+
+    existente.activo = false;
+    await this.repo.save(existente);
+    return { mensaje: 'Premio desactivado correctamente' };
   }
 }

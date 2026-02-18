@@ -186,9 +186,11 @@ export function CatalogoPremiosEditableClient({ premios, crearNuevo }: Props) {
         alert("No hay token de sesión");
         return;
       }
-      await eliminarPremio(Number(id), token);
-      setLista((prev) => prev.filter((p) => p.id !== id));
-      showSuccess("Premio eliminado");
+      const { mensaje } = await eliminarPremio(Number(id), token);
+      setLista((prev) =>
+        prev.map((p) => (p.id === id ? { ...p, activo: false } : p)),
+      );
+      showSuccess(mensaje);
       router.refresh();
       cerrarOverlay();
       setPremioAEliminar(null);

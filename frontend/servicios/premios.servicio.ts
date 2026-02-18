@@ -244,7 +244,7 @@ export async function actualizarPremio(
 export async function eliminarPremio(
   id: number,
   token?: string,
-): Promise<void> {
+): Promise<{ mensaje: string }> {
   const headers: HeadersInit = { "Content-Type": "application/json" };
   if (token) headers["Authorization"] = `Bearer ${token}`;
 
@@ -256,6 +256,8 @@ export async function eliminarPremio(
     const err = (await safeJson(respuesta)) as { message?: string } | null;
     throw new Error(err?.message || "Error al eliminar premio");
   }
+  const data = (await safeJson(respuesta)) as { mensaje?: string } | null;
+  return { mensaje: data?.mensaje || "Premio desactivado" };
 }
 
 async function safeJson(res: Response): Promise<unknown | null> {

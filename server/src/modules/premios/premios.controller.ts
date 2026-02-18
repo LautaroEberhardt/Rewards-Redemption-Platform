@@ -248,7 +248,7 @@ export class PremiosController {
   @Delete(':id')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(RolUsuario.ADMIN)
-  remove(@Param('id', ParseIntPipe) id: number): Promise<void> {
+  remove(@Param('id', ParseIntPipe) id: number): Promise<{ mensaje: string }> {
     return this.service.remove(id);
   }
 }

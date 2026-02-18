@@ -238,9 +238,18 @@ function TablaClientesModerna({ usuarios, onAsignar, onRetirar }: TablaProps) {
             <td className="px-6 py-4 whitespace-nowrap">
               <div className="flex items-center">
                 <div className="h-10 w-10 shrink-0">
-                  <div className="h-10 w-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 font-bold text-sm border border-indigo-200">
-                    {usuario.nombre.charAt(0).toUpperCase()}
-                  </div>
+                  {usuario.foto ? (
+                    <img
+                      src={usuario.foto}
+                      alt={usuario.nombre}
+                      className="h-10 w-10 rounded-full object-cover border border-gray-200"
+                      referrerPolicy="no-referrer"
+                    />
+                  ) : (
+                    <div className="h-10 w-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 font-bold text-sm border border-indigo-200">
+                      {usuario.nombre.charAt(0).toUpperCase()}
+                    </div>
+                  )}
                 </div>
                 <div className="ml-4">
                   <div className="font-medium text-gray-900">
