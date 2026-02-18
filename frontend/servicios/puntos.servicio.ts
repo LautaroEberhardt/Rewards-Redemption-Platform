@@ -12,6 +12,7 @@ export async function obtenerPuntosCliente(clienteId: string) {
 
 // Objeto de servicio usado por formularios que manejan token manualmente
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "";
+
 export const PuntosServicio = {
   asignar: async (
     usuarioId: string,

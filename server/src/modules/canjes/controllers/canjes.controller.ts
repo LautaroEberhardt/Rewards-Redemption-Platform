@@ -27,8 +27,11 @@ export class CanjesControlador {
   /**
    * POST /canjes — Crea un canje de premio para el usuario autenticado.
    * El canje queda en estado PENDIENTE hasta que el admin lo complete.
+   * Solo los clientes pueden canjear premios.
    */
   @Post()
+  @UseGuards(RolesGuard)
+  @Roles(RolUsuario.CLIENTE)
   @HttpCode(HttpStatus.CREATED)
   async crearCanje(@Body() crearCanjeDto: CrearCanjeDto, @Request() req: { user: { id: string } }) {
     const canje = await this.canjesServicio.crearCanje(req.user.id, crearCanjeDto.premioId);

@@ -1,4 +1,5 @@
 import { ReactNode } from "react";
+import { motion } from "framer-motion";
 
 // Actualizamos la interfaz
 interface PropsTarjetaPremio {
@@ -10,6 +11,8 @@ interface PropsTarjetaPremio {
   onCanjear?: () => void;
   // NUEVO: Slot opcional para inyectar botones personalizados
   acciones?: ReactNode;
+  // Oculta el footer de canje (ej: para admins)
+  ocultarCanje?: boolean;
 }
 
 export const TarjetaPremio = ({
@@ -20,6 +23,7 @@ export const TarjetaPremio = ({
   imagenUrl,
   onCanjear,
   acciones, // Recibimos el slot
+  ocultarCanje,
 }: PropsTarjetaPremio) => {
   const baseApi = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
   const srcImagen = imagenUrl
@@ -28,12 +32,15 @@ export const TarjetaPremio = ({
       : `${baseApi}${imagenUrl}`
     : undefined;
   return (
-    <article
+    <motion.article
+      whileHover={{ scale: 1.03, y: -4 }}
+      whileTap={{ scale: 0.98 }}
+      transition={{ type: "spring", stiffness: 300, damping: 20 }}
       className="
         group relative flex flex-col h-full p-5 rounded-2xl bg-white
         border border-neutral-200/60 shadow-sm hover:shadow-xl
-        shadow-primary-hover hover:-translate-y-3 hover:border-primary/20
-        transition-all duration-300 overflow-hidden
+        shadow-primary-hover hover:border-primary/20
+        transition-colors duration-300 overflow-hidden
       "
     >
       {/* 1. ÁREA DE IMAGEN (Sin cambios) */}
@@ -77,8 +84,13 @@ export const TarjetaPremio = ({
           {acciones ? (
             // CASO A: Si mandamos acciones (Admin), renderizamos eso
             <div className="w-full">{acciones}</div>
+          ) : ocultarCanje ? (
+            // CASO B: Admin viendo catálogo sin acciones
+            <span className="text-xs font-medium text-neutral-400">
+              Solo visualización
+            </span>
           ) : (
-            // CASO B: Comportamiento por defecto (Cliente)
+            // CASO C: Comportamiento por defecto (Cliente)
             <>
               <span className="text-xs font-medium text-neutral-400">
                 Stock disponible
@@ -93,6 +105,6 @@ export const TarjetaPremio = ({
           )}
         </div>
       </div>
-    </article>
+    </motion.article>
   );
 };

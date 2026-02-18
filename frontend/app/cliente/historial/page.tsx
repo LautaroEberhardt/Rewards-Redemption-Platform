@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { useSession } from "next-auth/react";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   ArrowUpCircle,
   ArrowDownCircle,
@@ -160,12 +161,22 @@ export default function PageHistorial() {
           </p>
         </div>
       ) : (
-        <div className="space-y-3">
+        <motion.div
+          className="space-y-3"
+          variants={{ show: { transition: { staggerChildren: 0.05 } } }}
+          initial="hidden"
+          animate="show"
+          key={paginaActual}
+        >
           {transacciones.map((t) => {
             const esIngreso = t.tipo === "INGRESO";
             return (
-              <div
+              <motion.div
                 key={t.id}
+                variants={{
+                  hidden: { opacity: 0, x: -16 },
+                  show: { opacity: 1, x: 0, transition: { duration: 0.3 } },
+                }}
                 className="flex items-center gap-4 bg-white border border-neutral-200/60 rounded-xl p-4 hover:shadow-sm transition-shadow"
               >
                 {/* Ícono */}
@@ -205,10 +216,10 @@ export default function PageHistorial() {
                     Saldo: {t.saldoNuevo.toLocaleString("es-AR")} pts
                   </p>
                 </div>
-              </div>
+              </motion.div>
             );
           })}
-        </div>
+        </motion.div>
       )}
 
       {/* Paginación */}

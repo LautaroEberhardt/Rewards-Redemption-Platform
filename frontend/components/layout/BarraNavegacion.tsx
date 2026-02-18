@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   House,
   Pen,
@@ -37,24 +38,36 @@ export default function BarraNavegacion() {
 
   const [puntos, setPuntos] = useState<number | null>(null);
 
-  useEffect(() => {
+  const cargarPuntos = useCallback(() => {
     if (!estaAutenticado || esAdmin) return;
-
-    let cancelado = false;
     obtenerPerfilAction()
       .then((res) => {
-        if (!cancelado && res.ok && res.usuario.puntos !== undefined) {
+        if (res.ok && res.usuario.puntos !== undefined) {
           setPuntos(res.usuario.puntos);
         }
       })
-      .catch(() => {
-        // Silenciar — los puntos son informativos
-      });
-
-    return () => {
-      cancelado = true;
-    };
+      .catch(() => {});
   }, [estaAutenticado, esAdmin]);
+
+  useEffect(() => {
+    cargarPuntos();
+  }, [cargarPuntos]);
+
+  // Refrescar puntos tras un canje exitoso
+  useEffect(() => {
+    const handler = () => cargarPuntos();
+    window.addEventListener("puntos-actualizados", handler);
+    return () => window.removeEventListener("puntos-actualizados", handler);
+  }, [cargarPuntos]);
+
+  // Refrescar puntos al volver a la pestaña
+  useEffect(() => {
+    const handler = () => {
+      if (document.visibilityState === "visible") cargarPuntos();
+    };
+    document.addEventListener("visibilitychange", handler);
+    return () => document.removeEventListener("visibilitychange", handler);
+  }, [cargarPuntos]);
 
   const manejarNavegacion = (accion: () => void) => {
     setMenuAbierto(false);
@@ -117,9 +130,18 @@ export default function BarraNavegacion() {
               title="Tus puntos"
             >
               <Star className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
-              <span className="text-sm font-semibold text-secondary">
-                {puntos.toLocaleString("es-AR")}
-              </span>
+              <AnimatePresence mode="popLayout">
+                <motion.span
+                  key={puntos}
+                  className="text-sm font-semibold text-secondary"
+                  initial={{ opacity: 0, y: -8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 8 }}
+                  transition={{ duration: 0.25 }}
+                >
+                  {puntos.toLocaleString("es-AR")}
+                </motion.span>
+              </AnimatePresence>
               <span className="text-xs text-text-primary">pts</span>
             </Link>
           )}
@@ -222,9 +244,18 @@ export default function BarraNavegacion() {
               title="Tus puntos"
             >
               <Star className="w-3 h-3  text-amber-400 fill-amber-400" />
-              <span className="text-xs font-semibold text-secondary">
-                {puntos.toLocaleString("es-AR")}
-              </span>
+              <AnimatePresence mode="popLayout">
+                <motion.span
+                  key={puntos}
+                  className="text-xs font-semibold text-secondary"
+                  initial={{ opacity: 0, y: -6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 6 }}
+                  transition={{ duration: 0.25 }}
+                >
+                  {puntos.toLocaleString("es-AR")}
+                </motion.span>
+              </AnimatePresence>
               <span className="text-xs text-text-primary">pts</span>
             </Link>
           )}

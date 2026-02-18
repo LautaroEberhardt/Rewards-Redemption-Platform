@@ -1,5 +1,6 @@
 "use client";
 import React, { createContext, useContext, useState, useCallback } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 
 type Toast = {
   id: number;
@@ -63,22 +64,29 @@ export function ToastViewport() {
   const ctx = useToast();
   return (
     <div className="fixed top-4 right-4 z-50 space-y-2">
-      {ctx.toasts.map((t) => (
-        <div
-          key={t.id}
-          className={
-            "px-4 py-2 rounded-lg shadow text-white " +
-            (t.type === "success"
-              ? "bg-green-600"
-              : t.type === "error"
-                ? "bg-red-600"
-                : "bg-gray-800")
-          }
-          onClick={() => ctx.remove(t.id)}
-        >
-          {t.message}
-        </div>
-      ))}
+      <AnimatePresence mode="popLayout">
+        {ctx.toasts.map((t) => (
+          <motion.div
+            key={t.id}
+            layout
+            initial={{ opacity: 0, x: 80, scale: 0.95 }}
+            animate={{ opacity: 1, x: 0, scale: 1 }}
+            exit={{ opacity: 0, x: 80, scale: 0.95 }}
+            transition={{ type: "spring", damping: 20, stiffness: 250 }}
+            className={
+              "px-4 py-2 rounded-lg shadow-lg cursor-pointer text-white " +
+              (t.type === "success"
+                ? "bg-green-600"
+                : t.type === "error"
+                  ? "bg-red-600"
+                  : "bg-gray-800")
+            }
+            onClick={() => ctx.remove(t.id)}
+          >
+            {t.message}
+          </motion.div>
+        ))}
+      </AnimatePresence>
     </div>
   );
 }

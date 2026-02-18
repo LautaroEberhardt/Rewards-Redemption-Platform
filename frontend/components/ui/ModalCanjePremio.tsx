@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Image from "next/image";
+import { motion } from "framer-motion";
 import { X, Gift, CheckCircle, AlertCircle, Clock } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { canjearPremio } from "@/servicios/canjes.servicio";
@@ -88,6 +89,8 @@ export function ModalCanjePremio({
 
       setEstado("exito");
       onCanjeExitoso?.();
+      // Notificar a la navbar para refrescar puntos
+      window.dispatchEvent(new Event("puntos-actualizados"));
     } catch (err: unknown) {
       const mensaje =
         err instanceof Error ? err.message : "Error inesperado al canjear.";
@@ -101,13 +104,23 @@ export function ModalCanjePremio({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       {/* Overlay */}
-      <div
+      <motion.div
         className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        transition={{ duration: 0.2 }}
         onClick={estado === "procesando" ? undefined : cerrarModal}
       />
 
       {/* Contenido del modal */}
-      <div className="relative bg-white rounded-2xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto animate-in fade-in zoom-in-95 duration-200">
+      <motion.div
+        className="relative bg-white rounded-2xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto"
+        initial={{ opacity: 0, scale: 0.95, y: 10 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.95, y: 10 }}
+        transition={{ duration: 0.25, ease: "easeOut" }}
+      >
         {/* Botón cerrar */}
         {estado !== "procesando" && (
           <button
@@ -276,7 +289,7 @@ export function ModalCanjePremio({
             </div>
           </div>
         )}
-      </div>
+      </motion.div>
     </div>
   );
 }
