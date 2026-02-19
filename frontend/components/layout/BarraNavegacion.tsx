@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -83,8 +84,15 @@ export default function BarraNavegacion() {
     <header className="sticky top-0 z-40 w-full backdrop-blur-md bg-background-secondary text-shadow-violet-950/50 shadow-sm transition-all">
       <div className="container flex items-center justify-between py-4 relative">
         {/* 1. LOGO */}
-        <Link href="/" className="text-primary font-bold text-2xl z-50">
-          AyV
+        <Link href="/" className="z-50">
+          <Image
+            src="/images/logo-ayv.png"
+            alt="AyV Logo"
+            width={80}
+            height={80}
+            className="h-20 w-auto -my-4"
+            priority
+          />
         </Link>
 
         {/* 2. NAVEGACIÓN DESKTOP */}

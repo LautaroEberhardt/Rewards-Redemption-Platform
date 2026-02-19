@@ -1,4 +1,5 @@
 import React from "react";
+import Image from "next/image";
 import { auth } from "@/auth";
 import { Boton } from "@/components/ui/boton";
 import { BotonAgregarPremioFlotante } from "@/components/admin/premios/BotonAgregarPremioFlotante";
@@ -20,7 +21,7 @@ export default async function PaginaInicio({
   const modoEdicion = esAdmin && sp.edit === "premios";
   const crearNuevo = modoEdicion && sp.crear === "1";
 
-  // Intentamos traer premios reales desde el backend; si falla, usamos fallback estático
+  // Intentamos traer premios reales desde el backend
   let premiosReales: {
     id: number;
     nombre: string;
@@ -28,6 +29,7 @@ export default async function PaginaInicio({
     costoPuntos: number;
     imagenUrl?: string;
   }[] = [];
+  let errorCarga = false;
   try {
     const apiPremios = await listarPremios();
     premiosReales = apiPremios.map((p) => ({
@@ -38,47 +40,8 @@ export default async function PaginaInicio({
       imagenUrl: p.imagenUrl,
     }));
   } catch {
-    premiosReales = [
-      {
-        id: 1,
-        nombre: "Gift Card Amazon",
-        descripcion: "Canjeable por cualquier producto en la tienda.",
-        costoPuntos: 500,
-      },
-      {
-        id: 2,
-        nombre: "Auriculares Bluetooth",
-        descripcion: "Sonido de alta fidelidad con cancelación de ruido.",
-        costoPuntos: 1200,
-      },
-      {
-        id: 3,
-        nombre: "Cena para Dos",
-        descripcion: "Experiencia gourmet en restaurantes seleccionados.",
-        costoPuntos: 2500,
-      },
-      {
-        id: 4,
-        nombre: "Kit Merchandising",
-        descripcion: "Camiseta, taza y stickers de la marca.",
-        costoPuntos: 300,
-      },
-      {
-        id: 5,
-        nombre: "Día de Spa",
-        descripcion: "Circuito completo de relajación y masaje.",
-        costoPuntos: 5000,
-      },
-      {
-        id: 6,
-        nombre: "Entradas de Cine",
-        descripcion: "Pack de 2 entradas + combo de palomitas.",
-        costoPuntos: 450,
-      },
-    ];
+    errorCarga = true;
   }
-
-  // Los handlers se gestionan dentro del wrapper cliente
 
   return (
     <div className="flex flex-col w-full gap-y-0">
@@ -88,9 +51,8 @@ export default async function PaginaInicio({
         className="w-full py-20 border-b border-neutral-200/60"
       >
         <div className="flex flex-col items-center max-w-3xl mx-auto text-center gap-6">
-          <h1 className="text-4xl md:text-5xl font-bold text-neutral-900 tracking-tight">
-            Sistema canje de puntos{" "}
-            <span className="text-primary-hover">AyV</span>
+          <h1 className="text-4xl md:text-5xl font-bold text-neutral-900 tracking-tight flex items-center justify-center gap-3 flex-wrap">
+            Sistema canje de puntos
           </h1>
           <p className="text-lg text-text-secondary leading-relaxed max-w-xl mx-auto">
             Acumula puntos en cada visita y canjealos por recompensas pensadas
@@ -124,6 +86,21 @@ export default async function PaginaInicio({
               crearNuevo={crearNuevo}
               premios={premiosReales}
             />
+          ) : errorCarga ? (
+            <div className="text-center py-12">
+              <p className="text-text-secondary text-lg">
+                No se pudieron cargar los premios en este momento.
+              </p>
+              <p className="text-sm text-gray-400 mt-2">
+                Intentá de nuevo más tarde.
+              </p>
+            </div>
+          ) : premiosReales.length === 0 ? (
+            <div className="text-center py-12">
+              <p className="text-text-secondary text-lg">
+                Aún no hay premios disponibles.
+              </p>
+            </div>
           ) : (
             <CatalogoPremiosPublico premios={premiosReales} />
           )}
