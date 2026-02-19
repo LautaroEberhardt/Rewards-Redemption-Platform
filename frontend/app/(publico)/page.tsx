@@ -1,27 +1,23 @@
 import React from "react";
-import Image from "next/image";
 import { auth } from "@/auth";
-import { Boton } from "@/components/ui/boton";
 import { BotonAgregarPremioFlotante } from "@/components/admin/premios/BotonAgregarPremioFlotante";
 import { CatalogoPremiosEditableClient } from "@/components/admin/premios/CatalogoPremiosEditableClient";
 import { CatalogoPremiosPublico } from "@/components/ui/CatalogoPremiosPublico";
 import { listarPremios } from "@/servicios/premios.servicio";
+import { ExplicacionFuncionamientoHero } from "@/components/ui/ExplicacionFuncionamientoHero";
 
 export default async function PaginaInicio({
   searchParams,
 }: {
-  // En Next.js las Dynamic APIs pasan `searchParams` como Promesa
   searchParams?: Promise<{ edit?: string; crear?: string }>;
 }) {
   const sp = (await searchParams) ?? {};
-  // Seguridad: solo admins pueden activar modo edición vía query string
   const sesion = await auth();
   const rol = (sesion?.user as { rol?: string } | undefined)?.rol;
   const esAdmin = rol === "ADMIN" || rol === "admin";
   const modoEdicion = esAdmin && sp.edit === "premios";
   const crearNuevo = modoEdicion && sp.crear === "1";
 
-  // Intentamos traer premios reales desde el backend
   let premiosReales: {
     id: number;
     nombre: string;
@@ -58,9 +54,11 @@ export default async function PaginaInicio({
             Acumula puntos en cada visita y canjealos por recompensas pensadas
             para vos.
           </p>
+
           <div className="flex gap-4 mt-4">
-            <Boton variante="secundario">Cómo Funciona</Boton>
+            <ExplicacionFuncionamientoHero />
           </div>
+          
         </div>
       </section>
 
@@ -73,7 +71,7 @@ export default async function PaginaInicio({
                 Premios Destacados
               </h2>
               <p className="text-text-secondary mt-6">
-                Las recompensas favoritas de nuestros usuarios esta semana.
+                Las recompensas de esta semana para nuestros usuarios.
               </p>
             </div>
           </div>
@@ -104,12 +102,6 @@ export default async function PaginaInicio({
           ) : (
             <CatalogoPremiosPublico premios={premiosReales} />
           )}
-
-          <div className="mt-12 text-center md:hidden">
-            <Boton variante="secundario" className="w-full">
-              Ver todo el catálogo
-            </Boton>
-          </div>
         </div>
       </section>
     </div>
