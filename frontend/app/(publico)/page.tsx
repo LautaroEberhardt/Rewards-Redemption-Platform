@@ -5,6 +5,7 @@ import { CatalogoPremiosEditableClient } from "@/components/admin/premios/Catalo
 import { CatalogoPremiosPublico } from "@/components/ui/CatalogoPremiosPublico";
 import { listarPremios } from "@/servicios/premios.servicio";
 import { ExplicacionFuncionamientoHero } from "@/components/ui/ExplicacionFuncionamientoHero";
+import { BurbujaWhatsappFlotante } from "@/components/ui/BurbujaWhatsappFlotante";
 
 export default async function PaginaInicio({
   searchParams,
@@ -44,7 +45,7 @@ export default async function PaginaInicio({
       {/* HERO */}
       <section
         id="inicio"
-        className="w-full py-20 border-b border-neutral-200/60"
+        className="w-full py-20 border-b border-neutral-200/60 px-1"
       >
         <div className="flex flex-col items-center max-w-3xl mx-auto text-center gap-6">
           <h1 className="text-4xl md:text-5xl font-bold text-neutral-900 tracking-tight flex items-center justify-center gap-3 flex-wrap">
@@ -58,7 +59,6 @@ export default async function PaginaInicio({
           <div className="flex gap-4 mt-4">
             <ExplicacionFuncionamientoHero />
           </div>
-          
         </div>
       </section>
 
@@ -104,6 +104,8 @@ export default async function PaginaInicio({
           )}
         </div>
       </section>
+      {/* Burbuja flotante de WhatsApp solo para usuarios públicos y clientes */}
+      {!esAdmin && <BurbujaWhatsappFlotante />}
     </div>
   );
 }

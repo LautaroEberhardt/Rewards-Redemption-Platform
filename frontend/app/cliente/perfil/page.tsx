@@ -1,4 +1,5 @@
-"use client";
+import { BurbujaWhatsappFlotante } from "@/components/ui/BurbujaWhatsappFlotante";
+("use client");
 
 import { useEffect, useState, useCallback } from "react";
 import { useSession } from "next-auth/react";
@@ -94,30 +95,33 @@ export default function PerfilPage() {
   }
 
   return (
-    <div className="max-w-2xl mx-auto">
-      <h1 className="text-2xl font-bold text-gray-900 mb-6">Mi Perfil</h1>
+    <>
+      <div className="max-w-2xl mx-auto">
+        <h1 className="text-2xl font-bold text-gray-900 mb-6">Mi Perfil</h1>
 
-      {/* Mensajes */}
-      {error && (
-        <div className="mb-4 flex items-center gap-2 p-3 bg-red-50 text-red-700 rounded-lg text-sm">
-          <AlertCircle className="w-4 h-4 shrink-0" />
-          {error}
-        </div>
-      )}
-      {exito && (
-        <div className="mb-4 flex items-center gap-2 p-3 bg-green-50 text-green-700 rounded-lg text-sm">
-          <CheckCircle2 className="w-4 h-4 shrink-0" />
-          {exito}
-        </div>
-      )}
+        {/* Mensajes */}
+        {error && (
+          <div className="mb-4 flex items-center gap-2 p-3 bg-red-50 text-red-700 rounded-lg text-sm">
+            <AlertCircle className="w-4 h-4 shrink-0" />
+            {error}
+          </div>
+        )}
+        {exito && (
+          <div className="mb-4 flex items-center gap-2 p-3 bg-green-50 text-green-700 rounded-lg text-sm">
+            <CheckCircle2 className="w-4 h-4 shrink-0" />
+            {exito}
+          </div>
+        )}
 
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 sm:p-8">
-        <FormularioPerfil
-          usuario={usuario}
-          guardando={guardando}
-          onGuardar={manejarGuardar}
-        />
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 sm:p-8">
+          <FormularioPerfil
+            usuario={usuario}
+            guardando={guardando}
+            onGuardar={manejarGuardar}
+          />
+        </div>
       </div>
-    </div>
+      <BurbujaWhatsappFlotante />
+    </>
   );
 }
