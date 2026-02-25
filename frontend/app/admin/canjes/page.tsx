@@ -177,7 +177,7 @@ export default function PaginaAdminCanjes() {
                     {canje.usuario?.nombre ?? "Usuario"}
                   </p>
                   <p className="text-xs text-neutral-400 truncate">
-                    {canje.usuario?.email ?? ""}
+                    {canje.usuario?.correo ?? ""}
                   </p>
                 </div>
               </div>

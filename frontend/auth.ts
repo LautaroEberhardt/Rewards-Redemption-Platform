@@ -55,7 +55,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({
-                email: profile.email,
+                correo: profile.correo,
                 nombreCompleto: profile.name,
                 googleId: profile.sub,
                 foto: profile.picture,
@@ -88,7 +88,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       }
 
       // 3. Renovar accessToken si falta (sesión vieja de Google que no lo tenía)
-      if (!token.accessToken && token.email) {
+      if (!token.accessToken && token.correo) {
         try {
           const respuesta = await fetch(
             `${process.env.NEXT_PUBLIC_API_URL}/usuarios/login-google`,
@@ -96,7 +96,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({
-                email: token.email,
+                correo: token.correo,
                 nombreCompleto: token.name ?? "",
                 googleId: token.sub ?? "",
               }),

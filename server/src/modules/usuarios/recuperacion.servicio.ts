@@ -23,14 +23,14 @@ export class RecuperacionContrasenaServicio {
     const usuario = await this.usuariosRepo.findOne({ where: { correo: dto.correo } });
     if (!usuario) return;
 
-    const token = crypto.randomBytes(48).toString('hex');
+    const tokenEnClaro = crypto.randomBytes(32).toString('hex');
+    const tokenHashGenerado = crypto.createHash('sha256').update(tokenEnClaro).digest('hex');
     const expiraEn = new Date(Date.now() + 15 * 60 * 1000); // 15 minutos
 
-    await this.tokensRepo.save({ token, usuario, expiraEn });
+    await this.tokensRepo.save({ tokenHash: tokenHashGenerado, usuario, expiraEn });
 
-    // Enviar correo real
     const urlFrontend = process.env.URL_FRONTEND || 'http://localhost:3000';
-    const enlace = `${urlFrontend}/recuperar-contrasena?token=${token}`;
+    const enlace = `${urlFrontend}/recuperar-contrasena?token=${tokenEnClaro}`;
     const asunto = 'Recuperación de contraseña';
     const html = `
       <p>Hola,</p>
@@ -44,16 +44,18 @@ export class RecuperacionContrasenaServicio {
   }
 
   async restablecerContrasena(dto: RestablecerContrasenaDto): Promise<void> {
-    const tokenEntidad = await this.tokensRepo.findOne({
-      where: { token: dto.token },
+    const tokenHashBuscado = crypto.createHash('sha256').update(dto.token).digest('hex');
+
+    const registroToken = await this.tokensRepo.findOne({
+      where: { tokenHash: tokenHashBuscado },
       relations: ['usuario'],
     });
-    if (!tokenEntidad) throw new Error('Token inválido o expirado');
-    if (tokenEntidad.expiraEn < new Date()) throw new Error('Token expirado');
+    if (!registroToken) throw new Error('Token inválido o expirado');
+    if (registroToken.expiraEn < new Date()) throw new Error('Token expirado');
 
     const hash = await bcrypt.hash(dto.nuevaContrasena, 12);
-    tokenEntidad.usuario.contrasena = hash;
-    await this.usuariosRepo.save(tokenEntidad.usuario);
-    await this.tokensRepo.delete({ id: tokenEntidad.id });
+    registroToken.usuario.contrasena = hash;
+    await this.usuariosRepo.save(registroToken.usuario);
+    await this.tokensRepo.delete({ id: registroToken.id });
   }
 }

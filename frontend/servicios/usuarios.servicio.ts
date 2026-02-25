@@ -27,7 +27,7 @@ export const UsuariosServicio = {
       // Normalizamos estructura y rol proveniente del backend (ADMIN/CLIENTE -> admin/cliente)
       const normalizados: Usuario[] = (datos as any[]).map((u: any) => ({
         id: String(u.id),
-        email: u.email,
+        correo: u.correo,
         nombre: u.nombre ?? u.nombreCompleto ?? "",
         rol: String(u.rol).toLowerCase() as Usuario["rol"],
         puntos: typeof u.puntos === "number" ? u.puntos : undefined,
@@ -95,7 +95,7 @@ export const UsuariosServicio = {
       const datos = await respuesta.json();
       const items: Usuario[] = (datos.items as any[]).map((u: any) => ({
         id: String(u.id),
-        email: u.email,
+        correo: u.correo,
         nombre: u.nombre ?? u.nombreCompleto ?? "",
         rol: String(u.rol).toLowerCase() as Usuario["rol"],
         puntos:
@@ -172,7 +172,7 @@ export const UsuariosServicio = {
     const u: any = await respuesta.json();
     const usuario: Usuario = {
       id: String(u.id),
-      email: u.email,
+      correo: u.correo,
       nombre: u.nombre ?? u.nombreCompleto ?? "",
       rol: String(u.rol).toLowerCase() as Usuario["rol"],
       puntos:
@@ -218,7 +218,7 @@ export const UsuariosServicio = {
     const u: any = await respuesta.json();
     return {
       id: String(u.id),
-      email: u.email,
+      correo: u.correo,
       nombre: u.nombre ?? u.nombreCompleto ?? "",
       rol: String(u.rol).toLowerCase() as Usuario["rol"],
       puntos:
@@ -268,7 +268,7 @@ export const UsuariosServicio = {
     const u: any = await respuesta.json();
     return {
       id: String(u.id),
-      email: u.email,
+      correo: u.correo,
       nombre: u.nombre ?? u.nombreCompleto ?? "",
       rol: String(u.rol).toLowerCase() as Usuario["rol"],
       puntos:

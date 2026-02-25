@@ -179,7 +179,7 @@ export default function BarraNavegacion() {
                       Sesión iniciada como
                     </p>
                     <p className="text-sm font-bold text-gray-900 truncate">
-                      {sesion?.user?.email}
+                      {sesion?.user?.correo}
                     </p>
                   </div>
 

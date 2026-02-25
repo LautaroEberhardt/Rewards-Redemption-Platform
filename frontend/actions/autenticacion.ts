@@ -59,7 +59,7 @@ export async function registrarUsuario(datos: FormularioRegistroDatos) {
   try {
     // Si llegamos aquí, el usuario YA SE CREÓ. Intentamos loguearlo.
     await signIn("credentials", {
-      email: datos.email,
+      correo: datos.correo,
       password: datos.contrasena, // Mapeamos 'contrasena' a 'password' para NextAuth
       redirectTo: "/dashboard",
     });

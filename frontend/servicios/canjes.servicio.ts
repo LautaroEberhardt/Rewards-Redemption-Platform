@@ -32,7 +32,7 @@ export interface CanjeAdmin {
   usuario: {
     id: string;
     nombre: string;
-    email: string;
+    correo: string;
   } | null;
   premio: {
     id: number;
@@ -65,9 +65,7 @@ export async function canjearPremio(
   return respuesta.json();
 }
 
-export async function obtenerMisCanjes(
-  token: string,
-): Promise<CanjeCliente[]> {
+export async function obtenerMisCanjes(token: string): Promise<CanjeCliente[]> {
   const respuesta = await fetch(`${API_URL}/canjes/mis-canjes`, {
     method: "GET",
     headers: {

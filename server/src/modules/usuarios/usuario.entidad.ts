@@ -3,7 +3,7 @@ import { TokenRecuperacionEntidad } from './token-recuperacion.entidad';
 
 @Entity('usuarios')
 export class UsuarioEntidad {
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn('uuid')
   id: number;
 
   @Column({ type: 'varchar', length: 120, unique: true })

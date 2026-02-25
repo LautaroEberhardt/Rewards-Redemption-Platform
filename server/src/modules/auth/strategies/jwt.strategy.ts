@@ -8,7 +8,7 @@ import { UsuariosService } from '../../usuarios/usuarios.service';
 // 2. Definir una interfaz para el payload del token
 export interface JwtPayload {
   sub: string;
-  email: string;
+  correo: string;
   rol: RolUsuario;
 }
 

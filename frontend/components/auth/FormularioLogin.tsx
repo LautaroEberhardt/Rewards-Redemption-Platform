@@ -27,7 +27,7 @@ export const FormularioLogin = () => {
     resolver: zodResolver(EsquemaLogin),
 
     defaultValues: {
-      email: "admin@fidelizacion.com",
+      correo: "admin@fidelizacion.com",
       password: "Admin1234!",
     },
   });
@@ -37,10 +37,10 @@ export const FormularioLogin = () => {
     setErrorVisual(null);
 
     try {
-      console.log("1. Enviando credenciales para:", datos.email);
+      console.log("1. Enviando credenciales para:", datos.correo);
 
       const resultado = await signIn("credentials", {
-        email: datos.email,
+        correo: datos.correo,
         password: datos.password,
         redirect: false,
       });
@@ -108,14 +108,14 @@ export const FormularioLogin = () => {
               type="email"
               placeholder="tu@ejemplo.com"
               className={`w-full p-3 border rounded-lg outline-none transition-all ${
-                errors.email
+                errors.correo
                   ? "border-red-500 focus:ring-1 focus:ring-red-500"
                   : "border-gray-300 focus:ring-1 focus:ring-verde-primario"
               }`}
             />
-            {errors.email && (
+            {errors.correo && (
               <span className="text-xs text-red-500">
-                {errors.email.message}
+                {errors.correo.message}
               </span>
             )}
           </div>

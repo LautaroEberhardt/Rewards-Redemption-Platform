@@ -1,14 +1,17 @@
-'use client';
+"use client";
 
-import { useState, useTransition } from 'react'; // Usamos useTransition para Server Actions
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { EsquemaRegistro, FormularioRegistroDatos } from './esquemas';
-import { Boton } from '@/components/ui/boton';
-import { BotonSocial } from './BotonSocial';
-import { useUI } from '@/context/ui-context';
+import { useState, useTransition } from "react"; // Usamos useTransition para Server Actions
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { EsquemaRegistro, FormularioRegistroDatos } from "./esquemas";
+import { Boton } from "@/components/ui/boton";
+import { BotonSocial } from "./BotonSocial";
+import { useUI } from "@/context/ui-context";
 // Importamos nuestras acciones del servidor
-import { iniciarSesionConGoogle, registrarUsuario } from '@/actions/autenticacion';
+import {
+  iniciarSesionConGoogle,
+  registrarUsuario,
+} from "@/actions/autenticacion";
 
 export const FormularioRegistro = () => {
   // useTransition es el hook recomendado para manejar estados de carga con Server Actions
@@ -30,7 +33,7 @@ export const FormularioRegistro = () => {
     // Envolvemos la llamada al Server Action en una transición
     iniciarTransicion(async () => {
       const respuesta = await registrarUsuario(datos);
-      
+
       // Si la acción devuelve algo, es un error (si tiene éxito, redirecciona)
       if (respuesta?.error) {
         setErrorBackend(respuesta.error);
@@ -39,11 +42,11 @@ export const FormularioRegistro = () => {
   };
 
   const manejarGoogle = async () => {
-     try {
-       await iniciarSesionConGoogle();
-     } catch (error) {
-       console.error("Error iniciando con Google", error);
-     }
+    try {
+      await iniciarSesionConGoogle();
+    } catch (error) {
+      console.error("Error iniciando con Google", error);
+    }
   };
 
   return (
@@ -57,63 +60,98 @@ export const FormularioRegistro = () => {
 
       {/* --- CAMPOS DEL FORMULARIO --- */}
       <div className="space-y-2">
-        <label className="text-sm font-medium text-gray-700">Nombre Completo</label>
+        <label className="text-sm font-medium text-gray-700">
+          Nombre Completo
+        </label>
         <input
-          {...register('nombreCompleto')}
+          {...register("nombreCompleto")}
           placeholder="Ej: Juan Pérez"
           className={`w-full p-3 border rounded-lg outline-none transition-all focus:ring-2 focus:ring-indigo-500 ${
-            errors.nombreCompleto ? 'border-red-500 focus:ring-red-200' : 'border-gray-200'
+            errors.nombreCompleto
+              ? "border-red-500 focus:ring-red-200"
+              : "border-gray-200"
           }`}
         />
-        {errors.nombreCompleto && <span className="text-xs text-red-500 font-medium">{errors.nombreCompleto.message}</span>}
+        {errors.nombreCompleto && (
+          <span className="text-xs text-red-500 font-medium">
+            {errors.nombreCompleto.message}
+          </span>
+        )}
       </div>
 
       <div className="space-y-2">
-        <label className="text-sm font-medium text-gray-700">Correo Electrónico</label>
+        <label className="text-sm font-medium text-gray-700">
+          Correo Electrónico
+        </label>
         <input
-          {...register('email')}
+          {...register("email")}
           type="email"
           placeholder="juan@ejemplo.com"
           className={`w-full p-3 border rounded-lg outline-none transition-all focus:ring-2 focus:ring-indigo-500 ${
-            errors.email ? 'border-red-500 focus:ring-red-200' : 'border-gray-200'
+            errors.correo
+              ? "border-red-500 focus:ring-red-200"
+              : "border-gray-200"
           }`}
         />
-        {errors.email && <span className="text-xs text-red-500 font-medium">{errors.email.message}</span>}
+        {errors.correo && (
+          <span className="text-xs text-red-500 font-medium">
+            {errors.correo.message}
+          </span>
+        )}
       </div>
 
       <div className="space-y-2">
         <label className="text-sm font-medium text-gray-700">Contraseña</label>
         <input
-          {...register('contrasena')}
+          {...register("contrasena")}
           type="password"
           placeholder="••••••••"
           className={`w-full p-3 border rounded-lg outline-none transition-all focus:ring-2 focus:ring-indigo-500 ${
-            errors.contrasena ? 'border-red-500 focus:ring-red-200' : 'border-gray-200'
+            errors.contrasena
+              ? "border-red-500 focus:ring-red-200"
+              : "border-gray-200"
           }`}
         />
-        {errors.contrasena && <span className="text-xs text-red-500 font-medium">{errors.contrasena.message}</span>}
+        {errors.contrasena && (
+          <span className="text-xs text-red-500 font-medium">
+            {errors.contrasena.message}
+          </span>
+        )}
       </div>
 
       <div className="space-y-2">
-        <label className="text-sm font-medium text-gray-700">Confirmar Contraseña</label>
+        <label className="text-sm font-medium text-gray-700">
+          Confirmar Contraseña
+        </label>
         <input
-          {...register('confirmarContrasena')}
+          {...register("confirmarContrasena")}
           type="password"
           placeholder="••••••••"
           className={`w-full p-3 border rounded-lg outline-none transition-all focus:ring-2 focus:ring-indigo-500 ${
-            errors.confirmarContrasena ? 'border-red-500 focus:ring-red-200' : 'border-gray-200'
+            errors.confirmarContrasena
+              ? "border-red-500 focus:ring-red-200"
+              : "border-gray-200"
           }`}
         />
-        {errors.confirmarContrasena && <span className="text-xs text-red-500 font-medium">{errors.confirmarContrasena.message}</span>}
+        {errors.confirmarContrasena && (
+          <span className="text-xs text-red-500 font-medium">
+            {errors.confirmarContrasena.message}
+          </span>
+        )}
       </div>
 
       {/* --- BOTÓN DE REGISTRO --- */}
       <div className="pt-4">
-        <Boton type="submit" variante='secundario' className="w-full justify-center" disabled={estaPendiente}>
-          {estaPendiente ? 'Creando cuenta...' : 'Registrarse'}
+        <Boton
+          type="submit"
+          variante="secundario"
+          className="w-full justify-center"
+          disabled={estaPendiente}
+        >
+          {estaPendiente ? "Creando cuenta..." : "Registrarse"}
         </Boton>
       </div>
-      
+
       {/* --- DIVISOR SOCIAL --- */}
       <div className="relative mt-6">
         <div className="absolute inset-0 flex items-center">
@@ -130,10 +168,10 @@ export const FormularioRegistro = () => {
       </div>
 
       <p className="text-center text-sm text-gray-500 mt-4">
-        ¿Ya tienes cuenta?{' '}
-        <button 
-          type="button" 
-          onClick={() => abrirSidebar('login')} 
+        ¿Ya tienes cuenta?{" "}
+        <button
+          type="button"
+          onClick={() => abrirSidebar("login")}
           className="text-indigo-600 font-medium hover:underline"
         >
           Inicia Sesión

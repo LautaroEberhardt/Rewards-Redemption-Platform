@@ -255,7 +255,7 @@ function TablaClientesModerna({ usuarios, onAsignar, onRetirar }: TablaProps) {
                   <div className="font-medium text-gray-900">
                     {usuario.nombre}
                   </div>
-                  <div className="text-sm text-gray-500">{usuario.email}</div>
+                  <div className="text-sm text-gray-500">{usuario.correo}</div>
                 </div>
               </div>
             </td>

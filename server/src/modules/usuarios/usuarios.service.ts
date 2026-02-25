@@ -40,39 +40,37 @@ export class UsuariosService {
     } catch (error) {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       if (error.code === '23505') {
-        throw new ConflictException('El email o DNI ya están registrados');
+        throw new ConflictException('El correo o DNI ya están registrados');
       }
       console.error(error);
       throw new InternalServerErrorException('Error al crear el usuario');
     }
   }
 
-  async buscarPorEmailConSecreto(email: string): Promise<UsuarioEntidad | null> {
+  async buscarPorEmailConSecreto(correo: string): Promise<UsuarioEntidad | null> {
     return this.usuarioRepositorio.findOne({
-      where: { email },
-      select: ['id', 'email', 'contrasena', 'rol', 'nombreCompleto'], // Explicitamente pedimos la contraseña
+      where: { correo },
+      select: ['id', 'correo', 'contrasena', 'rol', 'nombreCompleto'], // Explicitamente pedimos la contraseña
     });
   }
 
-  async buscarPorEmailConPassword(email: string): Promise<UsuarioEntidad | null> {
+  async buscarPorEmailConPassword(correo: string): Promise<UsuarioEntidad | null> {
     return await this.usuarioRepositorio.findOne({
-      where: { email },
-      select: ['id', 'nombreCompleto', 'email', 'contrasena', 'rol'],
+      where: { correo },
+      select: ['id', 'nombreCompleto', 'correo', 'contrasena', 'rol'],
     });
   }
 
   async buscarOCrearGoogle(perfil: any): Promise<UsuarioEntidad> {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
-    const usuarioExistente = await this.usuarioRepositorio.findOneBy({ email: perfil.email });
+    const usuarioExistente = await this.usuarioRepositorio.findOneBy({ correo: perfil.correo });
     if (usuarioExistente) return usuarioExistente;
 
     // Si no existe, lo creamos (Estrategia para login social)
     const nuevoUsuario = this.usuarioRepositorio.create({
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
       nombreCompleto: perfil.name,
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
-      email: perfil.email,
-      rol: RolUsuario.CLIENTE, // Por defecto siempre es cliente
+      correo: perfil.correo,
+      rol: RolUsuario.CLIENTE, // Siempre cliente
     });
     return await this.usuarioRepositorio.save(nuevoUsuario);
   }
@@ -116,7 +114,10 @@ export class UsuariosService {
       let condiciones: FindOptionsWhere<UsuarioEntidad>[] | FindOptionsWhere<UsuarioEntidad> = {};
       if (busqueda && busqueda.trim().length > 0) {
         const termino = busqueda.trim();
-        condiciones = [{ nombreCompleto: ILike(`%${termino}%`) }, { email: ILike(`%${termino}%`) }];
+        condiciones = [
+          { nombreCompleto: ILike(`%${termino}%`) },
+          { correo: ILike(`%${termino}%`) },
+        ];
       }
 
       const [items, total] = await this.usuarioRepositorio.findAndCount({
@@ -154,11 +155,11 @@ export class UsuariosService {
 
   // --- LOGIN / REGISTRO CON GOOGLE (Lógica existente) ---
   async validarORegistrarUsuarioGoogle(loginGoogleDto: LoginGoogleDto): Promise<UsuarioEntidad> {
-    const { email, googleId, nombreCompleto, foto } = loginGoogleDto;
+    const { correo, googleId, nombreCompleto, foto } = loginGoogleDto;
 
     // 1. Buscamos si ya existe por email
     const usuarioExistente = await this.usuarioRepositorio.findOne({
-      where: { email },
+      where: { correo },
     });
 
     if (usuarioExistente) {
@@ -181,7 +182,7 @@ export class UsuariosService {
 
     // 3. Si no existe, creamos uno nuevo
     const nuevoUsuario = this.usuarioRepositorio.create({
-      email,
+      correo,
       nombreCompleto,
       googleId,
       foto,
@@ -194,7 +195,7 @@ export class UsuariosService {
   }
 
   // --- MÉTODOS AUXILIARES ---
-  async buscarPorEmail(email: string): Promise<UsuarioEntidad | null> {
-    return this.usuarioRepositorio.findOne({ where: { email } });
+  async buscarPorEmail(correo: string): Promise<UsuarioEntidad | null> {
+    return this.usuarioRepositorio.findOne({ where: { correo } });
   }
 }

@@ -6,7 +6,7 @@ import { Boton } from "@/components/ui/boton";
 
 export type DatosUsuarioForm = {
   nombre: string;
-  email: string;
+  correo: string;
   telefono: string;
 };
 
@@ -37,7 +37,7 @@ export function FormularioUsuario({
   onCancel,
 }: Props) {
   const [nombre, setNombre] = useState(usuario.nombre);
-  const [email, setEmail] = useState(usuario.email);
+  const [email, setEmail] = useState(usuario.correo);
   const [telefono, setTelefono] = useState(usuario.telefono ?? "");
   const [validationError, setValidationError] = useState<string | null>(null);
 
@@ -56,7 +56,7 @@ export function FormularioUsuario({
 
     await onSubmit({
       nombre: nombre.trim(),
-      email: email.trim(),
+      correo: email.trim(),
       telefono: telefono.trim(),
     });
   };
@@ -91,7 +91,7 @@ export function FormularioUsuario({
           <p className="text-sm font-medium text-gray-900 truncate">
             {usuario.nombre}
           </p>
-          <p className="text-xs text-gray-500">{usuario.email}</p>
+          <p className="text-xs text-gray-500">{usuario.correo}</p>
         </div>
         <div className="text-right text-xs text-gray-400 shrink-0">
           <p>Creado: {formatearFecha(usuario.fechaCreacion)}</p>

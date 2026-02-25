@@ -5,9 +5,9 @@ export class CrearUsuarioDto {
   @IsString()
   nombreCompleto: string;
 
-  @IsEmail({}, { message: 'El formato del email no es válido' })
-  @IsNotEmpty({ message: 'El email es obligatorio' })
-  email: string;
+  @IsEmail({}, { message: 'El formato del correo no es válido' })
+  @IsNotEmpty({ message: 'El correo es obligatorio' })
+  correo: string;
 
   @IsNotEmpty({ message: 'La contraseña es obligatoria' })
   @MinLength(6, { message: 'La contraseña debe tener al menos 6 caracteres' })

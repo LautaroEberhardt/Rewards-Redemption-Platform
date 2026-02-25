@@ -17,7 +17,6 @@ import { RecuperacionModule } from './modules/usuarios/recuperacion.module';
     ConfigModule.forRoot({
       isGlobal: true,
     }),
-    // Servir archivos estáticos desde /uploads
     ServeStaticModule.forRoot({
       rootPath: join(process.cwd(), 'uploads'),
       serveRoot: '/uploads',
@@ -30,7 +29,7 @@ import { RecuperacionModule } from './modules/usuarios/recuperacion.module';
       password: process.env.DB_PASSWORD || 'admin',
       database: process.env.DB_NAME || 'uniformes_db',
       autoLoadEntities: true,
-      synchronize: true, // Solo para desarrollo (crea tablas automáticamente)
+      synchronize: false, // Solo para desarrollo (crea tablas automáticamente)
     }),
     TypeOrmModule.forFeature([UsuarioEntidad]),
     UsuariosModule,

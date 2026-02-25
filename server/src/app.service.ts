@@ -18,7 +18,7 @@ export class AppService implements OnApplicationBootstrap {
 
   async crearAdminPorDefecto() {
     const emailAdmin = 'admin@fidelizacion.com';
-    const existe = await this.usuarioRepo.findOneBy({ email: emailAdmin });
+    const existe = await this.usuarioRepo.findOneBy({ correo: emailAdmin });
     if (existe) {
       console.log('✅ El usuario Admin ya existe. Saltando creación.');
       return;
@@ -30,7 +30,7 @@ export class AppService implements OnApplicationBootstrap {
 
     const nuevoAdmin = this.usuarioRepo.create({
       nombreCompleto: 'Super Admin',
-      email: emailAdmin,
+      correo: emailAdmin,
       contrasena: passHash,
       rol: RolUsuario.ADMIN,
     });

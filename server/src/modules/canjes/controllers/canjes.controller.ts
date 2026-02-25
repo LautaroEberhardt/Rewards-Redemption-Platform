@@ -87,7 +87,7 @@ export class CanjesControlador {
         ? {
             id: c.usuario.id,
             nombre: c.usuario.nombreCompleto,
-            email: c.usuario.email,
+            correo: c.usuario.correo,
           }
         : null,
       premio: c.premio

@@ -19,10 +19,10 @@ export class AuthService {
    * @returns El usuario validado con su respectivo rol.
    */
   async validarUsuario(loginDto: LoginDto): Promise<UsuarioEntidad> {
-    const { email, contrasena } = loginDto;
+    const { correo, contrasena } = loginDto;
 
     try {
-      const usuario = await this.usuariosService.buscarPorEmailConPassword(email);
+      const usuario = await this.usuariosService.buscarPorEmailConPassword(correo);
 
       if (!usuario) {
         throw new UnauthorizedException('El correo electrónico o la contraseña son incorrectos');

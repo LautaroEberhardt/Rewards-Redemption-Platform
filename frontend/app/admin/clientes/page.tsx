@@ -77,7 +77,7 @@ export default function PageClientes() {
     telefono,
   }: {
     nombre: string;
-    email: string;
+    correo: string;
     telefono: string;
   }) => {
     if (!usuarioEditar) return;
@@ -99,7 +99,7 @@ export default function PageClientes() {
         telefono,
       };
       if (!usuarioEditar.googleId) {
-        datosActualizar.email = email;
+        datosActualizar.correo = email;
       }
 
       const actualizado = await UsuariosServicio.actualizar(

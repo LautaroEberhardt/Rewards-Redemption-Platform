@@ -1,8 +1,8 @@
 import { IsEmail, IsNotEmpty, IsString, IsOptional, IsUrl } from 'class-validator';
 
 export class LoginGoogleDto {
-  @IsEmail({}, { message: 'El email proporcionado no es válido' })
-  email: string;
+  @IsEmail({}, { message: 'El correo proporcionado no es válido' })
+  correo: string;
 
   @IsString()
   @IsNotEmpty({ message: 'El nombre completo es obligatorio' })

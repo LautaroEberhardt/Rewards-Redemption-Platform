@@ -84,7 +84,7 @@ export default function FormularioPerfil({
 
         <div className="text-center sm:text-left">
           <h2 className="text-xl font-bold text-gray-900">{usuario.nombre}</h2>
-          <p className="text-sm text-gray-500">{usuario.email}</p>
+          <p className="text-sm text-gray-500">{usuario.correo}</p>
           {usuario.puntos !== undefined && (
             <span className="inline-block mt-1 px-3 py-0.5 bg-primary/10 text-primary text-xs font-semibold rounded-full">
               {usuario.puntos} puntos
@@ -139,7 +139,7 @@ export default function FormularioPerfil({
             <input
               id="email"
               type="email"
-              value={usuario.email}
+              value={usuario.correo}
               readOnly
               className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-lg bg-gray-50 text-gray-500 cursor-not-allowed"
             />

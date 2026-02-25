@@ -9,7 +9,7 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 function normalizar(u: Record<string, unknown>): Usuario {
   return {
     id: String(u.id),
-    email: String(u.email ?? ""),
+    correo: String(u.correo ?? ""),
     nombre: String(u.nombre ?? u.nombreCompleto ?? ""),
     rol: String(u.rol ?? "cliente").toLowerCase() as Usuario["rol"],
     puntos:
@@ -48,7 +48,7 @@ export async function obtenerPerfilAction(): Promise<
       usuario: {
         id: sesion.user.id ?? "",
         nombre: sesion.user.name ?? "",
-        email: sesion.user.email ?? "",
+        correo: sesion.user.correo ?? "",
         rol: (sesion.user.rol?.toLowerCase() as Usuario["rol"]) ?? "cliente",
         foto: sesion.user.image ?? undefined,
       },
