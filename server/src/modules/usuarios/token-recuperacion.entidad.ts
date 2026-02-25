@@ -1,4 +1,11 @@
-import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, CreateDateColumn } from 'typeorm';
+import {
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  ManyToOne,
+  CreateDateColumn,
+  JoinColumn,
+} from 'typeorm';
 import { UsuarioEntidad } from '../usuarios/usuario.entidad';
 
 @Entity('tokens_recuperacion')
@@ -9,7 +16,8 @@ export class TokenRecuperacionEntidad {
   @Column({ type: 'varchar', length: 128, unique: true })
   token: string;
 
-  @ManyToOne(() => UsuarioEntidad, (usuario) => usuario.tokensRecuperacion, { onDelete: 'CASCADE' })
+  @ManyToOne(() => UsuarioEntidad, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'usuario_id' })
   usuario: UsuarioEntidad;
 
   @CreateDateColumn()

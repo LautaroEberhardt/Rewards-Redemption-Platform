@@ -1,4 +1,5 @@
-"use client";
+"use client"
+
 import React, { useState } from "react";
 import { Boton } from "@/components/ui/boton";
 
@@ -21,7 +22,9 @@ export const ModalRecuperarContrasena: React.FC<
     setError(null);
     setEnviado(false);
     try {
-      const resp = await fetch("/api/recuperar-contrasena", {
+      const API_URL =
+        process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
+      const resp = await fetch(`${API_URL}/recuperar-contrasena/solicitar`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ correo }),
@@ -29,6 +32,7 @@ export const ModalRecuperarContrasena: React.FC<
       if (!resp.ok)
         throw new Error("No se pudo enviar el correo de recuperación.");
       setEnviado(true);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       setError(err.message || "Error inesperado");
     } finally {

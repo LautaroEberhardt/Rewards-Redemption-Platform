@@ -7,6 +7,7 @@ import { AuthController } from './auth.controller';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { UsuariosModule } from '../usuarios/usuarios.module';
 import { JwtService } from '@nestjs/jwt';
+import { AdaptadorCorreoGmail } from '../../common/adaptadores/adaptador-correo';
 
 @Module({
   imports: [
@@ -27,7 +28,14 @@ import { JwtService } from '@nestjs/jwt';
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, JwtStrategy], // No necesitas JwtService aquí, ya lo provee JwtModule
+  providers: [
+    AuthService,
+    JwtStrategy,
+    {
+      provide: 'AdaptadorCorreo',
+      useClass: AdaptadorCorreoGmail,
+    },
+  ],
   exports: [AuthService, JwtModule, PassportModule],
 })
 export class AuthModule {}

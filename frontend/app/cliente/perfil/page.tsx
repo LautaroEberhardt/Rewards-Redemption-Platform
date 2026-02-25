@@ -1,5 +1,5 @@
+"use client";
 import { BurbujaWhatsappFlotante } from "@/components/ui/BurbujaWhatsappFlotante";
-("use client");
 
 import { useEffect, useState, useCallback } from "react";
 import { useSession } from "next-auth/react";

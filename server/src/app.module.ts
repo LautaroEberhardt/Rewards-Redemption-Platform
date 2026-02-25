@@ -10,6 +10,7 @@ import { CanjesModule } from './modules/canjes/canjes.module';
 import { UsuarioEntidad } from './modules/usuarios/entities/usuario.entity';
 import { ConfigModule } from '@nestjs/config';
 import { AuthModule } from './modules/auth/auth.module';
+import { RecuperacionModule } from './modules/usuarios/recuperacion.module';
 
 @Module({
   imports: [
@@ -37,6 +38,7 @@ import { AuthModule } from './modules/auth/auth.module';
     PuntosModule,
     CanjesModule,
     AuthModule,
+    RecuperacionModule,
   ],
   controllers: [],
   providers: [AppService],

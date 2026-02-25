@@ -16,7 +16,7 @@ export class UsuarioEntidad {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ length: 100 })
+  @Column({ length: 100, nullable: false, default: 'Usuario sin nombre' })
   nombreCompleto: string;
 
   @Column({ unique: true })
