@@ -23,7 +23,7 @@ function isRedirectError(error: unknown) {
 }
 
 export async function iniciarSesionConGoogle() {
-  await signIn("google", { redirectTo: "/dashboard" });
+  await signIn("google", { redirectTo: "/" });
 }
 
 export async function registrarUsuario(datos: FormularioRegistroDatos) {
@@ -57,11 +57,10 @@ export async function registrarUsuario(datos: FormularioRegistroDatos) {
   // PASO 2: INICIO DE SESIÓN AUTOMÁTICO (NextAuth)
   // ---------------------------------------------------------
   try {
-    // Si llegamos aquí, el usuario YA SE CREÓ. Intentamos loguearlo.
     await signIn("credentials", {
       correo: datos.correo,
-      password: datos.contrasena, // Mapeamos 'contrasena' a 'password' para NextAuth
-      redirectTo: "/dashboard",
+      password: datos.contrasena,
+      redirectTo: "/",
     });
   } catch (error) {
     // CRÍTICO: Si detectamos que es una redirección, LA LANZAMOS para que Next.js cambie de página

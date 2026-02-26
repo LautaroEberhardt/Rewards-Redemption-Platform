@@ -1,20 +1,19 @@
 "use client";
 
-import { useState, useTransition } from "react"; // Usamos useTransition para Server Actions
+import { useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { EsquemaRegistro, FormularioRegistroDatos } from "./esquemas";
 import { Boton } from "@/components/ui/boton";
 import { BotonSocial } from "./BotonSocial";
 import { useUI } from "@/context/ui-context";
-// Importamos nuestras acciones del servidor
+
 import {
   iniciarSesionConGoogle,
   registrarUsuario,
 } from "@/actions/autenticacion";
 
 export const FormularioRegistro = () => {
-  // useTransition es el hook recomendado para manejar estados de carga con Server Actions
   const [estaPendiente, iniciarTransicion] = useTransition();
   const [errorBackend, setErrorBackend] = useState<string | null>(null);
   const { abrirSidebar } = useUI();
@@ -30,11 +29,9 @@ export const FormularioRegistro = () => {
   const manejarEnvio = (datos: FormularioRegistroDatos) => {
     setErrorBackend(null);
 
-    // Envolvemos la llamada al Server Action en una transición
     iniciarTransicion(async () => {
       const respuesta = await registrarUsuario(datos);
 
-      // Si la acción devuelve algo, es un error (si tiene éxito, redirecciona)
       if (respuesta?.error) {
         setErrorBackend(respuesta.error);
       }
@@ -84,7 +81,7 @@ export const FormularioRegistro = () => {
           Correo Electrónico
         </label>
         <input
-          {...register("email")}
+          {...register("correo")}
           type="email"
           placeholder="juan@ejemplo.com"
           className={`w-full p-3 border rounded-lg outline-none transition-all focus:ring-2 focus:ring-indigo-500 ${

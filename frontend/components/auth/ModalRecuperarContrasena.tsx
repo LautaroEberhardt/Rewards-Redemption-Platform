@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import React, { useState } from "react";
 import { Boton } from "@/components/ui/boton";
@@ -32,7 +32,7 @@ export const ModalRecuperarContrasena: React.FC<
       if (!resp.ok)
         throw new Error("No se pudo enviar el correo de recuperación.");
       setEnviado(true);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       setError(err.message || "Error inesperado");
     } finally {

@@ -13,7 +13,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         const camposValidados = EsquemaLogin.safeParse(credentials);
         if (!camposValidados.success) return null;
 
-        const { email, password } = camposValidados.data;
+        const { correo, password } = camposValidados.data;
 
         try {
           const respuesta = await fetch(
@@ -21,7 +21,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             {
               method: "POST",
               headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ email, contrasena: password }),
+              body: JSON.stringify({ email: correo, contrasena: password }),
             },
           );
 
@@ -49,13 +49,14 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       // 1. Lógica para Login con Google (Solo ocurre la primera vez tras loguearse)
       if (account?.provider === "google" && profile) {
         try {
+          const correoGoogle = profile.email || profile.correo;
           const respuesta = await fetch(
             `${process.env.NEXT_PUBLIC_API_URL}/usuarios/login-google`,
             {
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({
-                correo: profile.correo,
+                correo: correoGoogle,
                 nombreCompleto: profile.name,
                 googleId: profile.sub,
                 foto: profile.picture,
@@ -114,7 +115,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
               token.id = (dataBackend as any)?.usuario?.id ?? token.id;
           }
         } catch {
-          // Silenciar — se reintentará en la próxima request
         }
       }
 
@@ -124,7 +124,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       if (session.user) {
         session.user.rol = token.rol as string;
         session.user.id = token.id as string;
-        // Exponer el token del backend a los componentes cliente/servidor de forma tipada
         session.user.accessToken = token.accessToken as string;
       }
       return session;

@@ -126,7 +126,7 @@ export const UsuariosServicio = {
     id: string,
     datos: {
       nombre?: string;
-      email?: string;
+      correo?: string;
       telefono?: string;
     },
     token?: string,

@@ -98,13 +98,13 @@ export const FormularioLogin = () => {
         )}
 
         <form onSubmit={handleSubmit(alEnviar)} className="space-y-4">
-          {/* Email */}
+          {/* Correo electrónico */}
           <div className="flex flex-col gap-1">
             <label className="text-sm font-medium text-gray-700">
               Correo Electrónico
             </label>
             <input
-              {...register("email")}
+              {...register("correo")}
               type="email"
               placeholder="tu@ejemplo.com"
               className={`w-full p-3 border rounded-lg outline-none transition-all ${

@@ -5,7 +5,6 @@ import type { Usuario } from "@/tipos/usuario";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
-/** Normaliza la respuesta cruda del backend a nuestro tipo Usuario */
 function normalizar(u: Record<string, unknown>): Usuario {
   return {
     id: String(u.id),
@@ -42,13 +41,12 @@ export async function obtenerPerfilAction(): Promise<
 
   const token = sesion.user.accessToken;
   if (!token) {
-    // Fallback: retornar los datos básicos que ya tenemos de la sesión
     return {
       ok: true,
       usuario: {
         id: sesion.user.id ?? "",
         nombre: sesion.user.name ?? "",
-        correo: sesion.user.correo ?? "",
+        correo: sesion.user.email ?? "",
         rol: (sesion.user.rol?.toLowerCase() as Usuario["rol"]) ?? "cliente",
         foto: sesion.user.image ?? undefined,
       },
