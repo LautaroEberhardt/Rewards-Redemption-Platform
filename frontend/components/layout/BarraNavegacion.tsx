@@ -5,7 +5,6 @@ import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
-import { motion, AnimatePresence } from "framer-motion";
 import {
   House,
   Pen,
@@ -19,16 +18,21 @@ import {
   UserCircle,
   Star,
   History,
+  User2Icon,
 } from "lucide-react";
 import { Boton } from "../ui/boton";
+import { motion, AnimatePresence } from "framer-motion";
 import { useUI } from "@/context/ui-context";
 import { obtenerPerfilAction } from "@/actions/perfil";
+import { BsInstagram, BsMailbox, BsWhatsapp } from "react-icons/bs";
+
+const telefonoWhatsapp = process.env.NEXT_PUBLIC_WHATSAPP_TELEFONO || "";
 
 export default function BarraNavegacion() {
   const { abrirSidebar } = useUI();
   const router = useRouter();
   const { data: sesion, status } = useSession();
-  const [menuAbierto, setMenuAbierto] = useState(false);
+  const [menuAbierto, setMenuAbierto] = useState<false | "contacto">(false);
   const [menuUsuarioAbierto, setMenuUsuarioAbierto] = useState(false);
 
   const estaCargando = status === "loading";
@@ -117,6 +121,137 @@ export default function BarraNavegacion() {
             </span>
           </Boton>
 
+          {/* Opción Contacto con animación */}
+          <div className="relative">
+            <Boton
+              onClick={() =>
+                setMenuAbierto(menuAbierto === "contacto" ? false : "contacto")
+              }
+              variante="sencillo"
+              className="flex items-center gap-2"
+            >
+              <span className="flex items-center gap-2">
+                <User2Icon className="w-4 h-4" />
+                Contacto
+              </span>
+            </Boton>
+            <AnimatePresence>
+              {menuAbierto === "contacto" && (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.95, y: -10 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.95, y: -10 }}
+                  transition={{ duration: 0.18, ease: "easeOut" }}
+                  className="absolute left-0 top-full mt-2 w-48 bg-white rounded-md shadow-lg border border-gray-100 py-2 z-50 origin-top-left"
+                >
+                  <a
+                    href="https://www.instagram.com/ayv_uniformessf/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 relative overflow-hidden"
+                    style={{}}
+                  >
+                    <span
+                      className="absolute left-0 top-0 h-full w-0 bg-pink-100 z-0 transition-all duration-800"
+                      style={{
+                        transitionProperty: "width",
+                      }}
+                    ></span>
+                    <span className="relative z-10 flex items-center gap-2 transition-colors duration-200">
+                      <BsInstagram className="w-4 h-4 text-pink-600" />
+                      Instagram
+                    </span>
+                    <style jsx>{`
+                      a:hover > span:first-child {
+                        width: 100%;
+                        background: linear-gradient(
+                          90deg,
+                          #f9a8d4 0%,
+                          #ec4899 100%
+                        );
+                      }
+                      a:hover > span.relative {
+                        color: #fff !important;
+                      }
+                      a:hover > span.relative :global(svg) {
+                        color: #fff !important;
+                        fill: #fff !important;
+                      }
+                    `}</style>
+                  </a>
+                  <a
+                    href="mailto:tu_gmail@gmail.com"
+                    className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 relative overflow-hidden"
+                    style={{}}
+                  >
+                    <span
+                      className="absolute left-0 top-0 h-full w-0 bg-red-100 z-0 transition-all duration-800"
+                      style={{
+                        transitionProperty: "width",
+                      }}
+                    ></span>
+                    <span className="relative z-10 flex items-center gap-2 transition-colors duration-200">
+                      <BsMailbox className="w-4 h-4 text-red-500" />
+                      Gmail
+                    </span>
+                    <style jsx>{`
+                      a:hover > span:first-child {
+                        width: 100%;
+                        background: linear-gradient(
+                          90deg,
+                          #fecaca 0%,
+                          #ef4444 100%
+                        );
+                      }
+                      a:hover > span.relative {
+                        color: #fff !important;
+                      }
+                      a:hover > span.relative :global(svg) {
+                        color: #fff !important;
+                        fill: #fff !important;
+                      }
+                    `}</style>
+                  </a>
+                  <a
+                    href={`https://wa.me/${telefonoWhatsapp}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 relative overflow-hidden"
+                    style={{}}
+                  >
+                    <span
+                      className="absolute left-0 top-0 h-full w-0 bg-green-100 z-0 transition-all duration-800"
+                      style={{
+                        transitionProperty: "width",
+                      }}
+                    ></span>
+                    <span className="relative z-10 flex items-center gap-2 transition-colors duration-200">
+                      <BsWhatsapp className="w-4 h-4 text-green-500" />
+                      WhatsApp
+                    </span>
+                    <style jsx>{`
+                      a:hover > span:first-child {
+                        width: 100%;
+                        background: linear-gradient(
+                          90deg,
+                          #bbf7d0 0%,
+                          #22c55e 100%
+                        );
+                      }
+                      a:hover > span.relative {
+                        color: #fff !important;
+                      }
+                      a:hover > span.relative :global(svg) {
+                        color: #fff !important;
+                        fill: #fff !important;
+                      }
+                    `}</style>
+                  </a>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+
           {/* Ocultar botón de Registro si está autenticado */}
           {!estaAutenticado && !estaCargando && (
             <Boton onClick={() => abrirSidebar("registro")} variante="sencillo">
@@ -138,18 +273,6 @@ export default function BarraNavegacion() {
               title="Tus puntos"
             >
               <Star className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
-              <AnimatePresence mode="popLayout">
-                <motion.span
-                  key={puntos}
-                  className="text-sm font-semibold text-secondary"
-                  initial={{ opacity: 0, y: -8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: 8 }}
-                  transition={{ duration: 0.25 }}
-                >
-                  {puntos.toLocaleString("es-AR")}
-                </motion.span>
-              </AnimatePresence>
               <span className="text-xs text-text-primary">pts</span>
             </Link>
           )}
@@ -179,7 +302,7 @@ export default function BarraNavegacion() {
                       Sesión iniciada como
                     </p>
                     <p className="text-sm font-bold text-gray-900 truncate">
-                      {sesion?.user?.correo}
+                      {sesion?.user?.email}
                     </p>
                   </div>
 
@@ -252,18 +375,6 @@ export default function BarraNavegacion() {
               title="Tus puntos"
             >
               <Star className="w-3 h-3  text-amber-400 fill-amber-400" />
-              <AnimatePresence mode="popLayout">
-                <motion.span
-                  key={puntos}
-                  className="text-xs font-semibold text-secondary"
-                  initial={{ opacity: 0, y: -6 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: 6 }}
-                  transition={{ duration: 0.25 }}
-                >
-                  {puntos.toLocaleString("es-AR")}
-                </motion.span>
-              </AnimatePresence>
               <span className="text-xs text-text-primary">pts</span>
             </Link>
           )}
@@ -280,7 +391,7 @@ export default function BarraNavegacion() {
           )}
 
           <button
-            onClick={() => setMenuAbierto(!menuAbierto)}
+            onClick={() => setMenuAbierto(menuAbierto ? false : "contacto")}
             className="text-primary p-2 focus:outline-none"
             aria-label="Alternar menú"
           >
@@ -317,6 +428,131 @@ export default function BarraNavegacion() {
               <ShoppingCart className="w-4 h-4" /> Productos
             </span>
           </Boton>
+
+          {/* Contacto en versión móvil */}
+          <div className="relative w-full">
+            <Boton
+              onClick={() =>
+                setMenuAbierto(menuAbierto === "contacto" ? false : "contacto")
+              }
+              variante="sencillo"
+              className="w-full flex items-center gap-2 justify-start"
+            >
+              <span className="flex items-center gap-2">
+                <User2Icon className="w-4 h-4" />
+                Contacto
+              </span>
+            </Boton>
+            <AnimatePresence>
+              {menuAbierto === "contacto" && (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.95, y: -10 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.95, y: -10 }}
+                  transition={{ duration: 0.18, ease: "easeOut" }}
+                  className="mt-2 w-full bg-white rounded-md shadow-lg border border-gray-100 py-2 z-50 origin-top-left"
+                >
+                  <a
+                    href="https://www.instagram.com/ayv_uniformessf/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 relative overflow-hidden"
+                    style={{}}
+                  >
+                    <span
+                      className="absolute left-0 top-0 h-full w-0 bg-pink-100 z-0 transition-all duration-800"
+                      style={{ transitionProperty: "width" }}
+                    ></span>
+                    <span className="relative z-10 flex items-center gap-2 transition-colors duration-200">
+                      <BsInstagram className="w-4 h-4 text-pink-600" />
+                      Instagram
+                    </span>
+                    <style jsx>{`
+                      a:hover > span:first-child {
+                        width: 100%;
+                        background: linear-gradient(
+                          90deg,
+                          #f9a8d4 0%,
+                          #ec4899 100%
+                        );
+                      }
+                      a:hover > span.relative {
+                        color: #fff !important;
+                      }
+                      a:hover > span.relative :global(svg) {
+                        color: #fff !important;
+                        fill: #fff !important;
+                      }
+                    `}</style>
+                  </a>
+                  <a
+                    href="mailto:tu_gmail@gmail.com"
+                    className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 relative overflow-hidden"
+                    style={{}}
+                  >
+                    <span
+                      className="absolute left-0 top-0 h-full w-0 bg-red-100 z-0 transition-all duration-800"
+                      style={{ transitionProperty: "width" }}
+                    ></span>
+                    <span className="relative z-10 flex items-center gap-2 transition-colors duration-200">
+                      <BsMailbox className="w-4 h-4 text-red-500" />
+                      Gmail
+                    </span>
+                    <style jsx>{`
+                      a:hover > span:first-child {
+                        width: 100%;
+                        background: linear-gradient(
+                          90deg,
+                          #fecaca 0%,
+                          #ef4444 100%
+                        );
+                      }
+                      a:hover > span.relative {
+                        color: #fff !important;
+                      }
+                      a:hover > span.relative :global(svg) {
+                        color: #fff !important;
+                        fill: #fff !important;
+                      }
+                    `}</style>
+                  </a>
+                  <a
+                    href={`https://wa.me/${telefonoWhatsapp}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 relative overflow-hidden"
+                    style={{}}
+                  >
+                    <span
+                      className="absolute left-0 top-0 h-full w-0 bg-green-100 z-0 transition-all duration-800"
+                      style={{ transitionProperty: "width" }}
+                    ></span>
+                    <span className="relative z-10 flex items-center gap-2 transition-colors duration-200">
+                      <BsWhatsapp className="w-4 h-4 text-green-500" />
+                      WhatsApp
+                    </span>
+                    <style jsx>{`
+                      a:hover > span:first-child {
+                        width: 100%;
+                        background: linear-gradient(
+                          90deg,
+                          #bbf7d0 0%,
+                          #22c55e 100%
+                        );
+                      }
+                      a:hover > span.relative {
+                        color: #fff !important;
+                      }
+                      a:hover > span.relative :global(svg) {
+                        color: #fff !important;
+                        fill: #fff !important;
+                      }
+                    `}</style>
+                  </a>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
 
           <div className="border-t border-gray-200 my-2 pt-2">
             {estaAutenticado ? (

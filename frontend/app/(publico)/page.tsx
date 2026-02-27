@@ -49,7 +49,7 @@ export default async function PaginaInicio({
       >
         <div className="flex flex-col items-center max-w-3xl mx-auto text-center gap-6">
           <h1 className="text-4xl md:text-5xl font-bold text-neutral-900 tracking-tight flex items-center justify-center gap-3 flex-wrap">
-            Sistema canje de puntos
+            Sistema canje de puntos <span className=" font-serif text-background-secondary"> AyV Uniformes </span>
           </h1>
           <p className="text-lg text-text-secondary leading-relaxed max-w-xl mx-auto">
             Acumula puntos en cada visita y canjealos por recompensas pensadas
