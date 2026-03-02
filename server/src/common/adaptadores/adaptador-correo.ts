@@ -1,14 +1,17 @@
-import nodemailer, { Transporter } from 'nodemailer';
+import { Injectable, Logger, InternalServerErrorException } from '@nestjs/common';
+import * as nodemailer from 'nodemailer';
 
-export interface AdaptadorCorreo {
-  enviarCorreo(destinatario: string, asunto: string, html: string): Promise<void>;
+export interface IAdaptadorCorreo {
+  enviarCorreoRecuperacion(destinatario: string, enlaceRecuperacion: string): Promise<void>;
 }
 
-export class AdaptadorCorreoGmail implements AdaptadorCorreo {
-  private readonly transporter: Transporter;
+@Injectable()
+export class AdaptadorCorreoGmail implements IAdaptadorCorreo {
+  private readonly registrador = new Logger(AdaptadorCorreoGmail.name);
+  private transportador: nodemailer.Transporter;
 
   constructor() {
-    this.transporter = nodemailer.createTransport({
+    this.transportador = nodemailer.createTransport({
       service: 'gmail',
       auth: {
         user: process.env.CORREO_GMAIL,
@@ -17,12 +20,30 @@ export class AdaptadorCorreoGmail implements AdaptadorCorreo {
     });
   }
 
-  async enviarCorreo(destinatario: string, asunto: string, html: string): Promise<void> {
-    await this.transporter.sendMail({
-      from: process.env.CORREO_GMAIL,
+  async enviarCorreoRecuperacion(destinatario: string, enlaceRecuperacion: string): Promise<void> {
+    const opcionesCorreo = {
+      from: `"Sistema de Fidelización" <${process.env.CORREO_GMAIL}>`,
       to: destinatario,
-      subject: asunto,
-      html,
-    });
+      subject: 'Recuperación de Contraseña',
+      html: `
+        <h2>Restablecer tu contraseña</h2>
+        <p>Has solicitado restablecer tu contraseña. Haz clic en el enlace de abajo para crear una nueva:</p>
+        <a href="${enlaceRecuperacion}" target="_blank" style="padding: 10px 20px; background-color: #4F46E5; color: white; text-decoration: none; border-radius: 5px;">
+          Restablecer Contraseña
+        </a>
+        <p>Si no solicitaste esto, puedes ignorar este correo de forma segura.</p>
+        <p>Este enlace expirará en 1 hora.</p>
+      `,
+    };
+
+    try {
+      await this.transportador.sendMail(opcionesCorreo);
+      this.registrador.log(`Correo de recuperación enviado exitosamente a: ${destinatario}`);
+    } catch (error) {
+      this.registrador.error(`Fallo crítico al enviar correo a ${destinatario}`, error);
+      throw new InternalServerErrorException(
+        'No se pudo enviar el correo de recuperación. Contacte al administrador.',
+      );
+    }
   }
 }

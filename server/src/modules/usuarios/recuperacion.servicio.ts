@@ -6,7 +6,7 @@ import { TokenRecuperacionEntidad } from './token-recuperacion.entidad';
 import { SolicitarRecuperacionDto, RestablecerContrasenaDto } from './recuperacion.dto';
 import * as crypto from 'crypto';
 import * as bcrypt from 'bcrypt';
-import type { AdaptadorCorreo } from 'src/common/adaptadores/adaptador-correo';
+import type { AdaptadorCorreoGmail } from 'src/common/adaptadores/adaptador-correo';
 
 @Injectable()
 export class RecuperacionContrasenaServicio {
@@ -16,7 +16,7 @@ export class RecuperacionContrasenaServicio {
     @InjectRepository(TokenRecuperacionEntidad)
     private readonly tokensRepo: Repository<TokenRecuperacionEntidad>,
     @Inject('AdaptadorCorreo')
-    private readonly adaptadorCorreo: AdaptadorCorreo,
+    private readonly adaptadorCorreo: AdaptadorCorreoGmail,
   ) {}
 
   async solicitarRecuperacion(dto: SolicitarRecuperacionDto): Promise<void> {
@@ -40,7 +40,7 @@ export class RecuperacionContrasenaServicio {
       <p>Si no solicitaste este cambio, ignora este correo.</p>
       <p>El enlace expirará en 15 minutos.</p>
     `;
-    await this.adaptadorCorreo.enviarCorreo(usuario.correo, asunto, html);
+    await this.adaptadorCorreo.enviarCorreoRecuperacion(usuario.correo, enlace);
   }
 
   async restablecerContrasena(dto: RestablecerContrasenaDto): Promise<void> {

@@ -270,10 +270,13 @@ export default function BarraNavegacion() {
             <Link
               href="/cliente/perfil"
               className="flex items-center gap-1.5 px-3 py-3 rounded-full bg-background-secondary border border-gray-200 hover:bg-secondary/20 transition-colors"
-              title="Tus puntos"
+              title={`Tus puntos: ${puntos}`}
             >
               <Star className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
-              <span className="text-xs text-text-primary">pts</span>
+              <span className="text-xs text-text-primary font-bold">
+                {puntos}
+              </span>
+              <span className="text-xs text-text-primary ml-1 font-bold">pts</span>
             </Link>
           )}
 
@@ -372,10 +375,13 @@ export default function BarraNavegacion() {
             <Link
               href="/cliente/perfil"
               className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-background-secondary border border-gray-200 transition-colors"
-              title="Tus puntos"
+              title={`Tus puntos: ${puntos}`}
             >
-              <Star className="w-3 h-3  text-amber-400 fill-amber-400" />
-              <span className="text-xs text-text-primary">pts</span>
+              <Star className="w-3 h-3 text-amber-400 fill-amber-400" />
+              <span className="text-xs text-text-primary font-bold">
+                {puntos}
+              </span>
+              <span className="text-xs text-text-primary ml-1">pts</span>
             </Link>
           )}
 
