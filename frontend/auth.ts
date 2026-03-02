@@ -1,9 +1,16 @@
-import NextAuth, { type DefaultSession } from "next-auth";
+import NextAuth, { type DefaultSession, CredentialsSignin } from "next-auth";
 import Google from "next-auth/providers/google";
 import Credentials from "next-auth/providers/credentials";
 import { EsquemaLogin } from "@/components/auth/esquemas";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
+  logger: {
+    error(error) {
+      // Silenciar el error esperado de credenciales inválidas
+      if (error instanceof CredentialsSignin) return;
+      console.error(error);
+    },
+  },
   providers: [
     Google,
     Credentials({
@@ -42,7 +49,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   ],
   callbacks: {
     async jwt({ token, user, account }) {
-      
       // ==========================================================
       // 1. LÓGICA EXCLUSIVA PARA GOOGLE
       // ==========================================================
@@ -64,13 +70,17 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
           if (respuesta.ok) {
             const dataBackend = await respuesta.json();
-            token.accessToken = dataBackend.access_token ?? dataBackend.token?.access_token;
+            token.accessToken =
+              dataBackend.access_token ?? dataBackend.token?.access_token;
             token.rol = dataBackend.usuario?.rol;
             token.id = dataBackend.usuario?.id;
           } else {
             // AHORA SÍ VEREMOS POR QUÉ FALLA EN LA CONSOLA
             const errorBackend = await respuesta.text();
-            console.error("❌ El backend rechazó el usuario de Google:", errorBackend);
+            console.error(
+              "❌ El backend rechazó el usuario de Google:",
+              errorBackend,
+            );
           }
         } catch (error) {
           console.error("❌ Error de red conectando con backend:", error);

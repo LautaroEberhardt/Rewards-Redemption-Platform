@@ -23,5 +23,20 @@ export const EsquemaRegistro = z
     path: ["confirmarContrasena"], // El error se mostrará en este campo
   });
 
+export const EsquemaRestablecerContrasena = z
+  .object({
+    nuevaContrasena: z
+      .string()
+      .min(8, { message: "La contraseña debe tener al menos 8 caracteres" }),
+    confirmarContrasena: z.string(),
+  })
+  .refine((data) => data.nuevaContrasena === data.confirmarContrasena, {
+    message: "Las contraseñas no coinciden",
+    path: ["confirmarContrasena"],
+  });
+
 export type FormularioLoginDatos = z.infer<typeof EsquemaLogin>;
 export type FormularioRegistroDatos = z.infer<typeof EsquemaRegistro>;
+export type FormularioRestablecerContrasenaDatos = z.infer<
+  typeof EsquemaRestablecerContrasena
+>;
