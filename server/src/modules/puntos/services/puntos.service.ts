@@ -7,7 +7,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
 import { TransaccionPuntosEntidad } from '../entities/transaccion-puntos.entity';
-import { UsuarioEntidad } from 'src/modules/usuarios/entities/usuario.entity';
+import { UsuarioEntidad } from '../../usuarios/entities/usuario.entity';
 import { AsignarPuntosDto } from '../dtos/asignar-puntos.dto';
 import { TipoTransaccion } from '../enums/tipo-transaccion.enum';
 

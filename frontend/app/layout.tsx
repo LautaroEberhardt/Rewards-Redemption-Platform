@@ -2,34 +2,30 @@ import React from "react";
 import type { Metadata } from "next";
 import "@/app/globals.css";
 import { FondoDegradado } from "@/components/ui/fondo-degradado";
-import { ProveedorUI } from "@/context/ui-context";
 import { SidebarGlobal } from "@/components/layout/SidebarGlobal";
-import { SessionProvider } from "next-auth/react";
-import { ToastProvider, ToastViewport } from "../components/ui/toast";
+import { ProvidersWrapper } from "@/components/layout/ProvidersWrapper";
+import { auth } from "@/auth";
 
-export const metadata = {
-  title: "Sistema Uniformes",
-  description: "Aplicación de gestión de uniformes",
+export const metadata: Metadata = {
+  title: "Sistema de Fidelización",
+  description: "Plataforma de asignación y canje de puntos",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const session = await auth();
+
   return (
     <html lang="es">
       <body>
         <FondoDegradado>
-          <SessionProvider>
-            <ToastProvider>
-              <ProveedorUI>
-                <main>{children}</main>
-                <SidebarGlobal />
-                <ToastViewport />
-              </ProveedorUI>
-            </ToastProvider>
-          </SessionProvider>
+          <ProvidersWrapper session={session}>
+            <main>{children}</main>
+            <SidebarGlobal />
+          </ProvidersWrapper>
         </FondoDegradado>
       </body>
     </html>
