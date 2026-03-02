@@ -141,7 +141,7 @@ export function ModalCanjePremio({
                   src={srcImagen}
                   alt={premio.nombre}
                   fill
-                  className="object-cover"
+                  className="object-contain p-3"
                   unoptimized
                 />
               ) : (

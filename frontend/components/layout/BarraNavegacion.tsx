@@ -32,7 +32,7 @@ export default function BarraNavegacion() {
   const { abrirSidebar } = useUI();
   const router = useRouter();
   const { data: sesion, status } = useSession();
-  const [menuAbierto, setMenuAbierto] = useState<false | "contacto">(false);
+  const [menuAbierto, setMenuAbierto] = useState<false | "menu" | "contacto">(false);
   const [menuUsuarioAbierto, setMenuUsuarioAbierto] = useState(false);
 
   const estaCargando = status === "loading";
@@ -397,7 +397,7 @@ export default function BarraNavegacion() {
           )}
 
           <button
-            onClick={() => setMenuAbierto(menuAbierto ? false : "contacto")}
+            onClick={() => setMenuAbierto(menuAbierto ? false : "menu")}
             className="text-primary p-2 focus:outline-none"
             aria-label="Alternar menú"
           >
@@ -439,7 +439,7 @@ export default function BarraNavegacion() {
           <div className="relative w-full">
             <Boton
               onClick={() =>
-                setMenuAbierto(menuAbierto === "contacto" ? false : "contacto")
+                setMenuAbierto(menuAbierto === "contacto" ? "menu" : "contacto")
               }
               variante="sencillo"
               className="w-full flex items-center gap-2 justify-start"

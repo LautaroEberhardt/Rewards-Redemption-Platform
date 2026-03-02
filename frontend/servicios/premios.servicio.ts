@@ -12,7 +12,7 @@ export async function listarPremios(token?: string): Promise<Premio[]> {
     const respuesta = await fetch(`${API_URL}/premios`, {
       method: "GET",
       headers,
-      cache: "no-store",
+      next: { revalidate: 3600, tags: ["premios"] },
     });
 
     if (!respuesta.ok) {

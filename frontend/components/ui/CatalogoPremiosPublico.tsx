@@ -45,7 +45,7 @@ export function CatalogoPremiosPublico({ premios }: { premios: Premio[] }) {
   return (
     <>
       <motion.div
-        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 mt-12"
+        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 mt-12"
         variants={{ show: { transition: { staggerChildren: 0.1 } } }}
         initial="hidden"
         animate="show"

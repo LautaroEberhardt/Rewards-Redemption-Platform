@@ -20,6 +20,7 @@ import {
   listarPremiosAdmin,
   cambiarEstadoPremio,
 } from "@/servicios/premios.servicio";
+import { revalidarPremios } from "@/actions/premios";
 
 type PremioUI = {
   id: number;
@@ -145,6 +146,7 @@ export function CatalogoPremiosEditableClient({ premios, crearNuevo }: Props) {
           },
         ]);
         showSuccess("Premio creado");
+        await revalidarPremios();
         router.refresh();
       } else {
         const actualizado = await actualizarPremio(
@@ -171,6 +173,7 @@ export function CatalogoPremiosEditableClient({ premios, crearNuevo }: Props) {
           ),
         );
         showSuccess("Premio actualizado");
+        await revalidarPremios();
         router.refresh();
       }
       cerrarOverlay();
@@ -191,6 +194,7 @@ export function CatalogoPremiosEditableClient({ premios, crearNuevo }: Props) {
         prev.map((p) => (p.id === id ? { ...p, activo: false } : p)),
       );
       showSuccess(mensaje);
+      await revalidarPremios();
       router.refresh();
       cerrarOverlay();
       setPremioAEliminar(null);
@@ -224,6 +228,7 @@ export function CatalogoPremiosEditableClient({ premios, crearNuevo }: Props) {
       showSuccess(
         actualizado.activo ? "Premio habilitado" : "Premio deshabilitado",
       );
+      await revalidarPremios();
     } catch (e: unknown) {
       showError(
         e instanceof Error

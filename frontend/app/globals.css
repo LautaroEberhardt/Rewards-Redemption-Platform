@@ -6,10 +6,10 @@
   --color-background: var(--color-background);
   --color-background-secondary: var(--color-background-secondary);
   --color-background-tertiary: var(--color-background-tertiary);
-  
+
   --color-primary: var(--color-primary);
   --color-primary-hover: var(--color-primary-hover);
-  
+
   --color-text-primary: var(--color-text-primary);
   --color-text-secondary: var(--color-text-secondary);
   --color-text-inverse: var(--color-text-inverse);
@@ -21,7 +21,7 @@
   --color-neutral-300: var(--color-neutral-300);
   --color-neutral-800: var(--color-neutral-800);
   --color-neutral-900: var(--color-neutral-900);
-  
+
   --color-state-error: var(--color-error);
   --color-border: var(--color-border);
   --color-error-light: var(--color-error-light);
@@ -31,6 +31,10 @@
 }
 
 @layer base {
+  html,
+  body {
+    overflow-x: hidden;
+  }
   body {
     @apply bg-background text-text-primary antialiased;
   }

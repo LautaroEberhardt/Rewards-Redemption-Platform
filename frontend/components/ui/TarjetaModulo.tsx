@@ -1,5 +1,6 @@
 import { ReactNode } from "react";
 import { motion } from "framer-motion";
+import Image from "next/image";
 
 // Actualizamos la interfaz
 interface PropsTarjetaPremio {
@@ -31,6 +32,8 @@ export const TarjetaPremio = ({
       ? imagenUrl
       : `${baseApi}${imagenUrl}`
     : undefined;
+  const esLocal =
+    srcImagen?.includes("localhost") || srcImagen?.includes("127.0.0.1");
   return (
     <motion.article
       whileHover={{ scale: 1.03, y: -4 }}
@@ -55,10 +58,13 @@ export const TarjetaPremio = ({
             </span>
           </div>
         ) : (
-          <img
+          <Image
             src={srcImagen}
             alt={nombre}
-            className="w-full h-full object-cover"
+            fill
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+            className="object-cover"
+            unoptimized={esLocal}
           />
         )}
 
