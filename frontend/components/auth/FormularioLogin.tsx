@@ -17,7 +17,7 @@ export const FormularioLogin = () => {
   const [errorVisual, setErrorVisual] = useState<string | null>(null);
   const [modalRecuperarAbierto, setModalRecuperarAbierto] = useState(false);
   const router = useRouter();
-  const { abrirSidebar, cerrarSidebar } = useUI();
+  const { abrirSidebar, cerrarSidebar, activarTransicion } = useUI();
 
   const {
     register,
@@ -68,16 +68,17 @@ export const FormularioLogin = () => {
               .map((r: any) => String(r).toLowerCase())
               .includes("admin"));
 
-        if (isAdmin) {
-          console.log("Usuario es admin, redirigiendo a /admin/panel...");
-          router.push("/admin/panel");
-        } else {
-          console.log("Usuario es cliente, redirigiendo a inicio...");
-          router.push("/");
-        }
-
-        router.refresh();
         cerrarSidebar();
+        activarTransicion(() => {
+          if (isAdmin) {
+            console.log("Usuario es admin, redirigiendo a /admin/panel...");
+            router.push("/admin/panel");
+          } else {
+            console.log("Usuario es cliente, redirigiendo a inicio...");
+            router.push("/");
+          }
+          router.refresh();
+        });
       }
     } catch (error) {
       console.error("Error crítico en el catch:", error);

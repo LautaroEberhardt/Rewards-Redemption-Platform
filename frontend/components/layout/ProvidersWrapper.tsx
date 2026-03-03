@@ -5,6 +5,7 @@ import { Session } from "next-auth";
 import { SessionProvider } from "next-auth/react";
 import { ProveedorUI } from "@/context/ui-context";
 import { ToastProvider, ToastViewport } from "@/components/ui/toast";
+import { TransicionPantalla } from "@/components/ui/TransicionPantalla";
 
 interface ProvidersProps {
   children: React.ReactNode;
@@ -18,6 +19,7 @@ export function ProvidersWrapper({ children, session }: ProvidersProps) {
         <ProveedorUI>
           {children}
           <ToastViewport />
+          <TransicionPantalla />
         </ProveedorUI>
       </ToastProvider>
     </SessionProvider>
