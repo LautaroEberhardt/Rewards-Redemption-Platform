@@ -11,6 +11,8 @@ import { UsuarioEntidad } from './modules/usuarios/entities/usuario.entity';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AuthModule } from './modules/auth/auth.module';
 import { RecuperacionModule } from './modules/usuarios/recuperacion.module';
+import { APP_GUARD } from '@nestjs/core';
+import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 
 @Module({
   imports: [
@@ -18,6 +20,12 @@ import { RecuperacionModule } from './modules/usuarios/recuperacion.module';
       isGlobal: true,
       envFilePath: process.env.NODE_ENV === 'test' ? '.env.test' : '.env', //sacar despues
     }),
+    ThrottlerModule.forRoot([
+      {
+        ttl: 60000,
+        limit: 100,
+      },
+    ]),
     ServeStaticModule.forRoot({
       rootPath: join(process.cwd(), 'uploads'),
       serveRoot: '/uploads',
@@ -49,6 +57,12 @@ import { RecuperacionModule } from './modules/usuarios/recuperacion.module';
     RecuperacionModule,
   ],
   controllers: [],
-  providers: [AppService],
+  providers: [
+    AppService,
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
+    },
+  ],
 })
 export class AppModule {}

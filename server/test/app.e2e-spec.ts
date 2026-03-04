@@ -1,4 +1,3 @@
-// server/test/app.e2e-spec.ts
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import request from 'supertest';
@@ -25,7 +24,6 @@ describe('Controlador de Puntos (E2E)', () => {
   });
 
   beforeEach(async () => {
-    // ¡Mira qué limpio queda esto ahora!
     await limpiarBaseDeDatos(dataSource);
     admin = await prepararAdmin(app, dataSource);
   });
@@ -42,7 +40,7 @@ describe('Controlador de Puntos (E2E)', () => {
         .send({
           usuarioId: admin.id,
           cantidad: 50,
-          concepto: 'Compra de prueba E2E'
+          concepto: 'Compra de prueba E2E',
         })
         .expect(201);
 
