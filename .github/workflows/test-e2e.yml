@@ -1,0 +1,42 @@
+name: Backend E2E Tests
+
+# ¿Cuándo debe ejecutarse este robot?
+on:
+  push:
+    branches: [ "main", "master", "dev" ] # Cuando alguien hace push a estas ramas
+  pull_request:
+    branches: [ "main", "master", "dev" ] # O cuando alguien crea un Pull Request
+
+jobs:
+  pruebas-integracion:
+    name: Ejecutar Pruebas E2E
+    runs-on: ubuntu-latest # Usaremos el servidor más reciente de Linux
+
+    steps:
+      - name: 📥 Clonar el código fuente
+        uses: actions/checkout@v4
+
+      - name: ⚙️ Configurar entorno Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20' # La versión estándar actual de Node
+          cache: 'npm'
+          cache-dependency-path: './server/package-lock.json'
+
+      - name: 🐳 Levantar la Base de Datos de Prueba en Docker
+        # Ejecutamos el mismo comando que usas en tu máquina
+        run: docker compose up -d db_test
+
+      - name: ⏳ Esperar a que PostgreSQL inicie
+        # Le damos 5 segundos a la base de datos para estar lista para recibir conexiones
+        run: sleep 5
+
+      - name: 📦 Instalar dependencias del Backend
+        working-directory: ./server
+        # Usamos npm ci (Clean Install) que es más estricto y rápido para entornos CI
+        run: npm ci
+
+      - name: 🧪 Ejecutar los Tests E2E
+        working-directory: ./server
+        # Ejecutará nuestros tests contra el contenedor de Docker recién creado
+        run: npm run test:e2e

@@ -3,6 +3,7 @@
 import { signIn } from "next-auth/react";
 import { Boton } from "../ui/boton";
 import { Chrome } from "lucide-react";
+import { useUI } from "@/context/ui-context";
 
 interface BotonSocialProps {
   proveedor: "google";
@@ -10,12 +11,17 @@ interface BotonSocialProps {
 }
 
 export const BotonSocial = ({ proveedor, onClick }: BotonSocialProps) => {
+  const { activarTransicion } = useUI();
+
   const manejarClick = () => {
     if (onClick) {
       onClick();
     } else {
-      signIn(proveedor, {
-        callbackUrl: "/",
+      // Wipe visual antes de redirigir a Google OAuth
+      activarTransicion(() => {
+        signIn(proveedor, {
+          callbackUrl: "/",
+        });
       });
     }
   };

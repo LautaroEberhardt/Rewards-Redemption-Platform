@@ -16,7 +16,7 @@ import {
 export const FormularioRegistro = () => {
   const [estaPendiente, iniciarTransicion] = useTransition();
   const [errorBackend, setErrorBackend] = useState<string | null>(null);
-  const { abrirSidebar } = useUI();
+  const { abrirSidebar, activarTransicion, cerrarSidebar } = useUI();
 
   const {
     register,
@@ -34,13 +34,20 @@ export const FormularioRegistro = () => {
 
       if (respuesta?.error) {
         setErrorBackend(respuesta.error);
+      } else {
+        // Registro exitoso → transición visual antes del redirect automático
+        cerrarSidebar();
+        activarTransicion(() => {});
       }
     });
   };
 
   const manejarGoogle = async () => {
     try {
-      await iniciarSesionConGoogle();
+      cerrarSidebar();
+      activarTransicion(async () => {
+        await iniciarSesionConGoogle();
+      });
     } catch (error) {
       console.error("Error iniciando con Google", error);
     }

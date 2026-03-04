@@ -26,10 +26,11 @@ import { useUI } from "@/context/ui-context";
 import { obtenerPerfilAction } from "@/actions/perfil";
 import { BsInstagram, BsMailbox, BsWhatsapp } from "react-icons/bs";
 
+
 const telefonoWhatsapp = process.env.NEXT_PUBLIC_WHATSAPP_TELEFONO || "";
 
 export default function BarraNavegacion() {
-  const { abrirSidebar } = useUI();
+  const { abrirSidebar, activarTransicion } = useUI();
   const router = useRouter();
   const { data: sesion, status } = useSession();
   const [menuAbierto, setMenuAbierto] = useState<false | "menu" | "contacto">(false);
@@ -78,6 +79,13 @@ export default function BarraNavegacion() {
     setMenuAbierto(false);
     setMenuUsuarioAbierto(false);
     accion();
+  };
+
+  /** Navegación con wipe de pantalla (perfil, historial, panel) */
+  const navegarConTransicion = (ruta: string) => {
+    setMenuAbierto(false);
+    setMenuUsuarioAbierto(false);
+    activarTransicion(() => router.push(ruta));
   };
 
   const cerrarSesionUsuario = () => {
@@ -311,10 +319,8 @@ export default function BarraNavegacion() {
 
                   <button
                     onClick={() =>
-                      manejarNavegacion(() =>
-                        router.push(
-                          esAdmin ? rutaDashboard : "/cliente/perfil",
-                        ),
+                      navegarConTransicion(
+                        esAdmin ? rutaDashboard : "/cliente/perfil",
                       )
                     }
                     className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
@@ -336,9 +342,7 @@ export default function BarraNavegacion() {
                   {!esAdmin && (
                     <button
                       onClick={() =>
-                        manejarNavegacion(() =>
-                          router.push("/cliente/historial"),
-                        )
+                        navegarConTransicion("/cliente/historial")
                       }
                       className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
                     >
@@ -570,8 +574,8 @@ export default function BarraNavegacion() {
                 </div>
                 <Boton
                   onClick={() =>
-                    manejarNavegacion(() =>
-                      router.push(esAdmin ? rutaDashboard : "/cliente/perfil"),
+                    navegarConTransicion(
+                      esAdmin ? rutaDashboard : "/cliente/perfil",
                     )
                   }
                   variante="primario"
@@ -593,7 +597,7 @@ export default function BarraNavegacion() {
                 {!esAdmin && (
                   <Boton
                     onClick={() =>
-                      manejarNavegacion(() => router.push("/cliente/historial"))
+                      navegarConTransicion("/cliente/historial")
                     }
                     variante="sencillo"
                     className="w-full justify-center mb-2"

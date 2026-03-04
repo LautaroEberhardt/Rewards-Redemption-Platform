@@ -13,35 +13,45 @@ services:
       POSTGRES_PASSWORD: admin
       POSTGRES_DB: uniformes_db
     volumes:
-      - postgres_data:/var/lib/postgresql/data # Usamos volumen nombrado (mejor práctica)
+      - postgres_data:/var/lib/postgresql/data
     networks:
       - fidelizacion-network
 
   # Servicio de Backend (NestJS)
   backend:
     build:
-      context: ./server # <--- Apuntamos a la carpeta correcta
+      context: ./server
       dockerfile: Dockerfile
     container_name: nestjs_backend
     restart: on-failure
     ports:
-      - "4000:4000" # Exponemos el puerto de NestJS
+      - "4000:4000"
     environment:
-      - DB_HOST=db # <--- IMPORTANTE: Nombre del servicio de arriba
+      - DB_HOST=db
       - DB_PORT=5432
       - DB_USERNAME=user
       - DB_PASSWORD=admin
       - DB_NAME=uniformes_db
     depends_on:
-      - db # Espera a que la DB inicie
+      - db
     volumes:
-      - ./server:/usr/src/app # Hot-Reload: refleja cambios de tu código en vivo
+      - ./server:/usr/src/app
       - /usr/src/app/node_modules
     networks:
       - fidelizacion-network
 
+  db_test:
+    image: postgres:15-alpine
+    container_name: puntos_db_test
+    environment:
+      POSTGRES_USER: usuario_test
+      POSTGRES_PASSWORD: password_test
+      POSTGRES_DB: fidelizacion_test
+    ports:
+      - "5433:5432" # Usamos el puerto 5433 para no chocar con la DB principal
+
 volumes:
-  postgres_data: # Definición del volumen persistente
+  postgres_data:
 
 networks:
-  fidelizacion-network: # Red privada para que se comuniquen
+  fidelizacion-network:

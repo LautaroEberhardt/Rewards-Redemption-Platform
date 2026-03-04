@@ -8,7 +8,7 @@ import { PremiosModule } from './modules/premios/premios.module';
 import { PuntosModule } from './modules/puntos/puntos.module';
 import { CanjesModule } from './modules/canjes/canjes.module';
 import { UsuarioEntidad } from './modules/usuarios/entities/usuario.entity';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AuthModule } from './modules/auth/auth.module';
 import { RecuperacionModule } from './modules/usuarios/recuperacion.module';
 
@@ -16,20 +16,29 @@ import { RecuperacionModule } from './modules/usuarios/recuperacion.module';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
+      envFilePath: process.env.NODE_ENV === 'test' ? '.env.test' : '.env', //sacar despues
     }),
     ServeStaticModule.forRoot({
       rootPath: join(process.cwd(), 'uploads'),
       serveRoot: '/uploads',
     }),
-    TypeOrmModule.forRoot({
-      type: 'postgres',
-      host: process.env.DB_HOST || 'localhost',
-      port: parseInt(process.env.DB_PORT ?? '5432', 10) || 5432,
-      username: process.env.DB_USERNAME || 'user',
-      password: process.env.DB_PASSWORD || 'admin',
-      database: process.env.DB_NAME || 'uniformes_db',
-      autoLoadEntities: true,
-      synchronize: false, // Solo para desarrollo (crea tablas automáticamente)
+    TypeOrmModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => ({
+        type: 'postgres',
+        // AQUÍ ESTÁ LA CORRECCIÓN: Le pedimos el nombre de la variable
+        host: configService.get<string>('DB_HOST'),
+        port: parseInt(configService.get<string>('DB_PORT') || '5432', 10),
+        username: configService.get<string>('DB_USERNAME'),
+        password: configService.get<string>('DB_PASSWORD'),
+        database: configService.get<string>('DB_NAME'),
+        autoLoadEntities: true,
+        // REGLA DE ARQUITECTO: En tests, synchronize puede ser true
+        // para que las tablas se creen solas en la DB de prueba vacía.
+        synchronize: process.env.NODE_ENV === 'test',
+        dropSchema: process.env.NODE_ENV === 'test',
+      }),
     }),
     TypeOrmModule.forFeature([UsuarioEntidad]),
     UsuariosModule,
