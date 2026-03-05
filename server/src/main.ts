@@ -10,7 +10,7 @@ async function iniciarServidor() {
   const origenesPermitidos = process.env.URL_FRONTEND || 'http://localhost:3001';
 
   app.enableCors({
-    origin: true,
+    origin: origenesPermitidos,
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
     credentials: true,
   });
