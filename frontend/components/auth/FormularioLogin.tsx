@@ -26,10 +26,6 @@ export const FormularioLogin = () => {
   } = useForm<FormularioLoginDatos>({
     resolver: zodResolver(EsquemaLogin),
 
-    defaultValues: {
-      correo: "admin@fidelizacion.com",
-      password: "Admin1234!",
-    },
   });
 
   const alEnviar = async (datos: FormularioLoginDatos) => {
