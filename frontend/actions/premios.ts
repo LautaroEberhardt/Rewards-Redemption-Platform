@@ -3,5 +3,9 @@
 import { revalidateTag } from "next/cache";
 
 export async function revalidarPremios() {
-  revalidateTag("premios");
+  try {
+    revalidateTag("premios", "default");
+  } catch (error) {
+    console.error("Error al revalidar premios:", error);
+  }
 }

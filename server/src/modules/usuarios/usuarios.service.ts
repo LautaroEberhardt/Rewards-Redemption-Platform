@@ -68,7 +68,7 @@ export class UsuariosService {
 
     // Si no existe, lo creamos (Estrategia para login social)
     const nuevoUsuario = this.usuarioRepositorio.create({
-      nombreCompleto: perfil.name,
+      nombreCompleto: perfil.nombreCompleto,
       correo: perfil.correo,
       rol: RolUsuario.CLIENTE, // Siempre cliente
     });

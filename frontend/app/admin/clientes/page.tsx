@@ -73,7 +73,7 @@ export default function PageClientes() {
 
   const guardarUsuarioEditado = async ({
     nombre,
-    email,
+    correo,
     telefono,
   }: {
     nombre: string;
@@ -92,14 +92,14 @@ export default function PageClientes() {
       // No enviar email si la cuenta es de Google (protección)
       const datosActualizar: {
         nombre?: string;
-        email?: string;
+        correo?: string;
         telefono?: string;
       } = {
         nombre,
         telefono,
       };
       if (!usuarioEditar.googleId) {
-        datosActualizar.correo = email;
+        datosActualizar.correo = correo;
       }
 
       const actualizado = await UsuariosServicio.actualizar(
