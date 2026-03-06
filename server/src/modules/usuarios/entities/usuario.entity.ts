@@ -19,8 +19,8 @@ export class UsuarioEntidad {
   @Column({ length: 100, nullable: false, default: 'Usuario sin nombre' })
   nombreCompleto: string;
 
-  @Column({ unique: true })
-  correo: string;
+  @Column({ unique: true, nullable: true })
+  correo: string | null;
 
   @Column({ nullable: true })
   telefono: string;
