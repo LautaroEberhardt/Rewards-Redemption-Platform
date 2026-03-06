@@ -190,9 +190,13 @@ export function CatalogoPremiosEditableClient({ premios, crearNuevo }: Props) {
         return;
       }
       const { mensaje } = await eliminarPremio(Number(id), token);
-      setLista((prev) =>
-        prev.map((p) => (p.id === id ? { ...p, activo: false } : p)),
-      );
+      if (mensaje.includes("deshabilitado")) {
+        setLista((prev) =>
+          prev.map((p) => (p.id === id ? { ...p, activo: false } : p)),
+        );
+      } else {
+        setLista((prev) => prev.filter((p) => p.id !== id));
+      }
       showSuccess(mensaje);
       await revalidarPremios();
       router.refresh();

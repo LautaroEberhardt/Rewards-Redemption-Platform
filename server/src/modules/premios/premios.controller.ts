@@ -15,17 +15,18 @@ import {
 } from '@nestjs/common';
 import { PremiosService, PremioDto } from './premios.service';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { diskStorage } from 'multer';
-import { extname } from 'path';
-import { existsSync, mkdirSync } from 'fs';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { RolUsuario } from '../../common/enums/roles.enum';
+import { CloudinaryService } from '../../common/cloudinary.service';
 
 @Controller('premios')
 export class PremiosController {
-  constructor(private readonly service: PremiosService) {}
+  constructor(
+    private readonly service: PremiosService,
+    private readonly cloudinaryService: CloudinaryService,
+  ) {}
 
   @Get()
   findAll(): Promise<PremioDto[]> {
@@ -61,21 +62,7 @@ export class PremiosController {
   @Roles(RolUsuario.ADMIN)
   @UseInterceptors(
     FileInterceptor('imagen', {
-      storage: diskStorage({
-        destination: (req, file, cb) => {
-          const uploadsPath = './uploads/premios';
-          if (!existsSync(uploadsPath)) {
-            mkdirSync(uploadsPath, { recursive: true });
-          }
-          cb(null, uploadsPath);
-        },
-        filename: (req, file, cb) => {
-          const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-          const ext = extname(file.originalname);
-          cb(null, `premio-${uniqueSuffix}${ext}`);
-        },
-      }),
-      fileFilter: (req, file, cb) => {
+      fileFilter: (_req, file, cb) => {
         if (!file.mimetype.match(/\/(jpg|jpeg|png|gif)$/)) {
           return cb(new BadRequestException('Solo se permiten imágenes'), false);
         }
@@ -83,19 +70,17 @@ export class PremiosController {
       },
     }),
   )
-  create(
+  async create(
     @Body()
     body: {
       nombre: string;
       descripcion?: string;
       costoPuntos?: number;
       costo?: number;
-      titulo?: string; // compatibilidad: si llega 'titulo', lo usamos como nombre
+      titulo?: string;
     },
-    // Tipo estricto provisto por @types/multer
     @UploadedFile() archivo?: Express.Multer.File,
   ): Promise<PremioDto> {
-    // Tolerante: si body llega undefined (multipart mal parseado), usamos valores seguros
     const nombre = body?.nombre ?? body?.titulo ?? '';
     const descripcion = body?.descripcion;
     const costoPuntosRaw = body?.costoPuntos as unknown;
@@ -112,13 +97,19 @@ export class PremiosController {
         : typeof costoRaw === 'number'
           ? costoRaw
           : undefined;
+
+    let urlImagen: string | undefined;
+    if (archivo) {
+      const resultado = await this.cloudinaryService.uploadFile(archivo);
+      urlImagen = resultado.secure_url;
+    }
+
     const normalized = {
       nombre,
       descripcion,
       costoPuntos,
       costo,
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-      urlImagen: archivo?.filename ? `/uploads/premios/${archivo.filename}` : undefined,
+      urlImagen,
     };
     return this.service.create(normalized);
   }
@@ -128,21 +119,7 @@ export class PremiosController {
   @Roles(RolUsuario.ADMIN)
   @UseInterceptors(
     FileInterceptor('imagen', {
-      storage: diskStorage({
-        destination: (req, file, cb) => {
-          const uploadsPath = './uploads/premios';
-          if (!existsSync(uploadsPath)) {
-            mkdirSync(uploadsPath, { recursive: true });
-          }
-          cb(null, uploadsPath);
-        },
-        filename: (req, file, cb) => {
-          const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-          const ext = extname(file.originalname);
-          cb(null, `premio-${uniqueSuffix}${ext}`);
-        },
-      }),
-      fileFilter: (req, file, cb) => {
+      fileFilter: (_req, file, cb) => {
         if (!file.mimetype.match(/\/(jpg|jpeg|png|gif)$/)) {
           return cb(new BadRequestException('Solo se permiten imágenes'), false);
         }
@@ -150,7 +127,7 @@ export class PremiosController {
       },
     }),
   )
-  patch(
+  async patch(
     @Param('id', ParseIntPipe) id: number,
     @Body()
     body: {
@@ -164,6 +141,13 @@ export class PremiosController {
   ): Promise<PremioDto> {
     const costoPuntosRaw = body?.costoPuntos as unknown;
     const costoRaw = body?.costo as unknown;
+
+    let urlImagen: string | undefined;
+    if (archivo) {
+      const resultado = await this.cloudinaryService.uploadFile(archivo);
+      urlImagen = resultado.secure_url;
+    }
+
     const normalized = {
       nombre: body?.nombre ?? body?.titulo,
       descripcion: body?.descripcion,
@@ -179,7 +163,7 @@ export class PremiosController {
           : typeof costoRaw === 'number'
             ? costoRaw
             : undefined,
-      urlImagen: archivo?.filename ? `/uploads/premios/${archivo.filename}` : undefined,
+      urlImagen,
     };
     return this.service.update(id, normalized);
   }
@@ -189,21 +173,7 @@ export class PremiosController {
   @Roles(RolUsuario.ADMIN)
   @UseInterceptors(
     FileInterceptor('imagen', {
-      storage: diskStorage({
-        destination: (req, file, cb) => {
-          const uploadsPath = './uploads/premios';
-          if (!existsSync(uploadsPath)) {
-            mkdirSync(uploadsPath, { recursive: true });
-          }
-          cb(null, uploadsPath);
-        },
-        filename: (req, file, cb) => {
-          const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-          const ext = extname(file.originalname);
-          cb(null, `premio-${uniqueSuffix}${ext}`);
-        },
-      }),
-      fileFilter: (req, file, cb) => {
+      fileFilter: (_req, file, cb) => {
         if (!file.mimetype.match(/\/(jpg|jpeg|png|gif)$/)) {
           return cb(new BadRequestException('Solo se permiten imágenes'), false);
         }
@@ -211,7 +181,7 @@ export class PremiosController {
       },
     }),
   )
-  put(
+  async put(
     @Param('id', ParseIntPipe) id: number,
     @Body()
     body: {
@@ -225,6 +195,13 @@ export class PremiosController {
   ): Promise<PremioDto> {
     const costoPuntosRaw = body?.costoPuntos as unknown;
     const costoRaw = body?.costo as unknown;
+
+    let urlImagen: string | undefined;
+    if (archivo) {
+      const resultado = await this.cloudinaryService.uploadFile(archivo);
+      urlImagen = resultado.secure_url;
+    }
+
     const normalized = {
       nombre: body?.nombre ?? body?.titulo,
       descripcion: body?.descripcion,
@@ -240,7 +217,7 @@ export class PremiosController {
           : typeof costoRaw === 'number'
             ? costoRaw
             : undefined,
-      urlImagen: archivo?.filename ? `/uploads/premios/${archivo.filename}` : undefined,
+      urlImagen,
     };
     return this.service.update(id, normalized);
   }

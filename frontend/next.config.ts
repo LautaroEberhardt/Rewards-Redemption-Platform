@@ -16,6 +16,14 @@ const nextConfig: NextConfig = {
         hostname: "localhost",
         port: "4000",
       },
+      {
+        protocol: "https",
+        hostname: "rewards-redemption-platform-production.up.railway.app",
+      },
+      {
+        protocol: "https",
+        hostname: "res.cloudinary.com",
+      },
     ],
   },
 };

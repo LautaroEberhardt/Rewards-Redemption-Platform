@@ -104,15 +104,20 @@ export class PremiosService {
   }
 
   async remove(id: number): Promise<{ mensaje: string }> {
-    const existente = await this.repo.findOne({ where: { id } });
+    const existente = await this.repo.findOne({
+      where: { id },
+      relations: ['canjes'],
+    });
     if (!existente) throw new NotFoundException('Premio no encontrado');
 
-    if (!existente.activo) {
-      return { mensaje: 'El premio ya se encontraba desactivado' };
+    if (existente.canjes && existente.canjes.length > 0) {
+      // Tiene canjes asociados: no se puede borrar, solo deshabilitar
+      existente.activo = false;
+      await this.repo.save(existente);
+      return { mensaje: 'El premio tiene canjes asociados, fue deshabilitado en vez de eliminado' };
     }
 
-    existente.activo = false;
-    await this.repo.save(existente);
-    return { mensaje: 'Premio desactivado correctamente' };
+    await this.repo.remove(existente);
+    return { mensaje: 'Premio eliminado correctamente' };
   }
 }
