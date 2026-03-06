@@ -18,7 +18,7 @@ import { RecuperacionModule } from './modules/usuarios/recuperacion.module';
       url: process.env.DATABASE_URL,
       autoLoadEntities: true,
       synchronize: process.env.NODE_ENV !== 'production',
-      migrations: [__dirname + '/migrations/*.{ts,js}'],
+      migrations: [__dirname + '/../migrations/*{.ts,.js}'],
       migrationsRun: process.env.NODE_ENV === 'production',
       ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
     }),
