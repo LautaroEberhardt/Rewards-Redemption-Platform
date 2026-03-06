@@ -17,7 +17,7 @@ import { RecuperacionModule } from './modules/usuarios/recuperacion.module';
       type: 'postgres',
       url: process.env.DATABASE_URL,
       autoLoadEntities: true,
-      synchronize: true,
+      dropSchema: true,
       ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
     }),
     TypeOrmModule.forFeature([UsuarioEntidad]),
