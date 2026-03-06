@@ -7,10 +7,25 @@ async function iniciarServidor() {
 
   // Configuración de CORS
   // En producción, el origen debe ser la URL de Vercel
-  const origenesPermitidos = process.env.URL_FRONTEND || 'http://localhost:3001';
+  const frontendUrl = process.env.URL_FRONTEND;
 
   app.enableCors({
-    origin: origenesPermitidos,
+    origin: (
+      origin: string | undefined,
+      callback: (err: Error | null, allow?: boolean) => void,
+    ) => {
+      if (
+        !origin ||
+        origin.includes('localhost') ||
+        origin === frontendUrl ||
+        origin.endsWith('.vercel.app')
+      ) {
+        callback(null, true);
+      } else {
+        console.log('CORS bloqueado para el origen:', origin);
+        callback(new Error('No permitido por CORS'));
+      }
+    },
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
     credentials: true,
   });
@@ -29,4 +44,4 @@ async function iniciarServidor() {
   console.log(`🚀 Servidor corriendo en: http://localhost:${puerto}`);
 }
 
-iniciarServidor();
+void iniciarServidor();
