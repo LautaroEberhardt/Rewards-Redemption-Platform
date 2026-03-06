@@ -19,7 +19,7 @@ export class UsuarioEntidad {
   @Column({ length: 100, nullable: false, default: 'Usuario sin nombre' })
   nombreCompleto: string;
 
-  @Column({ unique: true, nullable: true })
+  @Column({ type: 'varchar', unique: true, nullable: true })
   correo: string | null;
 
   @Column({ nullable: true })
