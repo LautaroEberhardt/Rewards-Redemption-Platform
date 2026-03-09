@@ -4,7 +4,7 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Pen, ShoppingCart, User, ArrowLeft, Package } from "lucide-react";
+import { Pen, ShoppingCart, User, ArrowLeft, Package, History } from "lucide-react";
 
 type ItemNav = { href: string; label: string; icon?: React.ReactNode };
 
@@ -28,6 +28,11 @@ const items: ItemNav[] = [
     href: "/admin/clientes",
     label: "Modificación y Datos de usuarios",
     icon: <Pen className="h-4 w-4" />,
+  },
+  {
+    href: "/admin/historial",
+    label: "Historial de Movimientos",
+    icon: <History className="h-4 w-4" />,
   },
 ];
 

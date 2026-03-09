@@ -119,4 +119,50 @@ export class PuntosServicio {
       pagina: paginaReal,
     };
   }
+
+  async obtenerHistorialGlobal(
+    pagina: number = 1,
+    limite: number = 20,
+    tipo?: string,
+  ): Promise<{
+    datos: TransaccionPuntosEntidad[];
+    total: number;
+    pagina: number;
+  }> {
+    const paginaReal = pagina > 0 ? pagina : 1;
+    const skip = (paginaReal - 1) * limite;
+
+    const where: Record<string, unknown> = {};
+    if (tipo === TipoTransaccion.INGRESO || tipo === TipoTransaccion.EGRESO) {
+      where.tipo = tipo;
+    }
+
+    const [datos, total] = await this.repositorioTransacciones.findAndCount({
+      where,
+      relations: ['usuario'],
+      order: { fecha: 'DESC' },
+      take: limite,
+      skip,
+      select: {
+        id: true,
+        cantidad: true,
+        tipo: true,
+        concepto: true,
+        saldoAnterior: true,
+        saldoNuevo: true,
+        fecha: true,
+        usuario: {
+          id: true,
+          nombreCompleto: true,
+          correo: true,
+        },
+      },
+    });
+
+    return {
+      datos,
+      total,
+      pagina: paginaReal,
+    };
+  }
 }

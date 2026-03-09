@@ -62,6 +62,23 @@ export class PuntosController {
   }
 
   /**
+   * ACCIÓN: Ver historial global de transacciones (todos los usuarios).
+   * RESTRICCIÓN: Solo ADMIN.
+   */
+  @Get('admin/historial')
+  @Roles(RolUsuario.ADMIN)
+  async obtenerHistorialAdmin(
+    @Query('pagina') pagina?: string,
+    @Query('limite') limite?: string,
+    @Query('tipo') tipo?: string,
+  ) {
+    const pag = pagina ? parseInt(pagina, 10) : 1;
+    const lim = limite ? parseInt(limite, 10) : 20;
+    const tipoFiltro = tipo === 'INGRESO' || tipo === 'EGRESO' ? tipo : undefined;
+    return await this.puntosServicio.obtenerHistorialGlobal(pag, lim, tipoFiltro);
+  }
+
+  /**
    * ACCIÓN: Ver historial de transacciones.
    */
   @Get('historial')
