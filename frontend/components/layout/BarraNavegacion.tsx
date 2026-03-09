@@ -26,14 +26,15 @@ import { useUI } from "@/context/ui-context";
 import { obtenerPerfilAction } from "@/actions/perfil";
 import { BsInstagram, BsMailbox, BsWhatsapp } from "react-icons/bs";
 
-
 const telefonoWhatsapp = process.env.NEXT_PUBLIC_WHATSAPP_TELEFONO || "";
 
 export default function BarraNavegacion() {
   const { abrirSidebar, activarTransicion } = useUI();
   const router = useRouter();
   const { data: sesion, status } = useSession();
-  const [menuAbierto, setMenuAbierto] = useState<false | "menu" | "contacto">(false);
+  const [menuAbierto, setMenuAbierto] = useState<false | "menu" | "contacto">(
+    false,
+  );
   const [menuUsuarioAbierto, setMenuUsuarioAbierto] = useState(false);
 
   const estaCargando = status === "loading";
@@ -43,6 +44,16 @@ export default function BarraNavegacion() {
   const rutaDashboard = esAdmin ? "/admin/panel" : "/";
 
   const [puntos, setPuntos] = useState<number | null>(null);
+  const [mailCopiado, setMailCopiado] = useState(false);
+
+  const correoContacto = "ayvuniformessf@gmail.com";
+
+  const copiarMail = () => {
+    navigator.clipboard.writeText(correoContacto).then(() => {
+      setMailCopiado(true);
+      setTimeout(() => setMailCopiado(false), 2000);
+    });
+  };
 
   const cargarPuntos = useCallback(() => {
     if (!estaAutenticado || esAdmin) return;
@@ -187,10 +198,9 @@ export default function BarraNavegacion() {
                       }
                     `}</style>
                   </a>
-                  <a
-                    href="mailto:tu_gmail@gmail.com"
-                    className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 relative overflow-hidden"
-                    style={{}}
+                  <button
+                    onClick={copiarMail}
+                    className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 relative overflow-hidden w-full text-left cursor-pointer"
                   >
                     <span
                       className="absolute left-0 top-0 h-full w-0 bg-red-100 z-0 transition-all duration-800"
@@ -203,7 +213,7 @@ export default function BarraNavegacion() {
                       Gmail
                     </span>
                     <style jsx>{`
-                      a:hover > span:first-child {
+                      button:hover > span:first-child {
                         width: 100%;
                         background: linear-gradient(
                           90deg,
@@ -211,15 +221,15 @@ export default function BarraNavegacion() {
                           #ef4444 100%
                         );
                       }
-                      a:hover > span.relative {
+                      button:hover > span.relative {
                         color: #fff !important;
                       }
-                      a:hover > span.relative :global(svg) {
+                      button:hover > span.relative :global(svg) {
                         color: #fff !important;
                         fill: #fff !important;
                       }
                     `}</style>
-                  </a>
+                  </button>
                   <a
                     href={`https://wa.me/${telefonoWhatsapp}`}
                     target="_blank"
@@ -284,7 +294,9 @@ export default function BarraNavegacion() {
               <span className="text-xs text-text-primary font-bold">
                 {puntos}
               </span>
-              <span className="text-xs text-text-primary ml-1 font-bold">pts</span>
+              <span className="text-xs text-text-primary ml-1 font-bold">
+                pts
+              </span>
             </Link>
           )}
 
@@ -341,9 +353,7 @@ export default function BarraNavegacion() {
                   {/* Historial de puntos — solo clientes */}
                   {!esAdmin && (
                     <button
-                      onClick={() =>
-                        navegarConTransicion("/cliente/historial")
-                      }
+                      onClick={() => navegarConTransicion("/cliente/historial")}
                       className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
                     >
                       <History className="w-4 h-4" />
@@ -495,10 +505,9 @@ export default function BarraNavegacion() {
                       }
                     `}</style>
                   </a>
-                  <a
-                    href="mailto:tu_gmail@gmail.com"
-                    className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 relative overflow-hidden"
-                    style={{}}
+                  <button
+                    onClick={copiarMail}
+                    className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 relative overflow-hidden w-full text-left cursor-pointer"
                   >
                     <span
                       className="absolute left-0 top-0 h-full w-0 bg-red-100 z-0 transition-all duration-800"
@@ -509,7 +518,7 @@ export default function BarraNavegacion() {
                       Gmail
                     </span>
                     <style jsx>{`
-                      a:hover > span:first-child {
+                      button:hover > span:first-child {
                         width: 100%;
                         background: linear-gradient(
                           90deg,
@@ -517,15 +526,15 @@ export default function BarraNavegacion() {
                           #ef4444 100%
                         );
                       }
-                      a:hover > span.relative {
+                      button:hover > span.relative {
                         color: #fff !important;
                       }
-                      a:hover > span.relative :global(svg) {
+                      button:hover > span.relative :global(svg) {
                         color: #fff !important;
                         fill: #fff !important;
                       }
                     `}</style>
-                  </a>
+                  </button>
                   <a
                     href={`https://wa.me/${telefonoWhatsapp}`}
                     target="_blank"
@@ -596,9 +605,7 @@ export default function BarraNavegacion() {
                 {/* Historial de puntos — solo clientes (móvil) */}
                 {!esAdmin && (
                   <Boton
-                    onClick={() =>
-                      navegarConTransicion("/cliente/historial")
-                    }
+                    onClick={() => navegarConTransicion("/cliente/historial")}
                     variante="sencillo"
                     className="w-full justify-center mb-2"
                   >
@@ -644,6 +651,20 @@ export default function BarraNavegacion() {
           </div>
         </div>
       )}
+      {/* Toast: Mail copiado */}
+      <AnimatePresence>
+        {mailCopiado && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 20 }}
+            transition={{ duration: 0.25 }}
+            className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[9999] bg-green-600 text-white px-5 py-2.5 rounded-lg shadow-lg text-sm font-medium"
+          >
+            ¡Mail copiado!
+          </motion.div>
+        )}
+      </AnimatePresence>
     </header>
   );
 }
