@@ -659,7 +659,7 @@ export default function BarraNavegacion() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 20 }}
             transition={{ duration: 0.25 }}
-            className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[9999] bg-green-600 text-white px-5 py-2.5 rounded-lg shadow-lg text-sm font-medium"
+            className="fixed bottom-6 left-1/2 -translate-x-1/2 z-9999 bg-green-600 text-white px-5 py-2.5 rounded-lg shadow-lg text-sm font-medium"
           >
             ¡Mail copiado!
           </motion.div>
